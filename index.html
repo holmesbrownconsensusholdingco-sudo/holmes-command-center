@@ -571,6 +571,121 @@
       </div>
     </div>
 
+
+    <!-- ══ SCOUT VIEW ══ -->
+    <div id="scout-view" class="hidden" style="flex:1;display:grid;grid-template-columns:300px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+      <!-- LEFT -->
+      <div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:visible;padding-right:2px;">
+        <!-- Server Status -->
+        <div class="glass float-b">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div id="scout-conn-dot" class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#E85470;box-shadow:0 0 8px #E85470;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#4da8da;letter-spacing:3px;">SERVER STATUS</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">CONNECTION</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#E85470;font-weight:700;" id="scout-conn-val">OFFLINE</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">PHASE</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text);font-weight:700;" id="scout-phase-val">STANDBY</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">TOTAL SCANS</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text);font-weight:700;" id="scout-scans-val">0</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">TOTAL FOUND</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#3cc68a;font-weight:700;" id="scout-found-val">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Config -->
+        <div class="glass float-c">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#4da8da;box-shadow:0 0 8px #4da8da;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#4da8da;letter-spacing:3px;">MISSION CONFIG</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px;">
+              <button id="scout-mode-hunt" onclick="setScoutMode('hunt')" style="padding:7px;border-radius:9px;border:1px solid #4da8da44;border-top:1px solid #4da8da77;background:#4da8da12;font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;letter-spacing:1px;cursor:pointer;">VEHICLE HUNT</button>
+              <button id="scout-mode-rental" onclick="setScoutMode('rental')" style="padding:7px;border-radius:9px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;cursor:pointer;">RENTAL PROFIT</button>
+            </div>
+            <div id="scout-hunt-field">
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">TARGET VEHICLE</label>
+              <input id="scout-target" value="Ram ProMaster 1500" style="width:100%;background:rgba(0,0,0,.35);border:1px solid #1a2840;border-radius:9px;padding:7px 11px;color:var(--text);font-size:12px;margin-bottom:8px;">
+            </div>
+            <div id="scout-rental-field" style="display:none;">
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">VEHICLE CATEGORY</label>
+              <select id="scout-cat" style="width:100%;background:rgba(0,0,0,.35);border:1px solid #1a2840;border-radius:9px;padding:7px 11px;color:var(--text);font-size:11px;margin-bottom:8px;">
+                <option value="economy">Economy Sedan ~$45/day</option>
+                <option value="suv">SUV/Crossover ~$88/day</option>
+                <option value="van" selected>Full-size Van ~$115/day</option>
+                <option value="truck">Pickup Truck ~$92/day</option>
+                <option value="luxury">Luxury ~$195/day</option>
+              </select>
+            </div>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MAX PRICE</label>
+            <input id="scout-price" value="25000" style="width:100%;background:rgba(0,0,0,.35);border:1px solid #1a2840;border-radius:9px;padding:7px 11px;color:var(--text);font-size:12px;margin-bottom:9px;">
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;font-family:'Orbitron',sans-serif;">AUTO-SCAN INTERVAL</label>
+            <div style="display:flex;gap:4px;margin-bottom:9px;" id="scout-sched-btns">
+              <button onclick="setScoutSched('0 * * * *')" data-sched="0 * * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">1H</button>
+              <button onclick="setScoutSched('0 */3 * * *')" data-sched="0 */3 * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">3H</button>
+              <button onclick="setScoutSched('0 */6 * * *')" data-sched="0 */6 * * *" style="flex:1;padding:5px 0;background:#00aaff18;border:1px solid #00aaff44;border-radius:8px;font-size:8px;color:#00aaff;cursor:pointer;font-family:'Orbitron',sans-serif;">6H</button>
+              <button onclick="setScoutSched('0 */12 * * *')" data-sched="0 */12 * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">12H</button>
+              <button onclick="setScoutSched('0 0 * * *')" data-sched="0 0 * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">24H</button>
+            </div>
+            <button onclick="saveScoutConfig()" id="scout-save-btn" style="width:100%;padding:9px;background:rgba(245,168,0,.12);border:1px solid #F5A80044;border-top:1px solid #F5A80077;border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#F5A800;cursor:pointer;">⚙ SAVE CONFIG TO SERVER</button>
+          </div>
+        </div>
+        <!-- Agents -->
+        <div class="glass float-a">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
+              <div class="pulse" id="scout-agents-dot" style="width:5px;height:5px;border-radius:50%;background:var(--muted);"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;" id="scout-agents-lbl">WORKER AGENTS</span>
+            </div>
+            <div id="scout-agents-list"><div style="font-size:10px;color:var(--dim);font-style:italic;">Connecting...</div></div>
+          </div>
+        </div>
+        <!-- Log -->
+        <div class="glass float-d" style="flex:1;min-height:80px;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:13px 15px;display:flex;flex-direction:column;height:100%;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;flex-shrink:0;">
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">SERVER LOG</span>
+              <span style="font-size:8px;color:var(--dim);font-family:'JetBrains Mono',monospace;" id="scout-log-count">0 entries</span>
+            </div>
+            <div id="scout-log" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;"><div style="color:var(--dim);font-size:10px;font-family:'JetBrains Mono',monospace;">Awaiting connection...</div></div>
+          </div>
+        </div>
+      </div>
+      <!-- RIGHT: Findings -->
+      <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:10px 17px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+          <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;" id="scout-feed-lbl">LIVE INTEL FEED</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="scout-live-badge" style="display:none;font-size:9px;color:#F5A800;font-family:'Orbitron',sans-serif;letter-spacing:2px;">● AGENTS LIVE</span>
+            <span style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--dim);" id="scout-count-lbl">0 LISTINGS</span>
+          </div>
+        </div>
+        <div id="scout-findings" style="flex:1;overflow-y:auto;padding:13px 17px;display:flex;flex-direction:column;gap:9px;">
+          <div style="text-align:center;padding:70px 40px;color:var(--dim);" id="scout-empty">
+            <div style="font-size:32px;margin-bottom:12px;opacity:.2;">🚐</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;margin-bottom:7px;">NO FINDINGS YET</div>
+            <div style="font-size:11px;">Hit INITIATE SEARCH or wait for auto-scan</div>
+          </div>
+        </div>
+        <div style="padding:10px 17px;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.2);flex-shrink:0;">
+          <button onclick="triggerScoutScan()" id="scout-scan-btn" style="padding:9px 20px;background:linear-gradient(135deg,#F5A800,#c07500);border:none;border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#000;cursor:pointer;">▶ INITIATE SEARCH</button>
+          <button onclick="sendScoutEmail()" id="scout-email-btn" style="padding:9px 20px;background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;">✉ SEND REPORT</button>
+          <span style="font-size:8px;color:var(--dim);font-family:'JetBrains Mono',monospace;">HHC VEHICLE SCOUT // CONNECTED</span>
+        </div>
+      </div>
+    </div>
+
     <!-- ══ FIELD VIEW ══ -->
     <div id="field-view" class="hidden">
 
