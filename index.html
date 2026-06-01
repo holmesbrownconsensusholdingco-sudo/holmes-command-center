@@ -342,7 +342,7 @@
     border-top: 1px solid rgba(255,255,255,.1);
     background: rgba(255,255,255,.03);
     font-family: 'Orbitron', monospace;
-    font-size: 7.5px; letter-spacing: 1px;
+    font-size: 11px; letter-spacing: 1px;
     display: flex; align-items: center; justify-content: space-between;
     box-shadow: 0 5px 14px rgba(0,0,0,.45);
     transition: all .2s; cursor: pointer;
@@ -403,6 +403,19 @@
     border: 2px solid transparent;
     animation: spin .85s linear infinite;
   }
+
+  /* ── FONT SIZE OVERRIDES ── */
+  .role-btn { font-size: 11px !important; }
+  .agent-btn .agent-label { font-size: 12px !important; }
+  #agent-list .agent-btn { font-size: 11px; }
+  .quick-btn { font-size: 11px !important; letter-spacing: 1px !important; }
+  .footer-agent-btn { font-size: 16px !important; }
+  #user-input { font-size: 14px !important; }
+  #output-text { font-size: 14px !important; }
+  .shimmer { font-size: 16px !important; }
+  .key-card input { font-size: 13px !important; }
+  .status-pill { font-size: 9px !important; }
+
 </style>
 </head>
 <body>
@@ -448,14 +461,14 @@
         </div>
         <div>
           <div class="shimmer" style="font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:4px;">HOLMES HOLDING CO.</div>
-          <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;margin-top:2px;">AI COMMAND CENTER // NJ / NY OPERATIONS</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:2px;">AI COMMAND CENTER // NJ / NY OPERATIONS</div>
         </div>
 
         <div style="width:1px;height:36px;background:linear-gradient(180deg,transparent,rgba(77,168,218,.3),transparent);margin:0 6px;"></div>
 
         <!-- Role Toggle -->
         <div class="role-toggle">
-          <button class="role-btn active" id="btn-exec" onclick="switchRole('exec')">
+          <button class="role-btn active" style="font-size:11px;" id="btn-exec" onclick="switchRole('exec')">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
             EXECUTIVE
           </button>
@@ -473,8 +486,8 @@
 
         <div style="margin-left:auto;display:flex;gap:14px;align-items:center;">
           <div style="text-align:right;">
-            <div style="font-size:7px;color:var(--muted);letter-spacing:2px;font-family:'Orbitron',sans-serif;">OPERATOR</div>
-            <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--blue);margin-top:1px;">JASON BROWN</div>
+            <div style="font-size:9px;color:var(--muted);letter-spacing:2px;font-family:'Orbitron',sans-serif;">OPERATOR</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--blue);margin-top:1px;">JASON BROWN</div>
           </div>
           <div class="glass" style="padding:5px 13px;border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue);letter-spacing:2px;" id="clock">--:--:--</div>
           <button onclick="clearKey()" style="font-size:8px;color:var(--dim);font-family:'Orbitron',sans-serif;letter-spacing:1px;padding:4px 10px;border:1px solid var(--dim);border-radius:6px;transition:.2s;" title="Change API key">KEY ✕</button>
@@ -500,7 +513,7 @@
           <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
               <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);"></div>
-              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--blue);letter-spacing:3px;">QUICK LAUNCH</span>
+              <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--blue);letter-spacing:2px;font-size:10px;">QUICK LAUNCH</span>
             </div>
             <div class="quick-grid" id="quick-grid"></div>
           </div>
@@ -511,7 +524,7 @@
           <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;overflow:hidden;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0;">
               <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--purple);box-shadow:0 0 8px var(--purple);"></div>
-              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--purple);letter-spacing:3px;">ACTIVITY LOG</span>
+              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--purple);letter-spacing:2px;font-size:10px;">ACTIVITY LOG</span>
             </div>
             <div style="flex:1;overflow-y:auto;" id="activity-list"></div>
           </div>
@@ -522,7 +535,7 @@
           <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;overflow:hidden;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0;">
               <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);"></div>
-              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--green);letter-spacing:3px;">9-AGENT ROSTER</span>
+              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--green);letter-spacing:2px;font-size:10px;">9-AGENT ROSTER</span>
             </div>
             <div style="flex:1;overflow-y:auto;" id="roster-list"></div>
           </div>
@@ -535,7 +548,7 @@
 
       <!-- AGENT LIST -->
       <div style="display:flex;flex-direction:column;overflow-y:auto;overflow-x:visible;padding-right:2px;" id="agent-list-col">
-        <div style="font-size:7px;color:var(--muted);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-bottom:6px;padding-left:2px;">SELECT AGENT</div>
+        <div style="font-size:7px;color:var(--muted);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-bottom:6px;padding-left:2px;font-size:10px;font-family:'Orbitron',sans-serif;color:var(--muted);letter-spacing:2px;">SELECT AGENT</div>
         <div id="agent-list"></div>
         <div id="history-col" style="margin-top:8px;"></div>
       </div>
@@ -549,7 +562,7 @@
               <div id="input-dot" style="width:5px;height:5px;border-radius:50%;background:var(--muted);display:none;" class="pulse"></div>
               <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:3px;" id="input-label">// SELECT AGENT TO BEGIN</span>
             </div>
-            <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;">Ctrl+Enter to run</span>
+            <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;" style="font-size:10px;">Ctrl+Enter to run</span>
           </div>
           <textarea id="user-input" placeholder="Type your task — scope notes, email, invoice, intake, video, permit — AI detects the right agent automatically."></textarea>
           <div style="padding:9px 16px;border-top:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.2);">
@@ -557,7 +570,7 @@
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
               CLEAR
             </button>
-            <button class="btn-3d" id="run-btn" onclick="runAgent()" style="padding:8px 24px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:7px;opacity:.55;">
+            <button class="btn-3d" id="run-btn" onclick="runAgent()" style="padding:8px 24px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:7px;opacity:.55;">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               <span id="run-label">RUN AGENT</span>
             </button>
@@ -620,7 +633,7 @@
       <div style="padding:7px 18px;display:flex;align-items:center;gap:7px;">
         <div id="footer-agents" style="display:flex;gap:5px;"></div>
         <div style="width:1px;height:18px;background:var(--dim);margin:0 4px;"></div>
-        <span style="font-size:8px;color:var(--dim);font-family:'Orbitron',sans-serif;letter-spacing:1px;">HHC.AI · COMMAND CENTER · 9 AGENTS · holmesholdingco.com</span>
+        <span style="font-size:8px;color:var(--dim);font-family:'Orbitron',sans-serif;letter-spacing:1px;" style="font-size:10px;">HHC.AI · COMMAND CENTER · 9 AGENTS · holmesholdingco.com</span>
         <div style="margin-left:auto;display:flex;gap:5px;" id="status-pills"></div>
       </div>
     </div>
@@ -753,8 +766,8 @@ function buildKPIs() {
           <span style="font-size:18px;">${k.emoji}</span>
         </div>
         <div class="kpi-value" style="font-size:${k.value.length>5?'15px':'20px'};color:${k.col};text-shadow:0 0 18px ${k.col}55;margin-bottom:4px;">${k.value}</div>
-        <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px;">${k.label}</div>
-        <div style="font-size:8px;color:var(--muted);">${k.sub}</div>
+        <div style="font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;">${k.label}</div>
+        <div style="font-size:10px;color:var(--muted);">${k.sub}</div>
         <div style="margin-top:10px;height:2px;background:linear-gradient(90deg,${k.col}66,${k.col}11);border-radius:1px;"></div>
       </div>
     </div>
@@ -777,8 +790,8 @@ function buildActivityList() {
     <div class="activity-item">
       <div class="activity-dot" style="background:${a.col};box-shadow:0 0 6px ${a.col};"></div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:10px;color:var(--text);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.msg}</div>
-        <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;">${a.time}</div>
+        <div style="font-size:11px;color:var(--text);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.msg}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;">${a.time}</div>
       </div>
     </div>
   `).join("");
@@ -790,8 +803,8 @@ function buildRosterList() {
     <button onclick="launchAgent('${a.id}')" style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:9px;margin-bottom:5px;width:100%;text-align:left;cursor:pointer;transition:all .2s;">
       <div style="width:26px;height:26px;border-radius:7px;background:${a.col}12;border:1px solid ${a.col}28;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">${a.emoji}</div>
       <div style="flex:1;">
-        <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--text);letter-spacing:1px;">${a.label.toUpperCase()}</div>
-        <div style="font-size:8px;color:var(--muted);margin-top:1px;">${a.full}</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text);letter-spacing:1px;">${a.label.toUpperCase()}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px;">${a.full}</div>
       </div>
       <div style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);"></div>
     </button>
@@ -805,8 +818,8 @@ function buildAgentList() {
       <div class="led" style="background:radial-gradient(ellipse,${a.col}22 0%,transparent 70%);bottom:-8px;"></div>
       <div class="agent-icon" id="agent-icon-${a.id}" style="background:rgba(255,255,255,.03);color:var(--muted);font-size:15px;">${a.emoji}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:600;color:var(--text);letter-spacing:1px;" id="agent-label-${a.id}">${a.label.toUpperCase()}</div>
-        <div style="font-size:9px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.full}</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:600;color:var(--text);letter-spacing:1px;" id="agent-label-${a.id}">${a.label.toUpperCase()}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.full}</div>
       </div>
       <svg id="agent-chevron-${a.id}" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
@@ -819,7 +832,7 @@ function buildPreviewGrid() {
     <div class="agent-preview-item ${FLOATS[i%6]}" style="background:${a.col}08;border:1px solid ${a.col}22;border-top:1px solid ${a.col}38;box-shadow:0 8px 22px rgba(0,0,0,.5);" onclick="selectAgent('${a.id}')">
       <div class="led" style="background:radial-gradient(ellipse,${a.col}33 0%,transparent 70%);bottom:-5px;left:20%;right:20%;height:8px;"></div>
       <div style="font-size:16px;filter:drop-shadow(0 0 6px ${a.col});">${a.emoji}</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:7px;color:${a.col};letter-spacing:1px;">${a.label.toUpperCase()}</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:${a.col};letter-spacing:1px;">${a.label.toUpperCase()}</div>
     </div>
   `).join("");
 }
@@ -1021,11 +1034,11 @@ function buildHistory() {
   const col = document.getElementById("history-col");
   if (!history.length) { col.innerHTML = ""; return; }
   col.innerHTML = `
-    <div style="font-size:7px;color:var(--muted);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-bottom:6px;padding-left:2px;">RECENT</div>
+    <div style="font-size:7px;color:var(--muted);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-bottom:6px;padding-left:2px;font-size:10px;font-family:'Orbitron',sans-serif;color:var(--muted);letter-spacing:2px;">RECENT</div>
     ${history.map((h,i) => `
       <div class="history-item" onclick="document.getElementById('output-text').textContent=histories[${i}]" style="border-color:${h.col}22;" onmouseenter="this.style.borderColor='${h.col}44'" onmouseleave="this.style.borderColor='${h.col}22'">
-        <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:${h.col};margin-bottom:2px;">${h.label.toUpperCase()}</div>
-        <div style="font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h.inp}</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:${h.col};margin-bottom:2px;">${h.label.toUpperCase()}</div>
+        <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h.inp}</div>
       </div>
     `).join("")}
   `;
