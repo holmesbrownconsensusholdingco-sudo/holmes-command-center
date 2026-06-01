@@ -417,6 +417,7 @@
   .status-pill { font-size: 9px !important; }
 
 </style>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 <body>
 
@@ -505,6 +506,28 @@
       <!-- KPI ROW -->
       <div class="kpi-grid" id="kpi-grid"></div>
 
+      <!-- CHART ROW -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-shrink:0;height:220px;">
+
+        <!-- 3D REVENUE SURFACE -->
+        <div class="glass float-b" style="position:relative;">
+          <div style="position:absolute;top:10px;left:16px;z-index:2;display:flex;align-items:center;gap:7px;">
+            <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#4da8da;box-shadow:0 0 8px #4da8da;"></div>
+            <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#4da8da;letter-spacing:3px;">REVENUE PIPELINE // 3D</span>
+          </div>
+          <div id="chart-revenue" style="width:100%;height:100%;"></div>
+        </div>
+
+        <!-- 3D CLAIMS SCATTER -->
+        <div class="glass float-c" style="position:relative;">
+          <div style="position:absolute;top:10px;left:16px;z-index:2;display:flex;align-items:center;gap:7px;">
+            <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#f5c842;box-shadow:0 0 8px #f5c842;"></div>
+            <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#f5c842;letter-spacing:3px;">CLAIMS ANALYSIS // 3D</span>
+          </div>
+          <div id="chart-claims" style="width:100%;height:100%;"></div>
+        </div>
+      </div>
+
       <!-- LOWER -->
       <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;overflow:hidden;">
 
@@ -537,7 +560,7 @@
               <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);"></div>
               <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--green);letter-spacing:2px;font-size:10px;">9-AGENT ROSTER</span>
             </div>
-            <div style="flex:1;overflow-y:auto;" id="roster-list"></div>
+            <div style="flex:1;overflow-y:auto;" id="roster-list" style="display:none;"></div><div id="chart-jobs" style="width:100%;flex:1;min-height:0;"></div>
           </div>
         </div>
       </div>
@@ -1084,6 +1107,138 @@ function clearAll() {
   document.getElementById("run-btn").style.cssText = "padding:8px 24px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:7px;opacity:.55;border-radius:10px;border:1px solid rgba(255,255,255,.07);border-top:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.02);";
   document.getElementById("run-label").textContent = "RUN AGENT";
 }
+
+
+/* ══ PLOTLY 3D CHARTS ══════════════════════════════════════ */
+function initCharts() {
+  if (typeof Plotly === 'undefined') {
+    setTimeout(initCharts, 500);
+    return;
+  }
+
+  const FONT = { family: "'Orbitron', sans-serif", color: '#3d5578', size: 9 };
+  const BG   = 'rgba(0,0,0,0)';
+  const AXIS = { gridcolor: 'rgba(255,255,255,.04)', color: '#3d5578', tickfont: FONT, titlefont: FONT, zerolinecolor: 'rgba(255,255,255,.05)' };
+  const SCENE_AXIS = { gridcolor: 'rgba(255,255,255,.06)', color: '#3d5578', tickfont: { family: "'Orbitron',sans-serif", size: 8, color: '#3d5578' }, backgroundcolor: 'rgba(0,0,0,0)', showbackground: false };
+  const CONFIG = { displayModeBar: false, responsive: true };
+
+  /* ── 1. 3D REVENUE SURFACE ── */
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN'];
+  const jobTypes = ['WATER','FIRE','STORM'];
+  const z = [
+    [14200, 19800, 16500, 23400, 21000, 27500],
+    [9800,  13200, 10400, 16200, 13800, 18900],
+    [6100,  8400,  7200,  10800, 9500,  13200],
+  ];
+
+  Plotly.newPlot('chart-revenue', [{
+    type: 'surface',
+    z: z,
+    x: months,
+    y: jobTypes,
+    colorscale: [
+      [0,   '#0a1a38'],
+      [0.2, '#0f305c'],
+      [0.4, '#1c5295'],
+      [0.6, '#2d5cab'],
+      [0.8, '#4da8da'],
+      [1.0, '#00ffcc'],
+    ],
+    opacity: 0.92,
+    contours: {
+      z: { show: true, usecolormap: true, project: { z: true }, width: 1, color: 'rgba(0,255,200,.3)' }
+    },
+    lighting: { ambient: 0.6, diffuse: 0.8, specular: 0.4, roughness: 0.5 },
+    lightposition: { x: 100, y: 200, z: 300 },
+    showscale: false,
+  }], {
+    paper_bgcolor: BG, plot_bgcolor: BG,
+    margin: { l: 0, r: 0, t: 36, b: 0 },
+    scene: {
+      bgcolor: BG,
+      xaxis: { ...SCENE_AXIS, title: '' },
+      yaxis: { ...SCENE_AXIS, title: '' },
+      zaxis: { ...SCENE_AXIS, title: '', tickprefix: '$', tickformat: ',.0f' },
+      camera: { eye: { x: 1.6, y: -1.4, z: 1.1 }, up: { x: 0, y: 0, z: 1 } },
+      aspectratio: { x: 1.4, y: 0.7, z: 0.7 },
+    },
+    font: FONT,
+  }, CONFIG);
+
+  /* ── 2. 3D CLAIMS SCATTER ── */
+  const claimVals   = [8500, 14200, 22000, 6800, 31000, 18500, 9200, 26000, 12400, 7600, 45000, 11200];
+  const claimDays   = [12,   28,    45,    8,    62,    35,    19,   51,    24,    14,   78,    21  ];
+  const claimPri    = [7,    8,     9,     5,    10,    8,     6,    9,     7,     5,    10,    6   ];
+  const claimStatus = ['Water','Fire','Storm','Water','Fire','Storm','Water','Fire','Storm','Water','Fire','Storm'];
+  const claimCols   = claimStatus.map(s => s==='Water'?'#4da8da':s==='Fire'?'#e85470':'#f5c842');
+  const claimSizes  = claimPri.map(p => p * 5 + 10);
+
+  Plotly.newPlot('chart-claims', [{
+    type: 'scatter3d',
+    x: claimVals,
+    y: claimDays,
+    z: claimPri,
+    mode: 'markers+text',
+    marker: {
+      size: claimSizes,
+      color: claimCols,
+      opacity: 0.85,
+      line: { color: 'rgba(255,255,255,.15)', width: 1 },
+    },
+    text: claimStatus,
+    textfont: { family: "'Orbitron',sans-serif", size: 7, color: 'rgba(200,220,255,.5)' },
+    textposition: 'top center',
+    hovertemplate: '<b>$%{x:,.0f}</b><br>%{y} days open<br>Priority: %{z}<extra></extra>',
+  }], {
+    paper_bgcolor: BG, plot_bgcolor: BG,
+    margin: { l: 0, r: 0, t: 36, b: 0 },
+    scene: {
+      bgcolor: BG,
+      xaxis: { ...SCENE_AXIS, title: 'VALUE ($)', titlefont: { size: 7, color: '#3d5578', family: "'Orbitron',sans-serif" } },
+      yaxis: { ...SCENE_AXIS, title: 'DAYS OPEN' },
+      zaxis: { ...SCENE_AXIS, title: 'PRIORITY' },
+      camera: { eye: { x: 1.5, y: -1.2, z: 1.0 } },
+      aspectratio: { x: 1.2, y: 0.8, z: 0.6 },
+    },
+    font: FONT,
+  }, CONFIG);
+
+  /* ── 3. JOB STATUS DONUT ── */
+  Plotly.newPlot('chart-jobs', [{
+    type: 'pie',
+    values: [7, 5, 4, 12, 3],
+    labels: ['ACTIVE', 'IN PROGRESS', 'CLAIMS', 'COMPLETE', 'PENDING'],
+    hole: 0.55,
+    textinfo: 'label+percent',
+    textfont: { family: "'Orbitron',sans-serif", size: 8, color: '#deeaff' },
+    marker: {
+      colors: ['#4da8da','#3cc68a','#f5c842','#7b6fe8','#e85470'],
+      line: { color: 'rgba(0,0,0,.4)', width: 2 }
+    },
+    insidetextorientation: 'radial',
+    pull: [0.04, 0, 0, 0, 0],
+    rotation: -45,
+  }], {
+    paper_bgcolor: BG, plot_bgcolor: BG,
+    margin: { l: 8, r: 8, t: 36, b: 8 },
+    showlegend: false,
+    font: FONT,
+    annotations: [{
+      text: '<b>31</b><br>JOBS',
+      x: 0.5, y: 0.5,
+      font: { family: "'Orbitron',sans-serif", size: 13, color: '#deeaff' },
+      showarrow: false,
+    }]
+  }, CONFIG);
+}
+
+// Init charts after DOM + Plotly load
+if (document.readyState === 'complete') {
+  initCharts();
+} else {
+  window.addEventListener('load', initCharts);
+}
+
 </script>
 </body>
 </html>
