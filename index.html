@@ -1239,6 +1239,270 @@ if (document.readyState === 'complete') {
   window.addEventListener('load', initCharts);
 }
 
+
+
+/* ══ VEHICLE SCOUT ══════════════════════════════════════════ */
+const SCOUT_SERVER = "https://holmes-vehicle-scout.onrender.com";
+const SCOUT_SECRET = "Holmes2025!";
+let scoutPollInt = null;
+let scoutMode = "hunt";
+let scoutSched = "0 */6 * * *";
+const SCOUT_LOG_COLS = {system:"#5050a0",deploy:"#F5A800",success:"#3cc68a",warn:"#FF8C00",error:"#E85470",heal:"#FF6B35",watchdog:"#a040f0",scheduler:"#00aaff"};
+const SCOUT_SC = {idle:"#252545",scanning:"#F5A800",found:"#3cc68a",done:"#3a3a5a",error:"#E85470"};
+
+async function scoutApi(endpoint, method="GET", body=null) {
+  const opts = {method, headers:{"Content-Type":"application/json","x-admin-secret":SCOUT_SECRET}};
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${SCOUT_SERVER}${endpoint}`, opts);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+function calcScoutProfit(priceStr, catId) {
+  const cats = {economy:45,midsize:65,suv:88,minivan:95,van:115,luxury:195,truck:92,sports:155};
+  const daily = cats[catId]; if (!daily) return null;
+  const p = parseInt(String(priceStr||"").replace(/[^0-9]/g,""));
+  if (!p||p<500) return null;
+  const gross=Math.round(daily*30*.65), costs=310+Math.round(p*.025/12)+80, net=gross-costs;
+  const roi=parseFloat(((net*12)/p*100).toFixed(1)), pay=net>0?Math.round(p/net):999;
+  return {daily,gross,costs,net,roi,pay};
+}
+
+function roiColor(roi){return roi>=25?"#3cc68a":roi>=15?"#F5C842":roi>=5?"#FF8C00":"#E85470";}
+
+async function pollScout() {
+  try {
+    const [st, lg, fi] = await Promise.all([
+      scoutApi("/status"), scoutApi("/logs?limit=60"), scoutApi("/findings")
+    ]);
+    const connected = true;
+    const phase = st.phase||"idle";
+    const isLive = phase==="running"||phase==="orchestrating";
+
+    // Status cards
+    document.getElementById("scout-conn-dot").style.cssText = `width:5px;height:5px;border-radius:50%;background:#3cc68a;box-shadow:0 0 8px #3cc68a;`;
+    document.getElementById("scout-conn-val").style.color = "#3cc68a";
+    document.getElementById("scout-conn-val").textContent = "LIVE";
+    document.getElementById("scout-phase-val").textContent = phase.toUpperCase();
+    document.getElementById("scout-phase-val").style.color = isLive?"#F5A800":"var(--text)";
+    document.getElementById("scout-scans-val").textContent = st.totalScans||0;
+    document.getElementById("scout-found-val").textContent = st.totalFound||0;
+
+    // Sync config from server
+    if (st.config) {
+      document.getElementById("scout-target").value = st.config.target||"Ram ProMaster 1500";
+      document.getElementById("scout-price").value  = st.config.maxPrice||"25000";
+      setScoutMode(st.config.mode||"hunt",false);
+    }
+
+    // Agents
+    const agents = st.agents||[];
+    const dot = document.getElementById("scout-agents-dot");
+    const lbl = document.getElementById("scout-agents-lbl");
+    if (isLive) {
+      dot.style.cssText = "width:5px;height:5px;border-radius:50%;background:#F5A800;box-shadow:0 0 8px #F5A800;";
+      lbl.style.color = "#F5A800";
+    }
+    if (agents.length > 0) {
+      document.getElementById("scout-agents-list").innerHTML = agents.map(a=>{
+        const sc = SCOUT_SC[a.status]||SCOUT_SC.idle;
+        return `
+          <div style="border:1px solid ${sc}${a.status!=="idle"?"44":"22"};border-radius:9px;padding:7px 10px;background:${a.status!=="idle"?sc+"0e":"rgba(255,255,255,.01)"};display:flex;align-items:center;gap:8px;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);border-radius:9px 9px 0 0;pointer-events:none;"></div>
+            <div style="width:24px;height:24px;flex-shrink:0;border:1px solid ${sc}44;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:${sc};background:${sc}0a;">${(a.id||"?").slice(0,2)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--text);letter-spacing:1px;">${a.id}</div>
+              <div style="font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.platform}</div>
+            </div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:${sc};">
+              ${a.status==="scanning"?"SCAN":a.status==="found"?a.count+" HIT"+(a.count!==1?"S":""):a.status==="done"?"NONE":a.status==="error"?"FAULT":"STBY"}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Logs
+    const logs = lg.logs||[];
+    document.getElementById("scout-log-count").textContent = `${logs.length} entries`;
+    if (logs.length > 0) {
+      document.getElementById("scout-log").innerHTML = logs.map(l=>`
+        <div style="display:flex;gap:7px;font-size:9px;font-family:'JetBrains Mono',monospace;">
+          <span style="color:#1a2840;flex-shrink:0;">${new Date(l.ts).toLocaleTimeString("en-US",{hour12:false})}</span>
+          <span style="color:${SCOUT_LOG_COLS[l.type]||"#888"}">${l.msg}</span>
+        </div>
+      `).join("");
+      const logEl = document.getElementById("scout-log");
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // Findings
+    const findings = fi.findings||[];
+    const catId = document.getElementById("scout-cat")?.value||"van";
+    document.getElementById("scout-count-lbl").textContent = `${findings.length} LISTING${findings.length!==1?"S":""}`;
+    document.getElementById("scout-count-lbl").style.color = findings.length>0?"#3cc68a":"var(--dim)";
+    document.getElementById("scout-live-badge").style.display = isLive?"block":"none";
+    document.getElementById("scout-feed-lbl").textContent = scoutMode==="rental"?"RENTAL PROFIT INTEL":"LIVE INTEL FEED";
+
+    if (findings.length > 0) {
+      document.getElementById("scout-empty").style.display = "none";
+      const existingCards = document.querySelectorAll(".scout-finding-card").length;
+      if (existingCards !== findings.length) {
+        const container = document.getElementById("scout-findings");
+        container.innerHTML = "";
+        const emptyDiv = document.createElement("div");
+        emptyDiv.id = "scout-empty";
+        emptyDiv.style.display = "none";
+        container.appendChild(emptyDiv);
+        findings.forEach((f,i)=>{
+          const profit = scoutMode==="rental"?calcScoutProfit(f.price,catId):null;
+          const leftCol = profit?roiColor(profit.roi):"#3cc68a";
+          const div = document.createElement("div");
+          div.className = "scout-finding-card";
+          div.style.cssText = `border:1px solid rgba(255,255,255,.06);border-left:3px solid ${leftCol};border-radius:10px;padding:13px 15px;background:rgba(8,16,44,.5);position:relative;backdrop-filter:blur(12px);margin-bottom:0;`;
+          div.innerHTML = `
+            <div style="position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);border-radius:10px 10px 0 0;pointer-events:none;"></div>
+            <div style="position:absolute;top:9px;right:11px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#1a2840;">#${String(i+1).padStart(3,"0")}</div>
+            ${profit?`<div style="position:absolute;top:9px;right:42px;background:${roiColor(profit.roi)}18;border:1px solid ${roiColor(profit.roi)}33;border-radius:8px;padding:2px 7px;display:flex;align-items:center;gap:3px;font-family:'Orbitron',sans-serif;font-size:8px;color:${roiColor(profit.roi)};font-weight:700;">${profit.roi}% ROI</div>`:""}
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;padding-right:${profit?130:40}px;">
+              <div>
+                <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#deeaff;">${f.title||"Vehicle Listing"}</div>
+                <div style="font-size:9px;color:var(--muted);margin-top:2px;">${f.source||"N/A"} · ${f.location||"N/A"}</div>
+              </div>
+              <div style="font-family:'Orbitron',sans-serif;font-weight:700;font-size:17px;color:#3cc68a;flex-shrink:0;">${f.price||"N/A"}</div>
+            </div>
+            <div style="display:flex;gap:14px;margin-bottom:${f.notes||profit?6:0}px;">
+              ${f.mileage?`<div style="font-size:10px;">🔢 <span style="font-family:'JetBrains Mono',monospace;color:var(--text);">${f.mileage}</span></div>`:""}
+              ${f.condition?`<div style="font-size:10px;">⭐ <span style="color:#F5C842;font-weight:600;">${f.condition}</span></div>`:""}
+            </div>
+            ${f.notes?`<div style="font-size:10px;color:#5a5a80;border-top:1px solid rgba(255,255,255,.05);padding-top:6px;margin-top:6px;">${f.notes}</div>`:""}
+            ${profit?`<div style="margin-top:9px;background:#3cc68a08;border:1px solid #3cc68a1a;border-radius:9px;padding:9px 11px;">
+              <div style="font-size:8px;color:#3cc68a;letter-spacing:2px;margin-bottom:7px;font-family:'Orbitron',sans-serif;">📈 RENTAL PROFIT ANALYSIS</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px 10px;">
+                ${[["Daily Rate",`$${profit.daily}/day`,"var(--text)"],["Mo. Gross",`$${profit.gross.toLocaleString()}`,"var(--text)"],["Est. Costs",`-$${profit.costs}`,"#FF8C00"],["Mo. Net",`$${profit.net.toLocaleString()}`,roiColor(profit.roi)],["Annual ROI",`${profit.roi}%`,roiColor(profit.roi)],["Payback",`${profit.pay} mo.`,profit.pay<=18?"#3cc68a":profit.pay<=30?"#F5C842":"#FF8C00"]].map(([l,v,c])=>`
+                  <div>
+                    <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:1px;font-family:'Orbitron',sans-serif;">${l}</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c};font-weight:500;">${v}</div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>`:""}
+            ${f.url&&f.url.startsWith("http")?`<div style="margin-top:8px;"><a href="${f.url}" target="_blank" rel="noopener noreferrer" style="font-size:9px;color:#F5A800;text-decoration:none;letter-spacing:1px;border-bottom:1px solid #F5A80033;padding-bottom:1px;">VIEW LISTING →</a></div>`:""}
+          `;
+          container.appendChild(div);
+        });
+      }
+    }
+
+  } catch(e) {
+    document.getElementById("scout-conn-dot").style.cssText = "width:5px;height:5px;border-radius:50%;background:#E85470;box-shadow:0 0 8px #E85470;";
+    document.getElementById("scout-conn-val").style.color = "#E85470";
+    document.getElementById("scout-conn-val").textContent = "OFFLINE";
+  }
+}
+
+function startScoutPolling() {
+  if (scoutPollInt) clearInterval(scoutPollInt);
+  pollScout();
+  scoutPollInt = setInterval(pollScout, 8000);
+}
+
+function stopScoutPolling() {
+  if (scoutPollInt) { clearInterval(scoutPollInt); scoutPollInt = null; }
+}
+
+function setScoutMode(m, updateServer=false) {
+  scoutMode = m;
+  document.getElementById("scout-hunt-field").style.display   = m==="hunt"?"block":"none";
+  document.getElementById("scout-rental-field").style.display = m==="rental"?"block":"none";
+  const hBtn = document.getElementById("scout-mode-hunt");
+  const rBtn = document.getElementById("scout-mode-rental");
+  hBtn.style.cssText = m==="hunt" ? "padding:7px;border-radius:9px;border:1px solid #4da8da44;border-top:1px solid #4da8da77;background:#4da8da12;font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;" : "padding:7px;border-radius:9px;border:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.02);font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;";
+  rBtn.style.cssText = m==="rental" ? "padding:7px;border-radius:9px;border:1px solid #3cc68a44;border-top:1px solid #3cc68a77;background:#3cc68a12;font-family:'Orbitron',sans-serif;font-size:8px;color:#3cc68a;letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;" : "padding:7px;border-radius:9px;border:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.02);font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;";
+}
+
+function setScoutSched(s) {
+  scoutSched = s;
+  document.querySelectorAll("#scout-sched-btns button").forEach(b=>{
+    const active = b.dataset.sched===s;
+    b.style.cssText = `flex:1;padding:5px 0;background:${active?"#00aaff18":"rgba(255,255,255,.02)"};border:1px solid ${active?"#00aaff44":"#1a2840"};border-top:1px solid ${active?"#00aaff66":"rgba(255,255,255,.07)"};border-radius:8px;font-size:8px;color:${active?"#00aaff":"var(--muted)"};cursor:pointer;font-family:'Orbitron',sans-serif;transition:all .2s;position:relative;overflow:hidden;`;
+  });
+}
+
+async function saveScoutConfig() {
+  const btn = document.getElementById("scout-save-btn");
+  btn.textContent = "● SAVING...";
+  try {
+    await scoutApi("/config","POST",{
+      mode: scoutMode,
+      target: document.getElementById("scout-target").value,
+      category: document.getElementById("scout-cat").value,
+      maxPrice: document.getElementById("scout-price").value,
+      schedule: scoutSched,
+    });
+    btn.textContent = "✓ SAVED TO SERVER";
+    btn.style.color = "#3cc68a";
+    setTimeout(()=>{ btn.textContent="⚙ SAVE CONFIG TO SERVER"; btn.style.color="#F5A800"; },3000);
+    pollScout();
+  } catch(e) {
+    btn.textContent = "⚠ SAVE FAILED";
+    btn.style.color = "#E85470";
+    setTimeout(()=>{ btn.textContent="⚙ SAVE CONFIG TO SERVER"; btn.style.color="#F5A800"; },3000);
+  }
+}
+
+async function triggerScoutScan() {
+  const btn = document.getElementById("scout-scan-btn");
+  btn.textContent = "● TRIGGERING...";
+  btn.style.opacity = ".6";
+  try {
+    await scoutApi("/scan","POST");
+    btn.textContent = "● AGENTS LIVE";
+    setTimeout(()=>{ btn.innerHTML='▶ INITIATE SEARCH'; btn.style.opacity="1"; },3000);
+    setTimeout(pollScout, 1000);
+  } catch(e) {
+    btn.textContent = "⚠ FAILED — RETRY";
+    btn.style.opacity = "1";
+    setTimeout(()=>{ btn.textContent="▶ INITIATE SEARCH"; },3000);
+  }
+}
+
+async function sendScoutEmail() {
+  const btn = document.getElementById("scout-email-btn");
+  btn.textContent = "● SENDING...";
+  try {
+    await scoutApi("/email","POST");
+    btn.textContent = "✓ SENT";
+    btn.style.color = "#3cc68a";
+    btn.style.borderColor = "#3cc68a44";
+    setTimeout(()=>{ btn.textContent="✉ SEND REPORT"; btn.style.color=""; btn.style.borderColor=""; },3000);
+  } catch(e) {
+    btn.textContent = "⚠ FAILED";
+    setTimeout(()=>{ btn.textContent="✉ SEND REPORT"; },3000);
+  }
+}
+
+// Patch switchRole to handle scout tab
+const _origSwitchRole = switchRole;
+switchRole = function(r) {
+  // Handle scout tab
+  document.getElementById("scout-view").classList.toggle("hidden", r!=="scout");
+  document.getElementById("btn-scout").classList.toggle("active", r==="scout");
+  if (r==="scout") {
+    startScoutPolling();
+  } else {
+    stopScoutPolling();
+  }
+  // Handle original roles
+  if (r==="exec"||r==="field") _origSwitchRole(r);
+  else {
+    document.getElementById("exec-view").classList.add("hidden");
+    document.getElementById("field-view").classList.add("hidden");
+    document.getElementById("btn-exec").classList.remove("active");
+    document.getElementById("btn-field").classList.remove("active");
+  }
+};
+
 </script>
 </body>
 </html>
