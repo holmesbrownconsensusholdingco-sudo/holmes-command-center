@@ -776,6 +776,17 @@ function switchRole(r) {
   document.getElementById("field-view").classList.toggle("hidden", r !== "field");
   document.getElementById("btn-exec").classList.toggle("active", r === "exec");
   document.getElementById("btn-field").classList.toggle("active", r === "field");
+
+  // Scout tab
+  const scoutView = document.getElementById("scout-view");
+  const scoutBtn  = document.getElementById("btn-scout");
+  if (scoutView) scoutView.classList.toggle("hidden", r !== "scout");
+  if (scoutBtn)  scoutBtn.classList.toggle("active", r === "scout");
+  if (r === "scout") {
+    if (typeof startScoutPolling === "function") startScoutPolling();
+  } else {
+    if (typeof stopScoutPolling === "function") stopScoutPolling();
+  }
 }
 
 /* ── BUILD KPIs ── */
@@ -1482,26 +1493,7 @@ async function sendScoutEmail() {
   }
 }
 
-// Patch switchRole to handle scout tab
-const _origSwitchRole = switchRole;
-switchRole = function(r) {
-  // Handle scout tab
-  document.getElementById("scout-view").classList.toggle("hidden", r!=="scout");
-  document.getElementById("btn-scout").classList.toggle("active", r==="scout");
-  if (r==="scout") {
-    startScoutPolling();
-  } else {
-    stopScoutPolling();
-  }
-  // Handle original roles
-  if (r==="exec"||r==="field") _origSwitchRole(r);
-  else {
-    document.getElementById("exec-view").classList.add("hidden");
-    document.getElementById("field-view").classList.add("hidden");
-    document.getElementById("btn-exec").classList.remove("active");
-    document.getElementById("btn-field").classList.remove("active");
-  }
-};
+// switchRole handles all 3 tabs above
 
 </script>
 </body>
