@@ -615,8 +615,59 @@
               <button id="scout-mode-rental" onclick="setScoutMode('rental')" style="padding:7px;border-radius:9px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;cursor:pointer;">RENTAL PROFIT</button>
             </div>
             <div id="scout-hunt-field">
-              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">TARGET VEHICLE</label>
-              <input id="scout-target" value="Ram ProMaster 1500" style="width:100%;background:rgba(0,0,0,.35);border:1px solid #1a2840;border-radius:9px;padding:7px 11px;color:var(--text);font-size:12px;margin-bottom:8px;">
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MAKE</label>
+              <select id="scout-make" onchange="updateScoutModels()" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 11px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;margin-bottom:7px;cursor:pointer;">
+                <option value="">-- Select Make --</option>
+                <option value="Ram">Ram</option>
+                <option value="Ford">Ford</option>
+                <option value="Mercedes-Benz">Mercedes-Benz</option>
+                <option value="Chevrolet">Chevrolet</option>
+                <option value="GMC">GMC</option>
+                <option value="Dodge">Dodge</option>
+                <option value="Nissan">Nissan</option>
+                <option value="Toyota">Toyota</option>
+                <option value="Honda">Honda</option>
+                <option value="Sprinter">Sprinter</option>
+                <option value="Transit">Transit</option>
+                <option value="Freightliner">Freightliner</option>
+              </select>
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MODEL</label>
+              <select id="scout-model" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 11px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;margin-bottom:7px;cursor:pointer;">
+                <option value="">-- Select Make First --</option>
+              </select>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">YEAR FROM</label>
+                  <select id="scout-year-from" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;"></select>
+                </div>
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">YEAR TO</label>
+                  <select id="scout-year-to" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;"></select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">CONDITION</label>
+                  <select id="scout-condition" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;">
+                    <option value="any">Any</option>
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
+                    <option value="certified">Certified Pre-Owned</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MAX MILES</label>
+                  <select id="scout-miles" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;">
+                    <option value="any">Any</option>
+                    <option value="25000">25,000</option>
+                    <option value="50000">50,000</option>
+                    <option value="75000">75,000</option>
+                    <option value="100000">100,000</option>
+                    <option value="150000">150,000</option>
+                  </select>
+                </div>
+              </div>
+              <div style="background:rgba(77,168,218,.06);border:1px solid rgba(77,168,218,.15);border-radius:9px;padding:7px 10px;margin-bottom:7px;font-size:9px;color:#4da8da;font-family:'JetBrains Mono',monospace;" id="scout-target-preview">TARGET: Ram ProMaster 1500</div>
             </div>
             <div id="scout-rental-field" style="display:none;">
               <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">VEHICLE CATEGORY</label>
@@ -1566,7 +1617,7 @@ async function saveScoutConfig() {
   try {
     await scoutApi("/config","POST",{
       mode: scoutMode,
-      target: document.getElementById("scout-target").value,
+      target: window._scoutFullTarget || document.getElementById("scout-target-preview")?.textContent?.replace("TARGET: ","") || "Ram ProMaster 1500",
       category: document.getElementById("scout-cat").value,
       maxPrice: document.getElementById("scout-price").value,
       schedule: scoutSched,
@@ -1614,6 +1665,91 @@ async function sendScoutEmail() {
 }
 
 // switchRole handles all 3 tabs above
+
+
+/* ══ VEHICLE SCOUT MAKE/MODEL/YEAR ══════════════════════ */
+const SCOUT_MODELS = {
+  "Ram":           ["ProMaster 1500","ProMaster 2500","ProMaster 3500","ProMaster City","1500","2500","3500"],
+  "Ford":          ["Transit 150","Transit 250","Transit 350","Transit Connect","E-250","E-350","E-450","F-150","F-250","F-350"],
+  "Mercedes-Benz": ["Sprinter 1500","Sprinter 2500","Sprinter 3500","Metris"],
+  "Chevrolet":     ["Express 1500","Express 2500","Express 3500","Colorado","Silverado 1500","Silverado 2500","Silverado 3500"],
+  "GMC":           ["Savana 1500","Savana 2500","Savana 3500","Canyon","Sierra 1500","Sierra 2500","Sierra 3500"],
+  "Dodge":         ["Grand Caravan","Durango","Ram 1500","Ram 2500"],
+  "Nissan":        ["NV200","NV1500","NV2500","NV3500","Frontier","Titan"],
+  "Toyota":        ["HiAce","Proace","Tacoma","Tundra","4Runner"],
+  "Honda":         ["Odyssey","Ridgeline","Pilot","CR-V"],
+  "Sprinter":      ["2500","3500","1500"],
+  "Transit":       ["150","250","350","350 HD"],
+  "Freightliner":  ["Sprinter 2500","Sprinter 3500"],
+};
+
+function updateScoutModels() {
+  const make  = document.getElementById("scout-make")?.value;
+  const mdSel = document.getElementById("scout-model");
+  if (!mdSel) return;
+  const models = SCOUT_MODELS[make] || [];
+  mdSel.innerHTML = models.length
+    ? models.map(m=>`<option value="${m}">${m}</option>`).join("")
+    : '<option value="">-- Select Make First --</option>';
+  updateScoutTargetPreview();
+}
+
+function populateScoutYears() {
+  const curYear = new Date().getFullYear();
+  const fromSel = document.getElementById("scout-year-from");
+  const toSel   = document.getElementById("scout-year-to");
+  if (!fromSel||!toSel) return;
+  let opts = '<option value="any">Any</option>';
+  for (let y = curYear+1; y >= 2000; y--) {
+    opts += `<option value="${y}"${y===2018?' selected':''}>${y}</option>`;
+  }
+  fromSel.innerHTML = opts;
+  let opts2 = '<option value="any">Any</option>';
+  for (let y = curYear+1; y >= 2000; y--) {
+    opts2 += `<option value="${y}"${y===curYear?' selected':''}>${y}</option>`;
+  }
+  toSel.innerHTML = opts2;
+}
+
+function updateScoutTargetPreview() {
+  const make  = document.getElementById("scout-make")?.value||"";
+  const model = document.getElementById("scout-model")?.value||"";
+  const yFrom = document.getElementById("scout-year-from")?.value||"any";
+  const yTo   = document.getElementById("scout-year-to")?.value||"any";
+  const cond  = document.getElementById("scout-condition")?.value||"any";
+  const miles = document.getElementById("scout-miles")?.value||"any";
+
+  const yearStr = yFrom==="any"&&yTo==="any" ? "Any Year" : yFrom===yTo ? yFrom : `${yFrom}–${yTo}`;
+  const condStr = cond==="any" ? "" : ` | ${cond.toUpperCase()}`;
+  const mileStr = miles==="any" ? "" : ` | <${parseInt(miles).toLocaleString()}mi`;
+  const target  = `${make} ${model}`.trim() || "No vehicle selected";
+
+  const prev = document.getElementById("scout-target-preview");
+  if (prev) prev.textContent = `TARGET: ${target} ${yearStr}${condStr}${mileStr}`;
+
+  // Update hidden target for server
+  const hiddenTarget = `${make} ${model} ${yearStr}${condStr}${mileStr}`.trim();
+  window._scoutFullTarget = hiddenTarget || "Ram ProMaster 1500";
+}
+
+// Init year dropdowns and set defaults
+document.addEventListener("DOMContentLoaded", () => {
+  populateScoutYears();
+  // Set Ram ProMaster 1500 as default
+  const makeEl = document.getElementById("scout-make");
+  if (makeEl) {
+    makeEl.value = "Ram";
+    updateScoutModels();
+    const modelEl = document.getElementById("scout-model");
+    if (modelEl) modelEl.value = "ProMaster 1500";
+    updateScoutTargetPreview();
+  }
+  // Add change listeners
+  ["scout-make","scout-model","scout-year-from","scout-year-to","scout-condition","scout-miles"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("change", updateScoutTargetPreview);
+  });
+});
 
 </script>
 </body>
