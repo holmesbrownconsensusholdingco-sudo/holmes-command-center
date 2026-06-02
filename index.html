@@ -620,16 +620,54 @@
                 <option value="">-- Select Make --</option>
                 <option value="Ram">Ram</option>
                 <option value="Ford">Ford</option>
-                <option value="Mercedes-Benz">Mercedes-Benz</option>
                 <option value="Chevrolet">Chevrolet</option>
                 <option value="GMC">GMC</option>
                 <option value="Dodge">Dodge</option>
+                <option value="Jeep">Jeep</option>
+                <option value="Chrysler">Chrysler</option>
+                <option value="Lincoln">Lincoln</option>
+                <option value="Cadillac">Cadillac</option>
+                <option value="Buick">Buick</option>
+                <option value="Pontiac">Pontiac</option>
+                <option value="Saturn">Saturn</option>
+                <option value="Hummer">Hummer</option>
+                <option value="Tesla">Tesla</option>
+                <option value="Rivian">Rivian</option>
+                <option value="Lucid">Lucid</option>
+                <option value="Mercedes-Benz">Mercedes-Benz</option>
                 <option value="Nissan">Nissan</option>
                 <option value="Toyota">Toyota</option>
                 <option value="Honda">Honda</option>
-                <option value="Sprinter">Sprinter</option>
-                <option value="Transit">Transit</option>
                 <option value="Freightliner">Freightliner</option>
+                <option value="Volkswagen">Volkswagen</option>
+                <option value="Hyundai">Hyundai</option>
+                <option value="Kia">Kia</option>
+                <option value="Mazda">Mazda</option>
+                <option value="Subaru">Subaru</option>
+                <option value="Mitsubishi">Mitsubishi</option>
+                <option value="BMW">BMW</option>
+                <option value="Audi">Audi</option>
+                <option value="Porsche">Porsche</option>
+                <option value="Land Rover">Land Rover</option>
+                <option value="Jaguar">Jaguar</option>
+                <option value="Volvo">Volvo</option>
+                <option value="MINI">MINI</option>
+                <option value="Fiat">Fiat</option>
+                <option value="Alfa Romeo">Alfa Romeo</option>
+                <option value="Maserati">Maserati</option>
+                <option value="Ferrari">Ferrari</option>
+                <option value="Lamborghini">Lamborghini</option>
+                <option value="Lexus">Lexus</option>
+                <option value="Acura">Acura</option>
+                <option value="Infiniti">Infiniti</option>
+                <option value="Genesis">Genesis</option>
+                <option value="International">International</option>
+                <option value="Kenworth">Kenworth</option>
+                <option value="Peterbilt">Peterbilt</option>
+                <option value="Isuzu">Isuzu</option>
+                <option value="Hino">Hino</option>
+                <option value="Mack">Mack</option>
+                <option value="Sprinter">Sprinter</option>
               </select>
               <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MODEL</label>
               <select id="scout-model" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 11px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;margin-bottom:7px;cursor:pointer;">
@@ -1669,18 +1707,65 @@ async function sendScoutEmail() {
 
 /* ══ VEHICLE SCOUT MAKE/MODEL/YEAR ══════════════════════ */
 const SCOUT_MODELS = {
-  "Ram":           ["ProMaster 1500","ProMaster 2500","ProMaster 3500","ProMaster City","1500","2500","3500"],
-  "Ford":          ["Transit 150","Transit 250","Transit 350","Transit Connect","E-250","E-350","E-450","F-150","F-250","F-350"],
-  "Mercedes-Benz": ["Sprinter 1500","Sprinter 2500","Sprinter 3500","Metris"],
-  "Chevrolet":     ["Express 1500","Express 2500","Express 3500","Colorado","Silverado 1500","Silverado 2500","Silverado 3500"],
-  "GMC":           ["Savana 1500","Savana 2500","Savana 3500","Canyon","Sierra 1500","Sierra 2500","Sierra 3500"],
-  "Dodge":         ["Grand Caravan","Durango","Ram 1500","Ram 2500"],
-  "Nissan":        ["NV200","NV1500","NV2500","NV3500","Frontier","Titan"],
-  "Toyota":        ["HiAce","Proace","Tacoma","Tundra","4Runner"],
-  "Honda":         ["Odyssey","Ridgeline","Pilot","CR-V"],
-  "Sprinter":      ["2500","3500","1500"],
-  "Transit":       ["150","250","350","350 HD"],
-  "Freightliner":  ["Sprinter 2500","Sprinter 3500"],
+  /* ── AMERICAN ── */
+  "Ram":           ["ProMaster 1500","ProMaster 2500","ProMaster 3500","ProMaster City","1500 Classic","1500","2500","3500","3500 Chassis","4500","5500"],
+  "Ford":          ["Transit 150","Transit 250","Transit 350","Transit 350 HD","Transit Connect","E-150","E-250","E-350","E-450","F-150","F-250","F-350","F-450","F-550","Maverick","Ranger","Explorer","Expedition","Escape","Edge","Bronco","Bronco Sport","EcoSport","Flex","Fusion","Taurus","Mustang","Mustang Mach-E"],
+  "Chevrolet":     ["Express 1500","Express 2500","Express 3500","Silverado 1500","Silverado 2500HD","Silverado 3500HD","Colorado","Avalanche","Blazer","Equinox","Traverse","Tahoe","Suburban","Trailblazer","Trax","Camaro","Corvette","Malibu","Impala","Sonic","Spark","Volt","Bolt EV","Bolt EUV"],
+  "GMC":           ["Savana 1500","Savana 2500","Savana 3500","Sierra 1500","Sierra 2500HD","Sierra 3500HD","Canyon","Terrain","Acadia","Yukon","Yukon XL","Envoy","Jimmy","Safari"],
+  "Dodge":         ["Grand Caravan","Caravan","Durango","Journey","Challenger","Charger","Viper","Neon","Dart","Avenger","Caliber","Nitro","Ram 1500","Ram 2500","Ram 3500"],
+  "Jeep":          ["Wrangler","Wrangler Unlimited","Gladiator","Grand Cherokee","Grand Cherokee L","Grand Cherokee 4xe","Cherokee","Compass","Renegade","Patriot","Commander","Liberty","CJ"],
+  "Chrysler":      ["Pacifica","Pacifica Hybrid","Voyager","300","200","Town & Country","Sebring","PT Cruiser","Crossfire"],
+  "Lincoln":       ["Navigator","Aviator","Corsair","Nautilus","MKC","MKX","MKZ","MKT","MKS","Continental","Town Car","Mark LT"],
+  "Cadillac":      ["Escalade","Escalade ESV","XT4","XT5","XT6","CT4","CT5","CT6","ATS","CTS","XTS","SRX","STS","DTS","Eldorado","DeVille"],
+  "Buick":         ["Enclave","Encore","Encore GX","Envision","Envision Plus","LaCrosse","Regal","Verano","Cascada","Lucerne","Allure","Rendezvous","Terraza","Rainier"],
+  "Pontiac":       ["Grand Prix","Grand Am","G6","G8","Vibe","Torrent","Aztek","Bonneville","Firebird","GTO","Solstice"],
+  "Saturn":        ["Ion","Vue","Outlook","Aura","Sky","Relay"],
+  "Hummer":        ["H1","H2","H3","H3T","EV Pickup","EV SUV"],
+  "Tesla":         ["Model S","Model 3","Model X","Model Y","Cybertruck","Roadster"],
+  "Rivian":        ["R1T","R1S"],
+  "Lucid":         ["Air","Gravity"],
+  /* ── VANS / CARGO ── */
+  "Mercedes-Benz": ["Sprinter 1500","Sprinter 2500","Sprinter 3500","Sprinter 3500XD","Metris","G-Class","GLA","GLB","GLC","GLE","GLS","GLC Coupe","GLE Coupe","AMG GT","C-Class","E-Class","S-Class","A-Class","CLA","CLS","SL","SLC"],
+  "Nissan":        ["NV200","NV1500","NV2500","NV2500 HD","NV3500 HD","Frontier","Titan","Titan XD","Pathfinder","Armada","Murano","Rogue","Rogue Sport","Kicks","Sentra","Altima","Maxima","Leaf","Ariya","370Z","350Z","240SX","Versa"],
+  "Toyota":        ["Sienna","HiAce","Tundra","Tacoma","4Runner","Land Cruiser","FJ Cruiser","Sequoia","Prius","Prius Prime","Prius V","Corolla","Camry","Avalon","Venza","RAV4","RAV4 Prime","Highlander","Highlander Hybrid","C-HR","bZ4X","GR86","Supra","Celica"],
+  "Honda":         ["Odyssey","Ridgeline","Pilot","Passport","CR-V","HR-V","Civic","Accord","Insight","Fit","Jazz","Element","Crosstour","Prologue"],
+  "Freightliner":  ["Sprinter 2500","Sprinter 3500","Sprinter 3500XD","M2 106","MT55","MT45"],
+  "Volkswagen":    ["Transporter","Crafter","Multivan","ID.Buzz","Jetta","Golf","Passat","Tiguan","Atlas","Atlas Cross Sport","Arteon","ID.4","Beetle","CC","Eos","Phaeton","Touareg","GTI","GLI","R32"],
+  "Hyundai":       ["Staria","H-1","Santa Fe","Tucson","Sonata","Elantra","Accent","Venue","Kona","Ioniq","Ioniq 5","Ioniq 6","Palisade","Nexo","Azera","Genesis Coupe","Veloster","Tiburon"],
+  "Kia":           ["Carnival","Sedona","Sorento","Telluride","Sportage","Stinger","K5","Forte","Rio","Soul","Niro","EV6","EV9","Seltos","Stonic"],
+  "Mazda":         ["Mazda3","Mazda6","CX-3","CX-30","CX-5","CX-50","CX-60","CX-70","CX-80","CX-90","MX-5 Miata","MX-30","RX-8","RX-7","B-Series Truck"],
+  "Subaru":        ["Outback","Forester","Crosstrek","Impreza","Legacy","Ascent","BRZ","WRX","STI","Baja","SVX","Tribeca"],
+  "Mitsubishi":    ["Outlander","Outlander PHEV","Eclipse Cross","Galant","Eclipse","Lancer","Lancer Evolution","Mirage","Diamante","Montero","3000GT","Endeavor","Raider"],
+  /* ── EUROPEAN ── */
+  "BMW":           ["X1","X2","X3","X4","X5","X6","X7","2 Series","3 Series","4 Series","5 Series","6 Series","7 Series","8 Series","M2","M3","M4","M5","M8","Z4","i3","i4","i5","i7","iX","iX3","Z3","1 Series","E30","E36","E46","E90","E60"],
+  "Audi":          ["A3","A4","A5","A6","A7","A8","Q3","Q4 e-tron","Q5","Q7","Q8","Q8 e-tron","TT","R8","e-tron","e-tron GT","RS3","RS4","RS5","RS6","RS7","S3","S4","S5","S6","S7","S8","SQ5","SQ7","SQ8","Allroad"],
+  "Volkswagen-VW": ["Jetta","Golf","GTI","Passat","Tiguan","Atlas","Taos","ID.4","Beetle","CC","Arteon","Touareg","Phaeton"],
+  "Porsche":       ["Cayenne","Macan","Panamera","911","718 Boxster","718 Cayman","Taycan","Taycan Cross Turismo"],
+  "Land Rover":    ["Defender","Discovery","Discovery Sport","Range Rover","Range Rover Sport","Range Rover Velar","Range Rover Evoque","Freelander","LR2","LR3","LR4"],
+  "Jaguar":        ["F-Pace","E-Pace","I-Pace","XE","XF","XJ","F-Type","XK","S-Type","X-Type"],
+  "Volvo":         ["XC90","XC60","XC40","V90","V60","S90","S60","C40","EX40","EX90","240","850","S40","S70","V40","V70","C30","C70"],
+  "MINI":          ["Cooper","Cooper Clubman","Cooper Countryman","Cooper Paceman","Cooper Roadster","Cooper Coupe","Convertible"],
+  "Fiat":          ["500","500X","500L","500e","Ducato","Scudo","Doblo","Punto","Bravo","Tipo","Panda","Qubo"],
+  "Alfa Romeo":    ["Giulia","Stelvio","Tonale","4C","8C","GTV","Spider","147","156","159","Brera"],
+  "Maserati":      ["Ghibli","Quattroporte","Levante","GranTurismo","Grecale","MC20"],
+  "Ferrari":       ["488","F8","SF90","Roma","Portofino","812","296","F40","F50","Enzo","LaFerrari","458","430","360","348"],
+  "Lamborghini":   ["Huracan","Urus","Revuelto","Gallardo","Murcielago","Diablo","Countach"],
+  /* ── ASIAN LUXURY ── */
+  "Lexus":         ["LX","GX","RX","RX 350h","NX","NX 450h+","UX","UX 300e","ES","IS","GS","LS","RC","LC","LFA","CT","HS"],
+  "Acura":         ["MDX","RDX","TLX","ILX","NSX","ZDX","RSX","TSX","TL","RL","RDX","CDX","Legend","Integra"],
+  "Infiniti":      ["QX80","QX60","QX55","QX50","QX30","Q50","Q60","Q70","Q45","FX","EX","JX","M","G","I"],
+  "Genesis":       ["GV80","GV70","GV60","G80","G70","G90","GV90","Electrified GV70","Electrified G80"],
+  /* ── TRUCKS / WORK ── */
+  "International": ["MV","CV","HV","LT","LoneStar","ProStar","DuraStar","WorkStar","PayStar"],
+  "Kenworth":      ["T680","T880","W900","T370","T270","T170","K270","K370"],
+  "Peterbilt":     ["389","579","567","520","536","348","220","325","337","330"],
+  "Isuzu":         ["NPR","NQR","NRR","FTR","FVR","FXR","N-Series","F-Series","i-280","i-290","i-370","VehiCROSS","Trooper","Axiom","Amigo","Rodeo"],
+  "Hino":          ["155","195","258","268","338","155h","195h","XL8","XL7","XL6"],
+  "Mitsubishi Fuso":["Canter FE","Canter FG","FE125","FE145","FE160","FE180","FG4X4"],
+  "UD Trucks":     ["Condor","Quon","Croner"],
+  "Mack":          ["Anthem","Pinnacle","Granite","LR","TerraPro","MD Series"],
+  "Volvo Trucks":  ["VNL","VNR","VNX","VAH","VHD","FH","FM","FMX"],
+  "Sprinter":      ["1500","2500","3500","3500XD","All-Wheel Drive","Crew","Cargo","Passenger"],
 };
 
 function updateScoutModels() {
@@ -1700,12 +1785,12 @@ function populateScoutYears() {
   const toSel   = document.getElementById("scout-year-to");
   if (!fromSel||!toSel) return;
   let opts = '<option value="any">Any</option>';
-  for (let y = curYear+1; y >= 2000; y--) {
+  for (let y = curYear+1; y >= 1990; y--) {
     opts += `<option value="${y}"${y===2018?' selected':''}>${y}</option>`;
   }
   fromSel.innerHTML = opts;
   let opts2 = '<option value="any">Any</option>';
-  for (let y = curYear+1; y >= 2000; y--) {
+  for (let y = curYear+1; y >= 1990; y--) {
     opts2 += `<option value="${y}"${y===curYear?' selected':''}>${y}</option>`;
   }
   toSel.innerHTML = opts2;
