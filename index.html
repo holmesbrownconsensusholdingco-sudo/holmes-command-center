@@ -2016,6 +2016,43 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
+/* ── UNIVERSAL CLAUDE PROXY ── */
+async function callClaudeProxy(prompt, maxTokens=1000) {
+  // Try direct Anthropic API first (with browser-access header)
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: maxTokens,
+        messages: [{ role:"user", content:prompt }]
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+    }
+  } catch(e) { /* fall through to proxy */ }
+
+  // Fall back to Field Ops server proxy
+  const res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
+    method: "POST",
+    headers: { "Content-Type":"application/json", "x-admin-secret":"Holmes2025!" },
+    body: JSON.stringify({ systemPrompt:"You are a helpful AI assistant for Holmes Holding Co.", userMessage:prompt, maxTokens })
+  });
+  if (!res.ok) throw new Error("Proxy failed: HTTP "+res.status);
+  const data = await res.json();
+  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+}
+
 /* ══ BATH RENO LEAD COMMAND ══════════════════════════════ */
 let renoLeads      = [];
 let renoCRM        = { new:[], contacted:[], quoted:[], won:[], lost:[] };
@@ -2071,14 +2108,8 @@ For each lead return ONLY valid JSON array with these fields:
 Return ONLY the JSON array, no other text.`;
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
-      body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, messages:[{role:"user",content:prompt}] })
-    });
-    const data = await res.json();
-    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
-    const clean = text.replace(/```json|```/g,"").trim();
+    const res = await callClaudeProxy(prompt, 1000);
+    const clean = res.replace(/```json|```/g,"").trim();
     const leads = JSON.parse(clean);
     renoLeads = leads;
     renderLeads();
@@ -2184,13 +2215,7 @@ Be warm, professional, specific to their project, and include a clear call to ac
 
   document.getElementById("outreach-result").style.display = "none";
   try {
-    const res  = await fetch("https://api.anthropic.com/v1/messages", {
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:prompt}]})
-    });
-    const data = await res.json();
-    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+    const text = await callClaudeProxy(prompt, 500);
 
     let subject="", body=text;
     if (text.startsWith("SUBJECT:")) {
