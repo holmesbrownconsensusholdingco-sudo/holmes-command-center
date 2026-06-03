@@ -1493,7 +1493,10 @@ function roiColor(roi){return roi>=25?"#3cc68a":roi>=15?"#F5C842":roi>=5?"#FF8C0
 async function pollScout() {
   /* ── STATUS (required) ── */
   try {
-    const st = await scoutApi("/status");
+    // Try auth status first, fall back to public root
+    let st;
+    try { st = await scoutApi("/status"); }
+    catch(e) { st = await scoutPublic("/"); }
     const phase  = st.phase||"idle";
     const isLive = phase==="running"||phase==="orchestrating";
 
@@ -1547,7 +1550,7 @@ async function pollScout() {
 
   /* ── LOGS (optional) ── */
   try {
-    const lg = await scoutApi("/logs?limit=80");
+    const lg = await scoutApi("/logs?limit=80&secret="+SCOUT_SECRET);
     const logs = lg.logs||[];
     const LC = {system:"#5050a0",deploy:"#F5A800",success:"#3cc68a",warn:"#FF8C00",error:"#E85470",heal:"#FF6B35",watchdog:"#a040f0",scheduler:"#00aaff"};
     document.getElementById("scout-log-count").textContent = `${logs.length} entries`;
@@ -1564,7 +1567,7 @@ async function pollScout() {
 
   /* ── FINDINGS (optional) ── */
   try {
-    const fi = await scoutApi("/findings");
+    const fi = await scoutApi("/findings?secret="+SCOUT_SECRET);
     const findings = fi.findings||[];
     const catId = document.getElementById("scout-cat")?.value||"van";
     document.getElementById("scout-count-lbl").textContent = `${findings.length} LISTING${findings.length!==1?"S":""}`;
@@ -1637,7 +1640,7 @@ async function saveScoutConfig() {
   const btn = document.getElementById("scout-save-btn");
   btn.textContent = "● SAVING...";
   try {
-    await scoutApi("/config","POST",{
+    await scoutApi("/config?secret="+SCOUT_SECRET,"POST",{
       mode: scoutMode,
       target: window._scoutFullTarget || document.getElementById("scout-target-preview")?.textContent?.replace("TARGET: ","") || "Ram ProMaster 1500",
       category: document.getElementById("scout-cat").value,
@@ -1660,7 +1663,7 @@ async function triggerScoutScan() {
   btn.textContent = "● TRIGGERING...";
   btn.style.opacity = ".6";
   try {
-    await scoutApi("/scan","POST");
+    await scoutApi("/scan?secret="+SCOUT_SECRET,"POST");
     btn.textContent = "● AGENTS LIVE";
     setTimeout(()=>{ btn.innerHTML='▶ INITIATE SEARCH'; btn.style.opacity="1"; },3000);
     setTimeout(pollScout, 1000);
@@ -1675,7 +1678,7 @@ async function sendScoutEmail() {
   const btn = document.getElementById("scout-email-btn");
   btn.textContent = "● SENDING...";
   try {
-    await scoutApi("/email","POST");
+    await scoutApi("/email?secret="+SCOUT_SECRET,"POST");
     btn.textContent = "✓ SENT";
     btn.style.color = "#3cc68a";
     btn.style.borderColor = "#3cc68a44";
