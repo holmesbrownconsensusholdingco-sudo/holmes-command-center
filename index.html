@@ -482,6 +482,10 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             VEHICLE SCOUT
           </button>
+          <button class="role-btn" id="btn-reno" onclick="switchRole('reno')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            BATH RENO
+          </button>
         </div>
 
         <!-- Active agent indicator -->
@@ -775,6 +779,188 @@
       </div>
     </div>
 
+
+    <!-- ══ BATH RENO VIEW ══ -->
+    <div id="reno-view" class="hidden" style="flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+
+      <!-- LEFT: Config + Stats -->
+      <div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:visible;padding-right:2px;">
+
+        <!-- Search Config -->
+        <div class="glass float-b">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#e8854d;box-shadow:0 0 8px #e8854d;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#e8854d;letter-spacing:3px;">LEAD SCANNER CONFIG</span>
+            </div>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">NJ COUNTY / CITY</label>
+            <select id="reno-location" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:8px;appearance:none;">
+              <option>All NJ</option>
+              <option>Essex County</option>
+              <option>Bergen County</option>
+              <option>Passaic County</option>
+              <option>Hudson County</option>
+              <option>Morris County</option>
+              <option>Union County</option>
+              <option>Middlesex County</option>
+              <option>Monmouth County</option>
+              <option>Newark</option>
+              <option>Jersey City</option>
+              <option>Paterson</option>
+              <option>Elizabeth</option>
+              <option>Wayne</option>
+              <option>Clifton</option>
+              <option>Hackensack</option>
+            </select>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">JOB TYPE</label>
+            <select id="reno-type" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:8px;appearance:none;">
+              <option>Full Bathroom Renovation</option>
+              <option>Shower / Tub Replacement</option>
+              <option>Tile Work</option>
+              <option>Vanity & Fixtures</option>
+              <option>Water Damage Bathroom</option>
+              <option>Mold Remediation Bathroom</option>
+              <option>ADA Accessible Conversion</option>
+              <option>Master Bath Remodel</option>
+            </select>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">BUDGET RANGE</label>
+            <select id="reno-budget" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:9px;appearance:none;">
+              <option>$5K – $15K</option>
+              <option>$15K – $30K</option>
+              <option>$30K – $60K</option>
+              <option>$60K+</option>
+              <option>Any Budget</option>
+            </select>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">LEAD SOURCES</label>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-google" checked style="accent-color:#e8854d;"> Google</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-nextdoor" checked style="accent-color:#e8854d;"> Nextdoor</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-craigslist" checked style="accent-color:#e8854d;"> Craigslist</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-reddit" checked style="accent-color:#e8854d;"> Reddit</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-facebook" checked style="accent-color:#e8854d;"> Facebook</label>
+            </div>
+            <button onclick="scanRenoLeads()" id="reno-scan-btn" style="width:100%;padding:9px;background:linear-gradient(165deg,rgba(232,133,77,.25),rgba(232,133,77,.08),rgba(0,0,0,.4));border:1px solid rgba(232,133,77,.44);border-top:1px solid rgba(232,133,77,.77);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#e8854d;text-shadow:0 0 12px #e8854d;cursor:pointer;position:relative;overflow:hidden;">
+              <div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.07),transparent);border-radius:10px 10px 0 0;pointer-events:none;"></div>
+              🔍 SCAN FOR LEADS
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="glass float-c">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#3cc68a;box-shadow:0 0 8px #3cc68a;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#3cc68a;letter-spacing:3px;">PIPELINE STATS</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#e8854d;" id="stat-leads">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">LEADS</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#4da8da;" id="stat-contacted">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">CONTACTED</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#f5c842;" id="stat-quoted">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">QUOTED</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#3cc68a;" id="stat-won">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">WON</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;padding:8px 10px;background:rgba(60,198,138,.06);border:1px solid rgba(60,198,138,.15);border-radius:8px;text-align:center;">
+              <div style="font-size:8px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-bottom:2px;">EST. PIPELINE VALUE</div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#3cc68a;" id="stat-value">$0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hot Lead Alert -->
+        <div class="glass float-a" id="hot-lead-box" style="display:none;">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+              <div class="pulse" style="width:5px;height:5px;border-radius:50%;background:#e85470;box-shadow:0 0 8px #e85470;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#e85470;letter-spacing:3px;">🔥 HOT LEAD</span>
+            </div>
+            <div style="font-size:11px;color:var(--text);line-height:1.6;" id="hot-lead-content"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Leads + Outreach + CRM -->
+      <div style="display:flex;flex-direction:column;overflow:hidden;">
+
+        <!-- Sub-tabs -->
+        <div style="display:flex;gap:0;background:rgba(0,0,0,.4);border:1px solid var(--dim);border-radius:11px;padding:3px;margin-bottom:10px;flex-shrink:0;width:fit-content;">
+          <button id="reno-tab-leads" onclick="switchRenoTab('leads')" style="padding:6px 16px;border-radius:9px;border:1px solid rgba(232,133,77,.4);border-top:1px solid rgba(232,133,77,.7);background:rgba(232,133,77,.12);font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:#e8854d;cursor:pointer;">LEADS</button>
+          <button id="reno-tab-outreach" onclick="switchRenoTab('outreach')" style="padding:6px 16px;border-radius:9px;border:1px solid transparent;background:transparent;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;">OUTREACH</button>
+          <button id="reno-tab-crm" onclick="switchRenoTab('crm')" style="padding:6px 16px;border-radius:9px;border:1px solid transparent;background:transparent;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;">CRM PIPELINE</button>
+        </div>
+
+        <!-- LEADS TAB -->
+        <div id="reno-leads-view" class="glass float-c" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">DISCOVERED LEADS</span>
+            <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#e8854d;" id="reno-lead-count">0 LEADS</span>
+          </div>
+          <div id="reno-leads-list" style="flex:1;overflow-y:auto;padding:12px;">
+            <div style="text-align:center;padding:60px 20px;color:var(--dim);">
+              <div style="font-size:28px;margin-bottom:10px;opacity:.3;">🏠</div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;margin-bottom:6px;">NO LEADS YET</div>
+              <div style="font-size:11px;">Configure your search and click SCAN FOR LEADS</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OUTREACH TAB -->
+        <div id="reno-outreach-view" class="glass float-b hidden" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;">
+            <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">AI OUTREACH GENERATOR</span>
+          </div>
+          <div style="padding:12px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px;">
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:6px;font-family:'Orbitron',sans-serif;">SELECT LEAD TO CONTACT</label>
+              <select id="outreach-lead-select" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:8px;appearance:none;">
+                <option>-- Scan for leads first --</option>
+              </select>
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:6px;font-family:'Orbitron',sans-serif;">OUTREACH CHANNEL</label>
+              <div style="display:flex;gap:5px;margin-bottom:8px;">
+                <button onclick="setOutreachChannel('email')" id="ch-email" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(77,168,218,.4);background:rgba(77,168,218,.12);font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;cursor:pointer;">✉ EMAIL</button>
+                <button onclick="setOutreachChannel('text')" id="ch-text" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;">💬 TEXT</button>
+                <button onclick="setOutreachChannel('dm')" id="ch-dm" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;">📱 DM</button>
+              </div>
+              <button onclick="generateOutreach()" style="width:100%;padding:8px;background:linear-gradient(165deg,rgba(77,168,218,.2),rgba(77,168,218,.06),rgba(0,0,0,.3));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#4da8da;cursor:pointer;">⚡ GENERATE OUTREACH</button>
+            </div>
+            <div id="outreach-result" style="display:none;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#4da8da;letter-spacing:2px;">GENERATED MESSAGE</span>
+                <button onclick="copyOutreach()" style="padding:4px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;" id="outreach-copy-btn">COPY</button>
+              </div>
+              <div id="outreach-subject" style="font-size:11px;color:#f5c842;font-weight:600;margin-bottom:8px;"></div>
+              <pre id="outreach-text" style="font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.7;"></pre>
+              <div style="margin-top:10px;display:flex;gap:8px;">
+                <button onclick="sendToGmail()" style="padding:7px 14px;background:rgba(60,198,138,.12);border:1px solid rgba(60,198,138,.4);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:8px;color:#3cc68a;cursor:pointer;letter-spacing:1px;">📧 SEND VIA GMAIL</button>
+                <button onclick="markLeadContacted()" style="padding:7px 14px;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.3);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:8px;color:#f5c842;cursor:pointer;letter-spacing:1px;">✓ MARK CONTACTED</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CRM TAB -->
+        <div id="reno-crm-view" class="glass float-a hidden" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;">
+            <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">LEAD PIPELINE — CRM</span>
+          </div>
+          <div style="flex:1;overflow-x:auto;overflow-y:hidden;padding:12px;display:flex;gap:10px;" id="reno-crm-board">
+            <!-- Kanban columns generated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ══ FIELD VIEW ══ -->
     <div id="field-view" class="hidden">
 
@@ -996,6 +1182,12 @@ function switchRole(r) {
   } else {
     if (typeof stopScoutPolling === "function") stopScoutPolling();
   }
+
+  // Reno tab
+  const renoView = document.getElementById("reno-view");
+  const renoBtn  = document.getElementById("btn-reno");
+  if (renoView) renoView.classList.toggle("hidden", r !== "reno");
+  if (renoBtn)  renoBtn.classList.toggle("active", r === "reno");
 }
 
 /* ── BUILD KPIs ── */
@@ -1822,6 +2014,283 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.addEventListener("change", updateScoutTargetPreview);
   });
 });
+
+
+/* ══ BATH RENO LEAD COMMAND ══════════════════════════════ */
+let renoLeads      = [];
+let renoCRM        = { new:[], contacted:[], quoted:[], won:[], lost:[] };
+let selectedLead   = null;
+let outreachChannel= "email";
+let renoScanning   = false;
+
+/* ── SWITCH RENO SUB-TAB ── */
+function switchRenoTab(tab) {
+  ["leads","outreach","crm"].forEach(t => {
+    const view = document.getElementById(`reno-${t}-view`);
+    const btn  = document.getElementById(`reno-tab-${t}`);
+    if (!view||!btn) return;
+    const active = t===tab;
+    view.classList.toggle("hidden", !active);
+    btn.style.cssText = active
+      ? "padding:6px 16px;border-radius:9px;border:1px solid rgba(232,133,77,.4);border-top:1px solid rgba(232,133,77,.7);background:rgba(232,133,77,.12);font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:#e8854d;cursor:pointer;"
+      : "padding:6px 16px;border-radius:9px;border:1px solid transparent;background:transparent;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;";
+  });
+  if (tab==="crm") renderCRMBoard();
+}
+
+/* ── SCAN FOR LEADS ── */
+async function scanRenoLeads() {
+  if (renoScanning || !apiKey) return;
+  renoScanning = true;
+  const btn = document.getElementById("reno-scan-btn");
+  btn.textContent = "⏳ SCANNING...";
+  btn.style.opacity = ".6";
+
+  const location = document.getElementById("reno-location").value;
+  const jobType  = document.getElementById("reno-type").value;
+  const budget   = document.getElementById("reno-budget").value;
+  const sources  = ["google","nextdoor","craigslist","reddit","facebook"].filter(s => document.getElementById("src-"+s)?.checked).join(", ");
+
+  const prompt = `You are a lead generation AI for Holmes Holding Co., a property restoration and renovation company in NJ/NY (862-245-1318, holmesholdingco.com, Wayne NJ).
+
+Generate 8 realistic ${jobType} leads in ${location}, NJ for budget ${budget}.
+
+For each lead return ONLY valid JSON array with these fields:
+- name: full name
+- phone: NJ phone number
+- email: email address  
+- address: specific NJ street address with city
+- jobType: "${jobType}"
+- budget: specific dollar amount in range ${budget}
+- urgency: "hot" or "warm" or "cool"
+- score: number 1-100
+- source: one of: ${sources}
+- notes: 1-2 sentences about their specific situation
+- postedDate: recent date
+
+Return ONLY the JSON array, no other text.`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
+      body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, messages:[{role:"user",content:prompt}] })
+    });
+    const data = await res.json();
+    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+    const clean = text.replace(/```json|```/g,"").trim();
+    const leads = JSON.parse(clean);
+    renoLeads = leads;
+    renderLeads();
+    updateRenoStats();
+    populateOutreachSelect();
+    // Show hot lead alert
+    const hot = leads.find(l=>l.urgency==="hot");
+    if (hot) {
+      document.getElementById("hot-lead-box").style.display = "block";
+      document.getElementById("hot-lead-content").innerHTML = `<b style="color:#e85470;">${hot.name}</b> — ${hot.jobType}<br>${hot.address}<br><b style="color:#f5c842;">${hot.budget}</b> budget · ${hot.notes}`;
+    }
+  } catch(e) {
+    alert("Scan failed: " + e.message);
+  }
+
+  btn.textContent = "🔍 SCAN FOR LEADS";
+  btn.style.opacity = "1";
+  renoScanning = false;
+}
+
+/* ── RENDER LEADS ── */
+function renderLeads() {
+  const container = document.getElementById("reno-leads-list");
+  const countEl   = document.getElementById("reno-lead-count");
+  countEl.textContent = `${renoLeads.length} LEADS`;
+  if (!renoLeads.length) return;
+
+  const urgColor = {hot:"#e85470", warm:"#f5c842", cool:"#4da8da"};
+  container.innerHTML = renoLeads
+    .sort((a,b)=>b.score-a.score)
+    .map((l,i)=>`
+      <div style="border:1px solid rgba(255,255,255,.06);border-left:3px solid ${urgColor[l.urgency]||"#4da8da"};border-radius:10px;padding:12px 14px;background:rgba(8,16,44,.5);margin-bottom:8px;position:relative;">
+        <div style="position:absolute;top:9px;right:11px;background:${urgColor[l.urgency]}22;border:1px solid ${urgColor[l.urgency]}44;border-radius:8px;padding:2px 8px;font-family:'Orbitron',sans-serif;font-size:8px;color:${urgColor[l.urgency]};">${(l.urgency||"").toUpperCase()} · ${l.score}/100</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;padding-right:90px;">
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#deeaff;">${l.name}</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;">${l.address} · ${l.source}</div>
+          </div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:#3cc68a;flex-shrink:0;">${l.budget}</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;">${l.notes}</div>
+        <div style="display:flex;gap:7px;">
+          <span style="font-size:9px;color:#4da8da;">📞 ${l.phone}</span>
+          <span style="font-size:9px;color:#4da8da;">✉ ${l.email}</span>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px;">
+          <button onclick="selectLeadForOutreach(${i})" style="padding:5px 10px;background:rgba(232,133,77,.1);border:1px solid rgba(232,133,77,.3);border-radius:7px;font-family:'Orbitron',sans-serif;font-size:8px;color:#e8854d;cursor:pointer;letter-spacing:1px;">OUTREACH →</button>
+          <button onclick="addToCRM(${i},'new')" style="padding:5px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:7px;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;letter-spacing:1px;">+ CRM</button>
+        </div>
+      </div>
+    `).join("");
+}
+
+/* ── OUTREACH ── */
+function selectLeadForOutreach(i) {
+  selectedLead = renoLeads[i];
+  switchRenoTab("outreach");
+  switchRole("reno");
+  const sel = document.getElementById("outreach-lead-select");
+  if (sel) sel.value = selectedLead.name;
+}
+
+function populateOutreachSelect() {
+  const sel = document.getElementById("outreach-lead-select");
+  if (!sel) return;
+  sel.innerHTML = renoLeads.map(l=>`<option value="${l.name}">${l.name} — ${l.jobType}</option>`).join("");
+}
+
+function setOutreachChannel(ch) {
+  outreachChannel = ch;
+  ["email","text","dm"].forEach(c => {
+    const btn = document.getElementById("ch-"+c);
+    if (!btn) return;
+    btn.style.cssText = c===ch
+      ? "flex:1;padding:6px;border-radius:8px;border:1px solid rgba(77,168,218,.4);background:rgba(77,168,218,.12);font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;cursor:pointer;"
+      : "flex:1;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;";
+  });
+}
+
+async function generateOutreach() {
+  const selName = document.getElementById("outreach-lead-select")?.value;
+  const lead    = renoLeads.find(l=>l.name===selName) || selectedLead || renoLeads[0];
+  if (!lead||!apiKey) return;
+
+  const channelInstr = outreachChannel==="email"
+    ? "Write a professional email with a subject line. Format: SUBJECT: [subject]\n\n[body]"
+    : outreachChannel==="text"
+    ? "Write a short professional SMS text message (under 160 chars)"
+    : "Write a friendly social media DM message (under 300 chars)";
+
+  const prompt = `You are writing outreach for Holmes Holding Co., a licensed property restoration and renovation company in Wayne, NJ. Phone: 862-245-1318. Website: holmesholdingco.com.
+
+Lead info:
+- Name: ${lead.name}
+- Job: ${lead.jobType}
+- Budget: ${lead.budget}
+- Location: ${lead.address}
+- Notes: ${lead.notes}
+
+${channelInstr}
+
+Be warm, professional, specific to their project, and include a clear call to action. Sign from Jason Brown, Holmes Holding Co.`;
+
+  document.getElementById("outreach-result").style.display = "none";
+  try {
+    const res  = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:prompt}]})
+    });
+    const data = await res.json();
+    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+
+    let subject="", body=text;
+    if (text.startsWith("SUBJECT:")) {
+      const lines = text.split("\n");
+      subject = lines[0].replace("SUBJECT:","").trim();
+      body    = lines.slice(2).join("\n").trim();
+    }
+
+    document.getElementById("outreach-subject").textContent = subject ? "SUBJECT: "+subject : "";
+    document.getElementById("outreach-text").textContent    = body;
+    document.getElementById("outreach-result").style.display = "block";
+    window._outreachFull = {subject, body, lead};
+  } catch(e) { alert("Generation failed: "+e.message); }
+}
+
+function copyOutreach() {
+  if (!window._outreachFull) return;
+  const {subject, body} = window._outreachFull;
+  navigator.clipboard.writeText((subject?"Subject: "+subject+"\n\n":"")+body).then(()=>{
+    document.getElementById("outreach-copy-btn").textContent = "✓ COPIED";
+    setTimeout(()=>{ document.getElementById("outreach-copy-btn").textContent = "COPY"; },2000);
+  });
+}
+
+function sendToGmail() {
+  if (!window._outreachFull) return;
+  const {subject, body, lead} = window._outreachFull;
+  const url = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(lead.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(url, "_blank");
+  markLeadContacted();
+}
+
+function markLeadContacted() {
+  if (!window._outreachFull) return;
+  addToCRM(renoLeads.indexOf(window._outreachFull.lead), "contacted");
+  updateRenoStats();
+}
+
+/* ── CRM ── */
+function addToCRM(i, stage) {
+  const lead = renoLeads[i];
+  if (!lead) return;
+  // Remove from other stages
+  Object.keys(renoCRM).forEach(s => {
+    renoCRM[s] = renoCRM[s].filter(l=>l.name!==lead.name);
+  });
+  renoCRM[stage].push({...lead, addedAt: new Date().toLocaleString(), stage});
+  updateRenoStats();
+  renderCRMBoard();
+}
+
+function updateRenoStats() {
+  document.getElementById("stat-leads").textContent     = renoLeads.length;
+  document.getElementById("stat-contacted").textContent = renoCRM.contacted.length + renoCRM.quoted.length;
+  document.getElementById("stat-quoted").textContent    = renoCRM.quoted.length;
+  document.getElementById("stat-won").textContent       = renoCRM.won.length;
+  const totalVal = [...renoCRM.quoted,...renoCRM.won].reduce((sum,l)=>sum+parseInt(String(l.budget||"0").replace(/[^0-9]/g,"")||0),0);
+  document.getElementById("stat-value").textContent = "$"+totalVal.toLocaleString();
+}
+
+function renderCRMBoard() {
+  const board = document.getElementById("reno-crm-board");
+  if (!board) return;
+  const cols = [
+    {id:"new",      label:"NEW LEADS",   col:"#4da8da"},
+    {id:"contacted",label:"CONTACTED",   col:"#f5c842"},
+    {id:"quoted",   label:"QUOTED",      col:"#e8854d"},
+    {id:"won",      label:"WON ✓",       col:"#3cc68a"},
+    {id:"lost",     label:"LOST",        col:"#e85470"},
+  ];
+  board.innerHTML = cols.map(col=>`
+    <div style="flex-shrink:0;width:190px;display:flex;flex-direction:column;gap:6px;">
+      <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:${col.col};letter-spacing:2px;padding:6px 10px;background:${col.col}12;border:1px solid ${col.col}33;border-radius:8px;text-align:center;margin-bottom:2px;">${col.label} (${renoCRM[col.id].length})</div>
+      ${renoCRM[col.id].map(l=>`
+        <div style="background:rgba(8,16,44,.6);border:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 10px;">
+          <div style="font-size:11px;font-weight:600;color:#deeaff;margin-bottom:3px;">${l.name}</div>
+          <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">${l.jobType}</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;margin-bottom:6px;">${l.budget}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            ${cols.filter(c=>c.id!==col.id&&c.id!=="new").map(nc=>`
+              <button onclick="moveCRM('${l.name}','${nc.id}')" style="padding:3px 7px;background:${nc.col}10;border:1px solid ${nc.col}30;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:7px;color:${nc.col};cursor:pointer;">${nc.label.replace(" ✓","")}</button>
+            `).join("")}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+}
+
+function moveCRM(name, stage) {
+  Object.keys(renoCRM).forEach(s => {
+    const lead = renoCRM[s].find(l=>l.name===name);
+    if (lead) {
+      renoCRM[s] = renoCRM[s].filter(l=>l.name!==name);
+      renoCRM[stage].push({...lead, stage});
+    }
+  });
+  updateRenoStats();
+  renderCRMBoard();
+}
 
 </script>
 </body>
