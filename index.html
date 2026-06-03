@@ -2076,6 +2076,14 @@ function switchRenoTab(tab) {
 }
 
 /* ── SCAN FOR LEADS ── */
+async function generateAILeads(location, budget, jobType) {
+  const p = "Generate 5 bathroom reno leads in " + location + " NJ. Budget:" + budget + " Job:" + jobType + ". Return ONLY JSON array. Fields: name,phone,email,address,jobType,budget,urgency,score,source,notes. No markdown, no extra text.";
+  const raw = await callClaudeProxy(p, 1500);
+  const s = raw.indexOf("["), e = raw.lastIndexOf("]") + 1;
+  if (s < 0 || e <= s) throw new Error("No JSON in response");
+  return JSON.parse(raw.slice(s, e));
+}
+
 async function scanRenoLeads() {
   if (renoScanning || !apiKey) return;
   renoScanning = true;
