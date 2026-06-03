@@ -2080,28 +2080,44 @@ async function scanRenoLeads() {
   if (renoScanning || !apiKey) return;
   renoScanning = true;
   const btn = document.getElementById("reno-scan-btn");
-  btn.textContent = "⏳ SCANNING...";
+  btn.textContent = "⏳ SCANNING REAL SOURCES...";
   btn.style.opacity = ".6";
 
   const location = document.getElementById("reno-location").value;
   const jobType  = document.getElementById("reno-type").value;
   const budget   = document.getElementById("reno-budget").value;
-  const sources  = ["google","nextdoor","craigslist","reddit","facebook"].filter(s => document.getElementById("src-"+s)?.checked).join(", ");
 
-  const prompt = `Generate 5 realistic bathroom renovation leads in ${location}, NJ. Budget range: ${budget}. Job type: ${jobType}.
+  let leads = [];
 
-Return ONLY a JSON array. No markdown, no explanation. Each object must have exactly these fields:
-{"name":"Full Name","phone":"201-555-0000","email":"name@email.com","address":"123 Main St, Newark NJ","jobType":"${jobType}","budget":"$20,000","urgency":"hot","score":85,"source":"Google","notes":"Brief note about project."}
-
-Return exactly 5 leads as a valid JSON array.`;
-
+  // Try real scraper first
   try {
-    const raw   = await callClaudeProxy(prompt, 1500);
-    const start = raw.indexOf("[");
-    const end   = raw.lastIndexOf("]") + 1;
-    if (start < 0 || end <= start) throw new Error("No JSON array found in response");
-    const clean = raw.slice(start, end);
-    const leads = JSON.parse(clean);
+    const params = new URLSearchParams({ location, jobType, secret:"Holmes2025!" });
+    const res    = await fetch(`https://holmes-field-ops.onrender.com/api/scan-leads?${params}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.leads && data.leads.length > 0) {
+        leads = data.leads;
+        console.log("Real leads found:", leads.length);
+      }
+    }
+  } catch(e) { console.log("Real scraper unavailable:", e.message); }
+
+  // If no real leads, fall back to AI-generated
+  if (leads.length === 0) {
+    btn.textContent = "⏳ GENERATING AI LEADS...";
+    const prompt = `Generate 5 realistic bathroom renovation leads in ${location}, NJ. Budget range: ${budget}. Job type: ${jobType}.
+Return ONLY a JSON array. No markdown. Each object:
+{"name":"Full Name","phone":"201-555-0000","email":"name@email.com","address":"123 Main St, Newark NJ","jobType":"${jobType}","budget":"$20,000","urgency":"hot","score":85,"source":"Google","notes":"Brief note."}
+Return exactly 5 leads as a valid JSON array.`;
+    try {
+      const raw   = await callClaudeProxy(prompt, 1500);
+      const start = raw.indexOf("[");
+      const end   = raw.lastIndexOf("]") + 1;
+      if (start < 0 || end <= start) throw new Error("No JSON array found");
+      const clean = raw.slice(start, end);
+      leads = JSON.parse(clean);
+    } catch(e) { throw new Error("Both real scan and AI fallback failed: " + e.message); }
+  }
     renoLeads = leads;
     renderLeads();
     updateRenoStats();
