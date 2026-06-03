@@ -1491,134 +1491,118 @@ function calcScoutProfit(priceStr, catId) {
 function roiColor(roi){return roi>=25?"#3cc68a":roi>=15?"#F5C842":roi>=5?"#FF8C00":"#E85470";}
 
 async function pollScout() {
+  /* ── STATUS (required) ── */
   try {
-    const [st, lg, fi] = await Promise.all([
-      scoutApi("/status"), scoutApi("/logs?limit=60"), scoutApi("/findings")
-    ]);
-    const connected = true;
-    const phase = st.phase||"idle";
+    const st = await scoutApi("/status");
+    const phase  = st.phase||"idle";
     const isLive = phase==="running"||phase==="orchestrating";
 
-    // Status cards
-    document.getElementById("scout-conn-dot").style.cssText = `width:5px;height:5px;border-radius:50%;background:#3cc68a;box-shadow:0 0 8px #3cc68a;`;
+    // Show LIVE
+    document.getElementById("scout-conn-dot").style.cssText = "width:5px;height:5px;border-radius:50%;background:#3cc68a;box-shadow:0 0 8px #3cc68a;";
     document.getElementById("scout-conn-val").style.color = "#3cc68a";
     document.getElementById("scout-conn-val").textContent = "LIVE";
     document.getElementById("scout-phase-val").textContent = phase.toUpperCase();
-    document.getElementById("scout-phase-val").style.color = isLive?"#F5A800":"var(--text)";
+    document.getElementById("scout-phase-val").style.color = isLive ? "#F5A800" : "var(--text)";
     document.getElementById("scout-scans-val").textContent = st.totalScans||0;
     document.getElementById("scout-found-val").textContent = st.totalFound||0;
 
-    // Sync config from server
-    if (st.config) {
-      document.getElementById("scout-target").value = st.config.target||"Ram ProMaster 1500";
-      document.getElementById("scout-price").value  = st.config.maxPrice||"25000";
-      setScoutMode(st.config.mode||"hunt",false);
-    }
-
     // Agents
     const agents = st.agents||[];
-    const dot = document.getElementById("scout-agents-dot");
-    const lbl = document.getElementById("scout-agents-lbl");
-    if (isLive) {
-      dot.style.cssText = "width:5px;height:5px;border-radius:50%;background:#F5A800;box-shadow:0 0 8px #F5A800;";
-      lbl.style.color = "#F5A800";
-    }
     if (agents.length > 0) {
-      document.getElementById("scout-agents-list").innerHTML = agents.map(a=>{
-        const sc = SCOUT_SC[a.status]||SCOUT_SC.idle;
-        return `
-          <div style="border:1px solid ${sc}${a.status!=="idle"?"44":"22"};border-radius:9px;padding:7px 10px;background:${a.status!=="idle"?sc+"0e":"rgba(255,255,255,.01)"};display:flex;align-items:center;gap:8px;position:relative;overflow:hidden;">
-            <div style="position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);border-radius:9px 9px 0 0;pointer-events:none;"></div>
-            <div style="width:24px;height:24px;flex-shrink:0;border:1px solid ${sc}44;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:${sc};background:${sc}0a;">${(a.id||"?").slice(0,2)}</div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--text);letter-spacing:1px;">${a.id}</div>
-              <div style="font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.platform}</div>
-            </div>
-            <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:${sc};">
-              ${a.status==="scanning"?"SCAN":a.status==="found"?a.count+" HIT"+(a.count!==1?"S":""):a.status==="done"?"NONE":a.status==="error"?"FAULT":"STBY"}
-            </div>
+      document.getElementById("scout-agents-lbl").textContent = isLive ? "AGENTS LIVE" : "WORKER AGENTS";
+      document.getElementById("scout-agents-lbl").style.color = isLive ? "#F5A800" : "var(--muted)";
+      document.getElementById("scout-agents-dot").style.cssText = isLive
+        ? "width:5px;height:5px;border-radius:50%;background:#F5A800;box-shadow:0 0 8px #F5A800;"
+        : "width:5px;height:5px;border-radius:50%;background:var(--muted);";
+      const SC = {idle:"#252545",scanning:"#F5A800",found:"#3cc68a",done:"#3a3a5a",error:"#E85470"};
+      document.getElementById("scout-agents-list").innerHTML = agents.map(a => {
+        const sc = SC[a.status]||SC.idle;
+        return `<div style="border:1px solid ${sc}${a.status!=="idle"?"44":"22"};border-radius:9px;padding:7px 10px;background:${a.status!=="idle"?sc+"0e":"rgba(255,255,255,.01)"};display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <div style="width:24px;height:24px;flex-shrink:0;border:1px solid ${sc}44;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:${sc};background:${sc}0a;">${(a.id||"?").slice(0,2)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--text);">${a.id}</div>
+            <div style="font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.platform||""}</div>
           </div>
-        `;
+          <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:${sc};">${a.status==="scanning"?"● SCAN":a.status==="found"?(a.count||0)+" HIT"+(a.count!==1?"S":""):a.status==="done"?"NONE":a.status==="error"?"FAULT":"STBY"}</div>
+        </div>`;
       }).join("");
+    } else {
+      document.getElementById("scout-agents-list").innerHTML = '<div style="font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;">No agents active — hit INITIATE SEARCH</div>';
     }
 
-    // Logs
-    const logs = lg.logs||[];
-    document.getElementById("scout-log-count").textContent = `${logs.length} entries`;
-    if (logs.length > 0) {
-      document.getElementById("scout-log").innerHTML = logs.map(l=>`
-        <div style="display:flex;gap:7px;font-size:9px;font-family:'JetBrains Mono',monospace;">
-          <span style="color:#1a2840;flex-shrink:0;">${new Date(l.ts).toLocaleTimeString("en-US",{hour12:false})}</span>
-          <span style="color:${SCOUT_LOG_COLS[l.type]||"#888"}">${l.msg}</span>
-        </div>
-      `).join("");
-      const logEl = document.getElementById("scout-log");
-      logEl.scrollTop = logEl.scrollHeight;
-    }
+    // Live badge
+    document.getElementById("scout-live-badge").style.display = isLive ? "block" : "none";
 
-    // Findings
-    const findings = fi.findings||[];
-    const catId = document.getElementById("scout-cat")?.value||"van";
-    document.getElementById("scout-count-lbl").textContent = `${findings.length} LISTING${findings.length!==1?"S":""}`;
-    document.getElementById("scout-count-lbl").style.color = findings.length>0?"#3cc68a":"var(--dim)";
-    document.getElementById("scout-live-badge").style.display = isLive?"block":"none";
-    document.getElementById("scout-feed-lbl").textContent = scoutMode==="rental"?"RENTAL PROFIT INTEL":"LIVE INTEL FEED";
-
-    if (findings.length > 0) {
-      document.getElementById("scout-empty").style.display = "none";
-      const existingCards = document.querySelectorAll(".scout-finding-card").length;
-      if (existingCards !== findings.length) {
-        const container = document.getElementById("scout-findings");
-        container.innerHTML = "";
-        const emptyDiv = document.createElement("div");
-        emptyDiv.id = "scout-empty";
-        emptyDiv.style.display = "none";
-        container.appendChild(emptyDiv);
-        findings.forEach((f,i)=>{
-          const profit = scoutMode==="rental"?calcScoutProfit(f.price,catId):null;
-          const leftCol = profit?roiColor(profit.roi):"#3cc68a";
-          const div = document.createElement("div");
-          div.className = "scout-finding-card";
-          div.style.cssText = `border:1px solid rgba(255,255,255,.06);border-left:3px solid ${leftCol};border-radius:10px;padding:13px 15px;background:rgba(8,16,44,.5);position:relative;backdrop-filter:blur(12px);margin-bottom:0;`;
-          div.innerHTML = `
-            <div style="position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);border-radius:10px 10px 0 0;pointer-events:none;"></div>
-            <div style="position:absolute;top:9px;right:11px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#1a2840;">#${String(i+1).padStart(3,"0")}</div>
-            ${profit?`<div style="position:absolute;top:9px;right:42px;background:${roiColor(profit.roi)}18;border:1px solid ${roiColor(profit.roi)}33;border-radius:8px;padding:2px 7px;display:flex;align-items:center;gap:3px;font-family:'Orbitron',sans-serif;font-size:8px;color:${roiColor(profit.roi)};font-weight:700;">${profit.roi}% ROI</div>`:""}
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;padding-right:${profit?130:40}px;">
-              <div>
-                <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#deeaff;">${f.title||"Vehicle Listing"}</div>
-                <div style="font-size:9px;color:var(--muted);margin-top:2px;">${f.source||"N/A"} · ${f.location||"N/A"}</div>
-              </div>
-              <div style="font-family:'Orbitron',sans-serif;font-weight:700;font-size:17px;color:#3cc68a;flex-shrink:0;">${f.price||"N/A"}</div>
-            </div>
-            <div style="display:flex;gap:14px;margin-bottom:${f.notes||profit?6:0}px;">
-              ${f.mileage?`<div style="font-size:10px;">🔢 <span style="font-family:'JetBrains Mono',monospace;color:var(--text);">${f.mileage}</span></div>`:""}
-              ${f.condition?`<div style="font-size:10px;">⭐ <span style="color:#F5C842;font-weight:600;">${f.condition}</span></div>`:""}
-            </div>
-            ${f.notes?`<div style="font-size:10px;color:#5a5a80;border-top:1px solid rgba(255,255,255,.05);padding-top:6px;margin-top:6px;">${f.notes}</div>`:""}
-            ${profit?`<div style="margin-top:9px;background:#3cc68a08;border:1px solid #3cc68a1a;border-radius:9px;padding:9px 11px;">
-              <div style="font-size:8px;color:#3cc68a;letter-spacing:2px;margin-bottom:7px;font-family:'Orbitron',sans-serif;">📈 RENTAL PROFIT ANALYSIS</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px 10px;">
-                ${[["Daily Rate",`$${profit.daily}/day`,"var(--text)"],["Mo. Gross",`$${profit.gross.toLocaleString()}`,"var(--text)"],["Est. Costs",`-$${profit.costs}`,"#FF8C00"],["Mo. Net",`$${profit.net.toLocaleString()}`,roiColor(profit.roi)],["Annual ROI",`${profit.roi}%`,roiColor(profit.roi)],["Payback",`${profit.pay} mo.`,profit.pay<=18?"#3cc68a":profit.pay<=30?"#F5C842":"#FF8C00"]].map(([l,v,c])=>`
-                  <div>
-                    <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:1px;font-family:'Orbitron',sans-serif;">${l}</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c};font-weight:500;">${v}</div>
-                  </div>
-                `).join("")}
-              </div>
-            </div>`:""}
-            ${f.url&&f.url.startsWith("http")?`<div style="margin-top:8px;"><a href="${f.url}" target="_blank" rel="noopener noreferrer" style="font-size:9px;color:#F5A800;text-decoration:none;letter-spacing:1px;border-bottom:1px solid #F5A80033;padding-bottom:1px;">VIEW LISTING →</a></div>`:""}
-          `;
-          container.appendChild(div);
-        });
-      }
+    // Sync config
+    if (st.config) {
+      if (st.config.mode) setScoutMode(st.config.mode, false);
     }
 
   } catch(e) {
     document.getElementById("scout-conn-dot").style.cssText = "width:5px;height:5px;border-radius:50%;background:#E85470;box-shadow:0 0 8px #E85470;";
     document.getElementById("scout-conn-val").style.color = "#E85470";
     document.getElementById("scout-conn-val").textContent = "OFFLINE";
+    return; // stop if status fails
   }
+
+  /* ── LOGS (optional) ── */
+  try {
+    const lg = await scoutApi("/logs?limit=80");
+    const logs = lg.logs||[];
+    const LC = {system:"#5050a0",deploy:"#F5A800",success:"#3cc68a",warn:"#FF8C00",error:"#E85470",heal:"#FF6B35",watchdog:"#a040f0",scheduler:"#00aaff"};
+    document.getElementById("scout-log-count").textContent = `${logs.length} entries`;
+    if (logs.length > 0) {
+      const logEl = document.getElementById("scout-log");
+      logEl.innerHTML = logs.map(l => `
+        <div style="display:flex;gap:7px;font-size:9px;font-family:'JetBrains Mono',monospace;">
+          <span style="color:#1a2840;flex-shrink:0;">${new Date(l.ts).toLocaleTimeString("en-US",{hour12:false})}</span>
+          <span style="color:${LC[l.type]||"#888"}">${l.msg}</span>
+        </div>`).join("");
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+  } catch(e) { /* logs optional */ }
+
+  /* ── FINDINGS (optional) ── */
+  try {
+    const fi = await scoutApi("/findings");
+    const findings = fi.findings||[];
+    const catId = document.getElementById("scout-cat")?.value||"van";
+    document.getElementById("scout-count-lbl").textContent = `${findings.length} LISTING${findings.length!==1?"S":""}`;
+    document.getElementById("scout-count-lbl").style.color = findings.length>0?"#3cc68a":"var(--dim)";
+    document.getElementById("scout-feed-lbl").textContent = scoutMode==="rental"?"RENTAL PROFIT INTEL":"LIVE INTEL FEED";
+
+    if (findings.length > 0) {
+      document.getElementById("scout-empty").style.display = "none";
+      const container = document.getElementById("scout-findings");
+      const existingCards = container.querySelectorAll(".scout-card").length;
+      if (existingCards !== findings.length) {
+        container.innerHTML = "";
+        findings.forEach((f,i) => {
+          const div = document.createElement("div");
+          div.className = "scout-card";
+          div.style.cssText = "border:1px solid rgba(255,255,255,.06);border-left:3px solid #3cc68a;border-radius:10px;padding:13px 15px;background:rgba(8,16,44,.5);margin-bottom:8px;";
+          div.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <div>
+                <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#deeaff;">${f.title||"Vehicle Listing"}</div>
+                <div style="font-size:9px;color:var(--muted);margin-top:2px;">${f.source||""} · ${f.location||""}</div>
+              </div>
+              <div style="font-family:'Orbitron',sans-serif;font-weight:700;font-size:17px;color:#3cc68a;">${f.price||"N/A"}</div>
+            </div>
+            <div style="display:flex;gap:14px;margin-bottom:6px;">
+              ${f.mileage?`<div style="font-size:10px;">🔢 <span style="font-family:'JetBrains Mono',monospace;">${f.mileage}</span></div>`:""}
+              ${f.condition?`<div style="font-size:10px;">⭐ <span style="color:#F5C842;">${f.condition}</span></div>`:""}
+            </div>
+            ${f.notes?`<div style="font-size:10px;color:#5a5a80;border-top:1px solid rgba(255,255,255,.05);padding-top:6px;">${f.notes}</div>`:""}
+            ${f.url&&f.url.startsWith("http")?`<div style="margin-top:8px;"><a href="${f.url}" target="_blank" style="font-size:9px;color:#F5A800;text-decoration:none;border-bottom:1px solid #F5A80033;padding-bottom:1px;">VIEW LISTING →</a></div>`:""}
+          `;
+          container.appendChild(div);
+        });
+      }
+    } else {
+      document.getElementById("scout-empty").style.display = "block";
+    }
+  } catch(e) { /* findings optional */ }
 }
 
 function startScoutPolling() {
