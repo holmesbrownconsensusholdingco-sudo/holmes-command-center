@@ -2088,28 +2088,19 @@ async function scanRenoLeads() {
   const budget   = document.getElementById("reno-budget").value;
   const sources  = ["google","nextdoor","craigslist","reddit","facebook"].filter(s => document.getElementById("src-"+s)?.checked).join(", ");
 
-  const prompt = `You are a lead generation AI for Holmes Holding Co., a property restoration and renovation company in NJ/NY (862-245-1318, holmesholdingco.com, Wayne NJ).
+  const prompt = `Generate 5 realistic bathroom renovation leads in ${location}, NJ. Budget range: ${budget}. Job type: ${jobType}.
 
-Generate 8 realistic ${jobType} leads in ${location}, NJ for budget ${budget}.
+Return ONLY a JSON array. No markdown, no explanation. Each object must have exactly these fields:
+{"name":"Full Name","phone":"201-555-0000","email":"name@email.com","address":"123 Main St, Newark NJ","jobType":"${jobType}","budget":"$20,000","urgency":"hot","score":85,"source":"Google","notes":"Brief note about project."}
 
-For each lead return ONLY valid JSON array with these fields:
-- name: full name
-- phone: NJ phone number
-- email: email address  
-- address: specific NJ street address with city
-- jobType: "${jobType}"
-- budget: specific dollar amount in range ${budget}
-- urgency: "hot" or "warm" or "cool"
-- score: number 1-100
-- source: one of: ${sources}
-- notes: 1-2 sentences about their specific situation
-- postedDate: recent date
-
-Return ONLY the JSON array, no other text.`;
+Return exactly 5 leads as a valid JSON array.`;
 
   try {
-    const res = await callClaudeProxy(prompt, 1000);
-    const clean = res.replace(/```json|```/g,"").trim();
+    const raw   = await callClaudeProxy(prompt, 1500);
+    const start = raw.indexOf("[");
+    const end   = raw.lastIndexOf("]") + 1;
+    if (start < 0 || end <= start) throw new Error("No JSON array found in response");
+    const clean = raw.slice(start, end);
     const leads = JSON.parse(clean);
     renoLeads = leads;
     renderLeads();
