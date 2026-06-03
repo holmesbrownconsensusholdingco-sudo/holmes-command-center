@@ -2080,56 +2080,51 @@ async function scanRenoLeads() {
   if (renoScanning || !apiKey) return;
   renoScanning = true;
   const btn = document.getElementById("reno-scan-btn");
-  btn.textContent = "⏳ SCANNING REAL SOURCES...";
+  btn.textContent = "⏳ SCANNING...";
   btn.style.opacity = ".6";
 
   const location = document.getElementById("reno-location").value;
   const jobType  = document.getElementById("reno-type").value;
   const budget   = document.getElementById("reno-budget").value;
-
   let leads = [];
 
-  // Try real scraper first
+  // Try real scraper first (Craigslist + Reddit via Field Ops server)
   try {
     const params = new URLSearchParams({ location, jobType, secret:"Holmes2025!" });
-    const res    = await fetch(`https://holmes-field-ops.onrender.com/api/scan-leads?${params}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.leads && data.leads.length > 0) {
-        leads = data.leads;
-        console.log("Real leads found:", leads.length);
-      }
+    const r      = await fetch("https://holmes-field-ops.onrender.com/api/scan-leads?" + params);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.leads && d.leads.length > 0) leads = d.leads;
     }
-  } catch(e) { console.log("Real scraper unavailable:", e.message); }
+  } catch(e) { console.log("Real scraper unavailable, using AI fallback"); }
 
-  // If no real leads, fall back to AI-generated
+  // Fall back to AI-generated leads if nothing found
   if (leads.length === 0) {
-    btn.textContent = "⏳ GENERATING AI LEADS...";
-    const prompt = `Generate 5 realistic bathroom renovation leads in ${location}, NJ. Budget range: ${budget}. Job type: ${jobType}.
-Return ONLY a JSON array. No markdown. Each object:
-{"name":"Full Name","phone":"201-555-0000","email":"name@email.com","address":"123 Main St, Newark NJ","jobType":"${jobType}","budget":"$20,000","urgency":"hot","score":85,"source":"Google","notes":"Brief note."}
-Return exactly 5 leads as a valid JSON array.`;
+    btn.textContent = "⏳ GENERATING LEADS...";
     try {
-      const raw   = await callClaudeProxy(prompt, 1500);
-      const start = raw.indexOf("[");
-      const end   = raw.lastIndexOf("]") + 1;
-      if (start < 0 || end <= start) throw new Error("No JSON array found");
-      const clean = raw.slice(start, end);
-      leads = JSON.parse(clean);
-    } catch(e) { throw new Error("Both real scan and AI fallback failed: " + e.message); }
-  }
-    renoLeads = leads;
-    renderLeads();
-    updateRenoStats();
-    populateOutreachSelect();
-    // Show hot lead alert
-    const hot = leads.find(l=>l.urgency==="hot");
-    if (hot) {
-      document.getElementById("hot-lead-box").style.display = "block";
-      document.getElementById("hot-lead-content").innerHTML = `<b style="color:#e85470;">${hot.name}</b> — ${hot.jobType}<br>${hot.address}<br><b style="color:#f5c842;">${hot.budget}</b> budget · ${hot.notes}`;
+      const prompt = "Generate 5 realistic bathroom renovation leads in " + location + " NJ. Budget: " + budget + ". Job: " + jobType + ". Return ONLY a JSON array. Each object: {"name":"Full Name","phone":"201-555-0000","email":"email@test.com","address":"123 Main St, Newark NJ","jobType":"" + jobType + "","budget":"$20000","urgency":"warm","score":75,"source":"Google","notes":"Brief note."}. Return exactly 5 objects.";
+      const raw    = await callClaudeProxy(prompt, 1500);
+      const s      = raw.indexOf("[");
+      const e      = raw.lastIndexOf("]") + 1;
+      if (s >= 0 && e > s) leads = JSON.parse(raw.slice(s, e));
+    } catch(e2) {
+      btn.textContent = "🔍 SCAN FOR LEADS";
+      btn.style.opacity = "1";
+      renoScanning = false;
+      alert("Scan failed: " + e2.message);
+      return;
     }
-  } catch(e) {
-    alert("Scan failed: " + e.message);
+  }
+
+  renoLeads = leads;
+  renderLeads();
+  updateRenoStats();
+  populateOutreachSelect();
+
+  const hot = leads.find(l => l.urgency === "hot");
+  if (hot) {
+    document.getElementById("hot-lead-box").style.display = "block";
+    document.getElementById("hot-lead-content").innerHTML = "<b style='color:#e85470;'>" + hot.name + "</b> — " + hot.jobType + "<br>" + (hot.address||"NJ") + "<br><b style='color:#f5c842;'>" + (hot.budget||"") + "</b> budget · " + (hot.notes||"");
   }
 
   btn.textContent = "🔍 SCAN FOR LEADS";
