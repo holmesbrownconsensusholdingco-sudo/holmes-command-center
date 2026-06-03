@@ -2108,15 +2108,10 @@ async function scanRenoLeads() {
 
   // Fall back to AI-generated leads if nothing found
   if (leads.length === 0) {
-    btn.textContent = "⏳ GENERATING LEADS...";
     try {
-      const prompt = "Generate 5 realistic bathroom renovation leads in " + location + " NJ. Budget: " + budget + ". Job: " + jobType + ". Return ONLY a JSON array. Each object: {"name":"Full Name","phone":"201-555-0000","email":"email@test.com","address":"123 Main St, Newark NJ","jobType":"" + jobType + "","budget":"$20000","urgency":"warm","score":75,"source":"Google","notes":"Brief note."}. Return exactly 5 objects.";
-      const raw    = await callClaudeProxy(prompt, 1500);
-      const s      = raw.indexOf("[");
-      const e      = raw.lastIndexOf("]") + 1;
-      if (s >= 0 && e > s) leads = JSON.parse(raw.slice(s, e));
+      leads = await generateAILeads(location, budget, jobType);
     } catch(e2) {
-      btn.textContent = "🔍 SCAN FOR LEADS";
+      btn.textContent = "SCAN FOR LEADS";
       btn.style.opacity = "1";
       renoScanning = false;
       alert("Scan failed: " + e2.message);
@@ -2124,7 +2119,7 @@ async function scanRenoLeads() {
     }
   }
 
-  renoLeads = leads;
+    renoLeads = leads;
   renderLeads();
   updateRenoStats();
   populateOutreachSelect();
