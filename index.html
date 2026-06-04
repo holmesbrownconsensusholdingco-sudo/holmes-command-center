@@ -728,6 +728,35 @@ html body .hidden { display: none !important; }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(77,168,218,.4); border-radius: 2px; }
 
+
+/* ── SAFE OVERRIDES — no display rules on view IDs ── */
+body { color: #deeaff; }
+.role-toggle {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+  gap: 2px !important;
+  flex-shrink: 1 !important;
+  max-width: 62vw !important;
+}
+.role-toggle::-webkit-scrollbar { display: none !important; }
+.role-btn {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  font-size: 9px !important;
+  letter-spacing: 1px !important;
+  padding: 6px 10px !important;
+  cursor: pointer !important;
+  pointer-events: all !important;
+}
+.role-btn svg { display: none !important; }
+button { cursor: pointer !important; pointer-events: all !important; }
+.quick-btn { font-size: 10px !important; }
+#user-input { font-size: 13px !important; color: #ffffff !important; }
+#output-text { font-size: 13px !important; }
+.kpi-value { font-size: 20px !important; }
+
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
@@ -1131,16 +1160,14 @@ const FLOATS    = ["float-a","float-b","float-c","float-d","float-e","float-f"];
 /* ── INIT ── */
 // Use DOMContentLoaded — never gets overwritten unlike window.onload
 document.addEventListener("DOMContentLoaded", function() {
-  // Load saved key
+  buildUI();
+  startClock();
   var savedKey = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
   if (savedKey && savedKey.length > 20) {
     apiKey = savedKey;
     showApp();
+    switchRole("exec");
   }
-  buildUI();
-  startClock();
-  // Set initial view via direct styles
-  switchRole("exec");
 });
 
 function buildUI() {
@@ -1186,58 +1213,22 @@ function showApp() {
 }
 
 /* ── ROLE SWITCH ── */
-/* ── CONSOLIDATED switchRole — direct style.display, no CSS class battles ── */
+/* ── switchRole ── */
 function switchRole(r) {
   role = r;
-
-  // Direct display control — bypasses all CSS specificity issues
-  var viewMap = {
-    exec:  {id:"exec-view",  show:"flex"},
-    field: {id:"field-view", show:"grid"},
-    scout: {id:"scout-view", show:"grid"},
-    reno:  {id:"reno-view",  show:"grid"},
-    tips:  {id:"tips-view",  show:"grid"},
-    msg:   {id:"msg-view",   show:"grid"}
-  };
-
-  Object.keys(viewMap).forEach(function(key) {
-    var el = document.getElementById(viewMap[key].id);
-    if (!el) return;
-    if (key === r) {
-      el.style.setProperty("display", viewMap[key].show, "important");
-      el.style.setProperty("flex", "1", "important");
-    } else {
-      el.style.setProperty("display", "none", "important");
-    }
+  var allViews = ["exec","field","scout","reno","tips","msg"];
+  allViews.forEach(function(k) {
+    var v = document.getElementById(k+"-view");
+    if (v) v.style.cssText += ";display:" + (k===r ? (k==="exec"?"flex":"grid") : "none") + " !important;";
+    var b = document.getElementById("btn-"+k);
+    if (b) { b.classList.toggle("active", k===r); }
   });
-
-  // Tab button active states
-  var btnMap = {exec:"btn-exec", field:"btn-field", scout:"btn-scout", reno:"btn-reno", tips:"btn-tips", msg:"btn-msg"};
-  Object.keys(btnMap).forEach(function(key) {
-    var el = document.getElementById(btnMap[key]);
-    if (!el) return;
-    if (key === r) {
-      el.classList.add("active");
-    } else {
-      el.classList.remove("active");
-    }
-  });
-
-  // Scout polling
-  if (r === "scout") {
-    if (typeof startScoutPolling === "function") startScoutPolling();
-  } else {
-    if (typeof stopScoutPolling === "function") stopScoutPolling();
-  }
-
-  // Employee polling
-  if (r === "exec") {
-    if (typeof startEmpPolling === "function") startEmpPolling();
-  }
-
-  // Messenger
-  if (r === "msg" && typeof buildMsgEmpList === "function") buildMsgEmpList();
+  if (r==="scout" && typeof startScoutPolling==="function") startScoutPolling();
+  if (r!=="scout" && typeof stopScoutPolling==="function") stopScoutPolling();
+  if (r==="exec" && typeof startEmpPolling==="function") startEmpPolling();
+  if (r==="msg" && typeof buildMsgEmpList==="function") buildMsgEmpList();
 }
+
 /* ── BUILD KPIs ── */
 function buildKPIs() {
   const g = document.getElementById("kpi-grid");
