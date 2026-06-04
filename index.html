@@ -5,17 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Holmes Holding Co. — AI Command Center</title>
-<script>
-// Runs BEFORE page renders — no flash of key screen if key is saved
-(function(){
-  try {
-    var k = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
-    if (k && k.length > 20) {
-      document.documentElement.setAttribute("data-has-key","1");
-    }
-  } catch(e) {}
-})();
-</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -343,7 +332,7 @@
   /* ── EXEC VIEW ── */
   #exec-view { padding: 12px 18px; flex: 1; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
   #field-view { padding: 12px 18px; flex: 1; display: grid; grid-template-columns: 215px 1fr; gap: 12px; overflow: hidden; }
-  .hidden { display: none; }
+  .hidden { display: none !important; }
 
   /* ── QUICK ACTION GRID ── */
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; }
@@ -579,178 +568,6 @@ input[type="text"], input[type="password"] {
   font-weight: 600 !important;
 }
 
-
-
-
-/* ════════════════════════════════════════════════════════
-   MASTER OVERRIDE — wins over all other rules
-   ════════════════════════════════════════════════════════ */
-
-/* ── FONTS — bright and large everywhere ── */
-body, body * {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-body { color: #deeaff !important; }
-
-/* Base text sizes */
-body div, body span, body p, body label {
-  color: inherit;
-}
-
-/* All small Orbitron labels → 10px minimum */
-.role-btn { font-size: 9px !important; letter-spacing: 1px !important; padding: 6px 10px !important; }
-.role-btn svg { width:9px !important; height:9px !important; }
-
-/* KPI cards */
-#kpi-grid .glass { overflow: hidden !important; }
-.kpi-value { font-size: 20px !important; }
-
-/* Agent buttons */
-.agent-btn { font-size: 11px !important; }
-
-/* Input/output text */
-#user-input, #output-text { font-size: 13px !important; color: #ffffff !important; }
-#user-input::placeholder { color: #4a6a8a !important; }
-
-/* Section headers in panels */
-span[style*="letter-spacing:3px"],
-span[style*="letter-spacing:2px"] { font-size: 10px !important; color: #c8e0ff !important; }
-
-/* Panel body text */
-div[style*="font-size:11px"] { font-size: 12px !important; }
-div[style*="font-size:10px"] { font-size: 11px !important; }
-div[style*="font-size:9px"]  { font-size: 10px !important; }
-div[style*="font-size:8px"]  { font-size: 10px !important; }
-div[style*="font-size:7px"]  { font-size: 9px  !important; }
-
-span[style*="font-size:11px"] { font-size: 12px !important; }
-span[style*="font-size:10px"] { font-size: 11px !important; }
-span[style*="font-size:9px"]  { font-size: 10px !important; }
-span[style*="font-size:8px"]  { font-size: 10px !important; }
-span[style*="font-size:7px"]  { font-size: 9px  !important; }
-
-/* ── LAYOUT — tabs and views ── */
-
-/* Header — single row, no wrap */
-#header { padding: 8px 16px 0 !important; }
-#header .glass > div {
-  padding: 8px 16px !important;
-  gap: 10px !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-}
-
-/* Tab bar — scrollable */
-.role-toggle {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scrollbar-width: none !important;
-  gap: 2px !important;
-  min-width: 0 !important;
-  flex-shrink: 1 !important;
-  max-width: 60vw !important;
-}
-.role-toggle::-webkit-scrollbar { display: none !important; }
-.role-btn {
-  flex-shrink: 0 !important;
-  white-space: nowrap !important;
-}
-
-/* All main views — full height, no overflow */
-#exec-view, #field-view, #scout-view, #reno-view, #tips-view, #msg-view {
-  overflow: hidden !important;
-  padding: 10px 16px !important;
-  gap: 10px !important;
-}
-
-/* Exec — flex column */
-#exec-view {
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 !important;
-}
-
-/* KPI row — fixed, no shrink */
-#kpi-grid {
-  display: grid !important;
-  grid-template-columns: repeat(6, 1fr) !important;
-  gap: 8px !important;
-  flex-shrink: 0 !important;
-}
-
-/* Chart row — fixed height */
-#exec-view > div:nth-child(2) {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  height: 190px !important;
-  flex-shrink: 0 !important;
-  gap: 10px !important;
-  overflow: hidden !important;
-}
-#chart-revenue, #chart-claims {
-  width: 100% !important;
-  height: 100% !important;
-  overflow: hidden !important;
-}
-
-/* Bottom row — equal 3 columns */
-#exec-view > div:last-child {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  flex: 1 !important;
-  min-height: 0 !important;
-  gap: 10px !important;
-  overflow: hidden !important;
-}
-#exec-view > div:last-child > .glass,
-#exec-view > div:last-child > .glass > div {
-  overflow: hidden !important;
-  min-height: 0 !important;
-}
-
-/* Field view */
-#field-view {
-  display: grid !important;
-  grid-template-columns: 200px 1fr !important;
-  flex: 1 !important;
-}
-#agent-list-col {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-/* Scout/Reno/Tips/Msg views */
-#scout-view { grid-template-columns: 280px 1fr !important; flex: 1 !important; }
-#reno-view  { grid-template-columns: 240px 1fr !important; flex: 1 !important; }
-#tips-view  { grid-template-columns: 300px 1fr !important; flex: 1 !important; }
-#msg-view   { grid-template-columns: 240px 1fr !important; flex: 1 !important; }
-
-/* Left columns — always scrollable */
-#scout-view > div:first-child,
-#reno-view > div:first-child,
-#tips-view > div:first-child,
-#msg-view > div:first-child {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-/* Plotly charts — clip to container */
-.js-plotly-plot { overflow: hidden !important; }
-
-/* Quick buttons */
-.quick-btn { font-size: 10px !important; padding: 8px 6px !important; }
-.quick-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; overflow-y: auto !important; }
-
-/* Hidden class — strongest possible */
-.hidden { display: none; }
-
-/* Scrollbars */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-thumb { background: rgba(77,168,218,.4); border-radius: 2px; }
-
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
@@ -824,10 +641,9 @@ span[style*="font-size:7px"]  { font-size: 9px  !important; }
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             TIPS & AI HELP
           </button>
-          <button class="role-btn" id="btn-msg" onclick="switchRole('msg')" style="position:relative;">
+          <button class="role-btn" id="btn-msg" onclick="switchRole('msg')">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             MESSENGER
-            <span id="msg-badge" style="display:none;position:absolute;top:3px;right:3px;background:#e85470;border-radius:50%;width:8px;height:8px;box-shadow:0 0 6px #e85470;"></span>
           </button>
         </div>
 
@@ -853,7 +669,7 @@ span[style*="font-size:7px"]  { font-size: 9px  !important; }
   <div id="main">
 
     <!-- ══ EXECUTIVE VIEW ══ -->
-    <div id="exec-view" style="flex:1;display:flex;flex-direction:column;">
+    <div id="exec-view">
 
       <!-- KPI ROW -->
       <div class="kpi-grid" id="kpi-grid"></div>
@@ -894,100 +710,577 @@ span[style*="font-size:7px"]  { font-size: 9px  !important; }
           </div>
         </div>
 
-        <!-- LIVE EMPLOYEE ACTIVITY -->
+        <!-- ACTIVITY LOG -->
         <div class="glass float-e">
           <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;overflow:hidden;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0;">
-              <div style="display:flex;align-items:center;gap:7px;">
-                <div class="pulse" id="emp-live-dot" style="width:5px;height:5px;border-radius:50%;background:var(--dim);"></div>
-                <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--purple);letter-spacing:2px;">EMPLOYEE ACTIVITY</span>
-              </div>
-              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);" id="emp-active-count">0 ONLINE</span>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--purple);box-shadow:0 0 8px var(--purple);"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--purple);letter-spacing:2px;font-size:10px;">ACTIVITY LOG</span>
             </div>
-            <div id="emp-active-list" style="flex-shrink:0;"></div>
-            <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;margin:8px 0 5px;flex-shrink:0;">RECENT EVENTS</div>
-            <div style="flex:1;overflow-y:auto;" id="emp-event-log">
-              <div style="font-size:11px;color:var(--dim);font-style:italic;padding:4px;">Watching for activity...</div>
-            </div>
+            <div style="flex:1;overflow-y:auto;" id="activity-list"></div>
           </div>
         </div>
 
-        <!-- TEAM & AGENTS -->
+        <!-- AGENT ROSTER -->
         <div class="glass float-f">
           <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-shrink:0;">
-              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);"></div>
-              <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--green);letter-spacing:2px;">TEAM & AGENTS</span>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--green);letter-spacing:2px;font-size:10px;">9-AGENT ROSTER</span>
             </div>
-            <div id="team-cards" style="flex-shrink:0;margin-bottom:8px;"></div>
-            <div style="flex:1;overflow-y:auto;" id="roster-list"></div>
+            <div style="flex:1;overflow-y:auto;" id="roster-list" style="display:none;"></div><div id="chart-jobs" style="width:100%;flex:1;min-height:0;"></div>
           </div>
         </div>
       </div>
     </div>
 
-    
-    <!-- ══ MESSENGER VIEW ══ -->
-    <div id="msg-view" style="display:none;flex:1;" style="flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
 
-      <!-- LEFT: Employee list -->
-      <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
-        <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;">
-          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#4da8da;letter-spacing:2px;margin-bottom:2px;">💬 MESSENGER</div>
-          <div style="font-size:11px;color:#8ab4d4;">Text or call your team</div>
+    <!-- ══ SCOUT VIEW ══ -->
+    <div id="scout-view" class="hidden" style="flex:1;display:grid;grid-template-columns:300px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+      <!-- LEFT -->
+      <div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:visible;padding-right:2px;">
+        <!-- Server Status -->
+        <div class="glass float-b">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div id="scout-conn-dot" class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#E85470;box-shadow:0 0 8px #E85470;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#4da8da;letter-spacing:3px;">SERVER STATUS</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">CONNECTION</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#E85470;font-weight:700;" id="scout-conn-val">OFFLINE</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">PHASE</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text);font-weight:700;" id="scout-phase-val">STANDBY</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">TOTAL SCANS</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text);font-weight:700;" id="scout-scans-val">0</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;">
+                <div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-family:'Orbitron',sans-serif;">TOTAL FOUND</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#3cc68a;font-weight:700;" id="scout-found-val">0</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:10px;">
-          <div id="msg-emp-list"></div>
+        <!-- Config -->
+        <div class="glass float-c">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#4da8da;box-shadow:0 0 8px #4da8da;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#4da8da;letter-spacing:3px;">MISSION CONFIG</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px;">
+              <button id="scout-mode-hunt" onclick="setScoutMode('hunt')" style="padding:7px;border-radius:9px;border:1px solid #4da8da44;border-top:1px solid #4da8da77;background:#4da8da12;font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;letter-spacing:1px;cursor:pointer;">VEHICLE HUNT</button>
+              <button id="scout-mode-rental" onclick="setScoutMode('rental')" style="padding:7px;border-radius:9px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;cursor:pointer;">RENTAL PROFIT</button>
+            </div>
+            <div id="scout-hunt-field">
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MAKE</label>
+              <select id="scout-make" onchange="updateScoutModels()" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 11px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;margin-bottom:7px;cursor:pointer;">
+                <option value="">-- Select Make --</option>
+                <option value="Ram">Ram</option>
+                <option value="Ford">Ford</option>
+                <option value="Chevrolet">Chevrolet</option>
+                <option value="GMC">GMC</option>
+                <option value="Dodge">Dodge</option>
+                <option value="Jeep">Jeep</option>
+                <option value="Chrysler">Chrysler</option>
+                <option value="Lincoln">Lincoln</option>
+                <option value="Cadillac">Cadillac</option>
+                <option value="Buick">Buick</option>
+                <option value="Pontiac">Pontiac</option>
+                <option value="Saturn">Saturn</option>
+                <option value="Hummer">Hummer</option>
+                <option value="Tesla">Tesla</option>
+                <option value="Rivian">Rivian</option>
+                <option value="Lucid">Lucid</option>
+                <option value="Mercedes-Benz">Mercedes-Benz</option>
+                <option value="Nissan">Nissan</option>
+                <option value="Toyota">Toyota</option>
+                <option value="Honda">Honda</option>
+                <option value="Freightliner">Freightliner</option>
+                <option value="Volkswagen">Volkswagen</option>
+                <option value="Hyundai">Hyundai</option>
+                <option value="Kia">Kia</option>
+                <option value="Mazda">Mazda</option>
+                <option value="Subaru">Subaru</option>
+                <option value="Mitsubishi">Mitsubishi</option>
+                <option value="BMW">BMW</option>
+                <option value="Audi">Audi</option>
+                <option value="Porsche">Porsche</option>
+                <option value="Land Rover">Land Rover</option>
+                <option value="Jaguar">Jaguar</option>
+                <option value="Volvo">Volvo</option>
+                <option value="MINI">MINI</option>
+                <option value="Fiat">Fiat</option>
+                <option value="Alfa Romeo">Alfa Romeo</option>
+                <option value="Maserati">Maserati</option>
+                <option value="Ferrari">Ferrari</option>
+                <option value="Lamborghini">Lamborghini</option>
+                <option value="Lexus">Lexus</option>
+                <option value="Acura">Acura</option>
+                <option value="Infiniti">Infiniti</option>
+                <option value="Genesis">Genesis</option>
+                <option value="International">International</option>
+                <option value="Kenworth">Kenworth</option>
+                <option value="Peterbilt">Peterbilt</option>
+                <option value="Isuzu">Isuzu</option>
+                <option value="Hino">Hino</option>
+                <option value="Mack">Mack</option>
+                <option value="Sprinter">Sprinter</option>
+              </select>
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MODEL</label>
+              <select id="scout-model" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 11px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;margin-bottom:7px;cursor:pointer;">
+                <option value="">-- Select Make First --</option>
+              </select>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">YEAR FROM</label>
+                  <select id="scout-year-from" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;"></select>
+                </div>
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">YEAR TO</label>
+                  <select id="scout-year-to" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;"></select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">CONDITION</label>
+                  <select id="scout-condition" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;">
+                    <option value="any">Any</option>
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
+                    <option value="certified">Certified Pre-Owned</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MAX MILES</label>
+                  <select id="scout-miles" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-top:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 8px;color:var(--text);font-size:11px;font-family:'Rajdhani',sans-serif;appearance:none;cursor:pointer;">
+                    <option value="any">Any</option>
+                    <option value="25000">25,000</option>
+                    <option value="50000">50,000</option>
+                    <option value="75000">75,000</option>
+                    <option value="100000">100,000</option>
+                    <option value="150000">150,000</option>
+                  </select>
+                </div>
+              </div>
+              <div style="background:rgba(77,168,218,.06);border:1px solid rgba(77,168,218,.15);border-radius:9px;padding:7px 10px;margin-bottom:7px;font-size:9px;color:#4da8da;font-family:'JetBrains Mono',monospace;" id="scout-target-preview">TARGET: Ram ProMaster 1500</div>
+            </div>
+            <div id="scout-rental-field" style="display:none;">
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">VEHICLE CATEGORY</label>
+              <select id="scout-cat" style="width:100%;background:rgba(0,0,0,.35);border:1px solid #1a2840;border-radius:9px;padding:7px 11px;color:var(--text);font-size:11px;margin-bottom:8px;">
+                <option value="economy">Economy Sedan ~$45/day</option>
+                <option value="suv">SUV/Crossover ~$88/day</option>
+                <option value="van" selected>Full-size Van ~$115/day</option>
+                <option value="truck">Pickup Truck ~$92/day</option>
+                <option value="luxury">Luxury ~$195/day</option>
+              </select>
+            </div>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">MAX PRICE</label>
+            <input id="scout-price" value="25000" style="width:100%;background:rgba(0,0,0,.35);border:1px solid #1a2840;border-radius:9px;padding:7px 11px;color:var(--text);font-size:12px;margin-bottom:9px;">
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;font-family:'Orbitron',sans-serif;">AUTO-SCAN INTERVAL</label>
+            <div style="display:flex;gap:4px;margin-bottom:9px;" id="scout-sched-btns">
+              <button onclick="setScoutSched('0 * * * *')" data-sched="0 * * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">1H</button>
+              <button onclick="setScoutSched('0 */3 * * *')" data-sched="0 */3 * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">3H</button>
+              <button onclick="setScoutSched('0 */6 * * *')" data-sched="0 */6 * * *" style="flex:1;padding:5px 0;background:#00aaff18;border:1px solid #00aaff44;border-radius:8px;font-size:8px;color:#00aaff;cursor:pointer;font-family:'Orbitron',sans-serif;">6H</button>
+              <button onclick="setScoutSched('0 */12 * * *')" data-sched="0 */12 * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">12H</button>
+              <button onclick="setScoutSched('0 0 * * *')" data-sched="0 0 * * *" style="flex:1;padding:5px 0;background:rgba(255,255,255,.02);border:1px solid #1a2840;border-radius:8px;font-size:8px;color:var(--muted);cursor:pointer;font-family:'Orbitron',sans-serif;">24H</button>
+            </div>
+            <button onclick="saveScoutConfig()" id="scout-save-btn" style="width:100%;padding:9px;background:rgba(245,168,0,.12);border:1px solid #F5A80044;border-top:1px solid #F5A80077;border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#F5A800;cursor:pointer;">⚙ SAVE CONFIG TO SERVER</button>
+          </div>
         </div>
-        <!-- Call status -->
-        <div id="call-status-bar" style="display:none;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(60,198,138,.08);">
-          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;margin-bottom:4px;" id="call-status-text">CALL ACTIVE</div>
-          <button onclick="hangupCall()" style="width:100%;padding:7px;background:rgba(232,84,112,.2);border:1px solid rgba(232,84,112,.4);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#e85470;cursor:pointer;letter-spacing:1px;">📵 END CALL</button>
+        <!-- Agents -->
+        <div class="glass float-a">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
+              <div class="pulse" id="scout-agents-dot" style="width:5px;height:5px;border-radius:50%;background:var(--muted);"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;" id="scout-agents-lbl">WORKER AGENTS</span>
+            </div>
+            <div id="scout-agents-list"><div style="font-size:10px;color:var(--dim);font-style:italic;">Connecting...</div></div>
+          </div>
+        </div>
+        <!-- Log -->
+        <div class="glass float-d" style="flex:1;min-height:80px;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:13px 15px;display:flex;flex-direction:column;height:100%;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;flex-shrink:0;">
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">SERVER LOG</span>
+              <span style="font-size:8px;color:var(--dim);font-family:'JetBrains Mono',monospace;" id="scout-log-count">0 entries</span>
+            </div>
+            <div id="scout-log" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;"><div style="color:var(--dim);font-size:10px;font-family:'JetBrains Mono',monospace;">Awaiting connection...</div></div>
+          </div>
         </div>
       </div>
-
-      <!-- RIGHT: Chat window -->
-      <div class="glass float-c" style="display:flex;flex-direction:column;overflow:hidden;">
-
-        <!-- Chat header -->
-        <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;gap:12px;" id="chat-header">
-          <div id="chat-emp-avatar" style="width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;flex-shrink:0;">--</div>
-          <div style="flex:1;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#ffffff;" id="chat-emp-name">Select an employee</div>
-            <div style="font-size:11px;color:#8ab4d4;" id="chat-emp-status">Click a name on the left to start chatting</div>
+      <!-- RIGHT: Findings -->
+      <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:10px 17px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+          <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;" id="scout-feed-lbl">LIVE INTEL FEED</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="scout-live-badge" style="display:none;font-size:9px;color:#F5A800;font-family:'Orbitron',sans-serif;letter-spacing:2px;">● AGENTS LIVE</span>
+            <span style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--dim);" id="scout-count-lbl">0 LISTINGS</span>
           </div>
-          <div style="display:flex;gap:8px;" id="call-btns" style="display:none;">
-            <button onclick="startCall('audio')" id="call-audio-btn" style="padding:8px 14px;background:rgba(60,198,138,.12);border:1px solid rgba(60,198,138,.35);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;display:flex;align-items:center;gap:5px;">📞 CALL</button>
+        </div>
+        <div id="scout-findings" style="flex:1;overflow-y:auto;padding:13px 17px;display:flex;flex-direction:column;gap:9px;">
+          <div style="text-align:center;padding:70px 40px;color:var(--dim);" id="scout-empty">
+            <div style="font-size:32px;margin-bottom:12px;opacity:.2;">🚐</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;margin-bottom:7px;">NO FINDINGS YET</div>
+            <div style="font-size:11px;">Hit INITIATE SEARCH or wait for auto-scan</div>
+          </div>
+        </div>
+        <div style="padding:10px 17px;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.2);flex-shrink:0;">
+          <button onclick="triggerScoutScan()" id="scout-scan-btn" style="padding:9px 20px;background:linear-gradient(135deg,#F5A800,#c07500);border:none;border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#000;cursor:pointer;">▶ INITIATE SEARCH</button>
+          <button onclick="sendScoutEmail()" id="scout-email-btn" style="padding:9px 20px;background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;">✉ SEND REPORT</button>
+          <span style="font-size:8px;color:var(--dim);font-family:'JetBrains Mono',monospace;">HHC VEHICLE SCOUT // CONNECTED</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══ BATH RENO VIEW ══ -->
+    <div id="reno-view" class="hidden" style="flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+
+      <!-- LEFT: Config + Stats -->
+      <div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:visible;padding-right:2px;">
+
+        <!-- Search Config -->
+        <div class="glass float-b">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#e8854d;box-shadow:0 0 8px #e8854d;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#e8854d;letter-spacing:3px;">LEAD SCANNER CONFIG</span>
+            </div>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">NJ COUNTY / CITY</label>
+            <select id="reno-location" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:8px;appearance:none;">
+              <option>All NJ</option>
+              <option>Essex County</option>
+              <option>Bergen County</option>
+              <option>Passaic County</option>
+              <option>Hudson County</option>
+              <option>Morris County</option>
+              <option>Union County</option>
+              <option>Middlesex County</option>
+              <option>Monmouth County</option>
+              <option>Newark</option>
+              <option>Jersey City</option>
+              <option>Paterson</option>
+              <option>Elizabeth</option>
+              <option>Wayne</option>
+              <option>Clifton</option>
+              <option>Hackensack</option>
+            </select>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">JOB TYPE</label>
+            <select id="reno-type" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:8px;appearance:none;">
+              <option>Full Bathroom Renovation</option>
+              <option>Shower / Tub Replacement</option>
+              <option>Tile Work</option>
+              <option>Vanity & Fixtures</option>
+              <option>Water Damage Bathroom</option>
+              <option>Mold Remediation Bathroom</option>
+              <option>ADA Accessible Conversion</option>
+              <option>Master Bath Remodel</option>
+            </select>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">BUDGET RANGE</label>
+            <select id="reno-budget" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:9px;appearance:none;">
+              <option>$5K – $15K</option>
+              <option>$15K – $30K</option>
+              <option>$30K – $60K</option>
+              <option>$60K+</option>
+              <option>Any Budget</option>
+            </select>
+            <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:4px;font-family:'Orbitron',sans-serif;">LEAD SOURCES</label>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-google" checked style="accent-color:#e8854d;"> Google</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-nextdoor" checked style="accent-color:#e8854d;"> Nextdoor</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-craigslist" checked style="accent-color:#e8854d;"> Craigslist</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-reddit" checked style="accent-color:#e8854d;"> Reddit</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text);cursor:pointer;"><input type="checkbox" id="src-facebook" checked style="accent-color:#e8854d;"> Facebook</label>
+            </div>
+            <button onclick="scanRenoLeads()" id="reno-scan-btn" style="width:100%;padding:9px;background:linear-gradient(165deg,rgba(232,133,77,.25),rgba(232,133,77,.08),rgba(0,0,0,.4));border:1px solid rgba(232,133,77,.44);border-top:1px solid rgba(232,133,77,.77);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#e8854d;text-shadow:0 0 12px #e8854d;cursor:pointer;position:relative;overflow:hidden;">
+              <div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.07),transparent);border-radius:10px 10px 0 0;pointer-events:none;"></div>
+              🔍 SCAN FOR LEADS
+            </button>
           </div>
         </div>
 
-        <!-- Incoming call alert -->
-        <div id="incoming-call" style="display:none;padding:12px 16px;background:rgba(60,198,138,.1);border-bottom:1px solid rgba(60,198,138,.3);flex-shrink:0;">
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:#3cc68a;" id="incoming-name">📞 Incoming call from...</div>
-            <div style="display:flex;gap:8px;">
-              <button onclick="acceptCall()" style="padding:7px 14px;background:rgba(60,198,138,.2);border:1px solid rgba(60,198,138,.5);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;">✓ ACCEPT</button>
-              <button onclick="rejectCall()" style="padding:7px 14px;background:rgba(232,84,112,.15);border:1px solid rgba(232,84,112,.4);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#e85470;cursor:pointer;">✗ DECLINE</button>
+        <!-- Stats -->
+        <div class="glass float-c">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#3cc68a;box-shadow:0 0 8px #3cc68a;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#3cc68a;letter-spacing:3px;">PIPELINE STATS</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#e8854d;" id="stat-leads">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">LEADS</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#4da8da;" id="stat-contacted">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">CONTACTED</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#f5c842;" id="stat-quoted">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">QUOTED</div>
+              </div>
+              <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#3cc68a;" id="stat-won">0</div>
+                <div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'Orbitron',sans-serif;">WON</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;padding:8px 10px;background:rgba(60,198,138,.06);border:1px solid rgba(60,198,138,.15);border-radius:8px;text-align:center;">
+              <div style="font-size:8px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-bottom:2px;">EST. PIPELINE VALUE</div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#3cc68a;" id="stat-value">$0</div>
             </div>
           </div>
         </div>
 
-        <!-- Messages -->
-        <div id="msg-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;">
-          <div style="text-align:center;padding:40px 20px;color:var(--dim);">
-            <div style="font-size:24px;margin-bottom:8px;opacity:.3;">💬</div>
-            <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;">SELECT EMPLOYEE TO CHAT</div>
+        <!-- Hot Lead Alert -->
+        <div class="glass float-a" id="hot-lead-box" style="display:none;">
+          <div style="padding:13px 15px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+              <div class="pulse" style="width:5px;height:5px;border-radius:50%;background:#e85470;box-shadow:0 0 8px #e85470;"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#e85470;letter-spacing:3px;">🔥 HOT LEAD</span>
+            </div>
+            <div style="font-size:11px;color:var(--text);line-height:1.6;" id="hot-lead-content"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Leads + Outreach + CRM -->
+      <div style="display:flex;flex-direction:column;overflow:hidden;">
+
+        <!-- Sub-tabs -->
+        <div style="display:flex;gap:0;background:rgba(0,0,0,.4);border:1px solid var(--dim);border-radius:11px;padding:3px;margin-bottom:10px;flex-shrink:0;width:fit-content;">
+          <button id="reno-tab-leads" onclick="switchRenoTab('leads')" style="padding:6px 16px;border-radius:9px;border:1px solid rgba(232,133,77,.4);border-top:1px solid rgba(232,133,77,.7);background:rgba(232,133,77,.12);font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:#e8854d;cursor:pointer;">LEADS</button>
+          <button id="reno-tab-outreach" onclick="switchRenoTab('outreach')" style="padding:6px 16px;border-radius:9px;border:1px solid transparent;background:transparent;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;">OUTREACH</button>
+          <button id="reno-tab-crm" onclick="switchRenoTab('crm')" style="padding:6px 16px;border-radius:9px;border:1px solid transparent;background:transparent;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;">CRM PIPELINE</button>
+        </div>
+
+        <!-- LEADS TAB -->
+        <div id="reno-leads-view" class="glass float-c" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">DISCOVERED LEADS</span>
+            <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#e8854d;" id="reno-lead-count">0 LEADS</span>
+          </div>
+          <div id="reno-leads-list" style="flex:1;overflow-y:auto;padding:12px;">
+            <div style="text-align:center;padding:40px 20px;color:var(--dim);" id="reno-empty-state">
+              <div style="font-size:28px;margin-bottom:10px;opacity:.3;">🏠</div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;margin-bottom:6px;">NO LEADS YET</div>
+              <div style="font-size:12px;margin-bottom:16px;">Configure your search and click SCAN FOR LEADS</div>
+              <div style="font-size:11px;color:#8ab4d4;margin-bottom:8px;font-family:'Orbitron',sans-serif;letter-spacing:2px;">QUICK GOOGLE SEARCHES</div>
+              <div id="google-links-default" style="display:flex;flex-direction:column;gap:6px;text-align:left;max-width:400px;margin:0 auto;"></div>
+            </div>
           </div>
         </div>
 
-        <!-- Audio elements -->
+        <!-- OUTREACH TAB -->
+        <div id="reno-outreach-view" class="glass float-b hidden" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;">
+            <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">AI OUTREACH GENERATOR</span>
+          </div>
+          <div style="padding:12px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px;">
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:6px;font-family:'Orbitron',sans-serif;">SELECT LEAD TO CONTACT</label>
+              <select id="outreach-lead-select" style="width:100%;background:rgba(0,0,0,.4);border:1px solid #1a2840;border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px;margin-bottom:8px;appearance:none;">
+                <option>-- Scan for leads first --</option>
+              </select>
+              <label style="font-size:9px;color:var(--muted);display:block;margin-bottom:6px;font-family:'Orbitron',sans-serif;">OUTREACH CHANNEL</label>
+              <div style="display:flex;gap:5px;margin-bottom:8px;">
+                <button onclick="setOutreachChannel('email')" id="ch-email" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(77,168,218,.4);background:rgba(77,168,218,.12);font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;cursor:pointer;">✉ EMAIL</button>
+                <button onclick="setOutreachChannel('text')" id="ch-text" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;">💬 TEXT</button>
+                <button onclick="setOutreachChannel('dm')" id="ch-dm" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;">📱 DM</button>
+              </div>
+              <button onclick="generateOutreach()" style="width:100%;padding:8px;background:linear-gradient(165deg,rgba(77,168,218,.2),rgba(77,168,218,.06),rgba(0,0,0,.3));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:#4da8da;cursor:pointer;">⚡ GENERATE OUTREACH</button>
+            </div>
+            <div id="outreach-result" style="display:none;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:#4da8da;letter-spacing:2px;">GENERATED MESSAGE</span>
+                <button onclick="copyOutreach()" style="padding:4px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;" id="outreach-copy-btn">COPY</button>
+              </div>
+              <div id="outreach-subject" style="font-size:11px;color:#f5c842;font-weight:600;margin-bottom:8px;"></div>
+              <pre id="outreach-text" style="font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.7;"></pre>
+              <div style="margin-top:10px;display:flex;gap:8px;">
+                <button onclick="sendToGmail()" style="padding:7px 14px;background:rgba(60,198,138,.12);border:1px solid rgba(60,198,138,.4);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:8px;color:#3cc68a;cursor:pointer;letter-spacing:1px;">📧 SEND VIA GMAIL</button>
+                <button onclick="markLeadContacted()" style="padding:7px 14px;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.3);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:8px;color:#f5c842;cursor:pointer;letter-spacing:1px;">✓ MARK CONTACTED</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CRM TAB -->
+        <div id="reno-crm-view" class="glass float-a hidden" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;">
+            <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;">LEAD PIPELINE — CRM</span>
+          </div>
+          <div style="flex:1;overflow-x:auto;overflow-y:hidden;padding:12px;display:flex;gap:10px;" id="reno-crm-board">
+            <!-- Kanban columns generated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══ TIPS & AI HELP VIEW ══ -->
+    <div id="tips-view" class="hidden" style="flex:1;display:grid;grid-template-columns:320px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+
+      <!-- LEFT: Guide -->
+      <div style="overflow-y:auto;overflow-x:visible;display:flex;flex-direction:column;gap:8px;padding-right:2px;">
+        <div class="glass float-a" style="padding:14px 15px;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#4da8da;letter-spacing:3px;margin-bottom:12px;">📖 COMMAND CENTER GUIDE</div>
+
+          <!-- Executive Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(77,168,218,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(77,168,218,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#4da8da;font-weight:700;">⬛ EXECUTIVE TAB</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              Your personal CEO dashboard. Shows live KPIs — active jobs, open claims, pipeline value, compliance status, inbox alerts, and Vehicle Scout status.<br><br>
+              <b style="color:#ffffff;">3D Charts:</b> Revenue surface, claims scatter, job status donut. Drag to rotate them.<br><br>
+              <b style="color:#ffffff;">Quick Launch:</b> Jump directly to any agent without switching tabs.<br><br>
+              <b style="color:#ffffff;">Activity Log:</b> Everything that happened today across all systems.
+            </div>
+          </div>
+
+          <!-- Field Ops Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(123,111,232,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(123,111,232,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#7b6fe8;font-weight:700;">⬛ FIELD OPS TAB — 9 AGENTS</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              <b style="color:#4da8da;">📋 SCOPE</b> — Paste field notes → get a professional scope of work<br>
+              <b style="color:#3cc68a;">💰 BILLING</b> — Paste unpaid invoice info → get a firm follow-up email<br>
+              <b style="color:#5c9bc8;">✉ EMAIL</b> — Paste any email → get a complete ready-to-send reply<br>
+              <b style="color:#7b6fe8;">👤 INTAKE</b> — Describe a new job call → get a full intake form<br>
+              <b style="color:#e8854d;">🎬 VIDEO</b> — Describe a job → get a full social media video package<br>
+              <b style="color:#e85470;">👥 CRM</b> — Paste client info → get a structured CRM entry<br>
+              <b style="color:#f5c842;">🧾 ESTIMATE</b> — Describe work needed → get a professional estimate<br>
+              <b style="color:#42d4c4;">📁 DOCS</b> — List what you have → get a document tracker and request letter<br>
+              <b style="color:#e85470;">⚠ PERMITS</b> — Describe violation or permit issue → get resolution steps<br><br>
+              <b style="color:#ffffff;">TIP:</b> Just start typing — the system auto-detects which agent to use based on your keywords.
+            </div>
+          </div>
+
+          <!-- Vehicle Scout Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(245,168,0,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(245,168,0,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#F5A800;font-weight:700;">⬛ VEHICLE SCOUT TAB</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              Autonomous vehicle finder. Runs 5 AI agents across Facebook, Craigslist, eBay Motors, CarGurus, and AutoTrader.<br><br>
+              <b style="color:#ffffff;">VEHICLE HUNT mode:</b> Pick make, model, year range, condition, max miles, max price → click SAVE CONFIG → click INITIATE SEARCH.<br><br>
+              <b style="color:#ffffff;">RENTAL PROFIT mode:</b> Pick vehicle category → automatically calculates monthly profit, ROI, and payback period for each listing.<br><br>
+              <b style="color:#ffffff;">Auto-scan:</b> Set interval (1H/3H/6H/12H/24H) and the server scans automatically — even when you're not logged in.<br><br>
+              <b style="color:#ffffff;">SEND REPORT:</b> Emails full results to your Gmail instantly.<br><br>
+              <b style="color:#f5c842;">⚠ Rate limit fix needed:</b> Add $20 credits at console.anthropic.com/settings/billing to run all 5 agents simultaneously.
+            </div>
+          </div>
+
+          <!-- Bath Reno Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(232,133,77,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(232,133,77,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#e8854d;font-weight:700;">⬛ BATH RENO TAB</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              NJ bathroom renovation lead command. Finds real homeowners looking for contractors.<br><br>
+              <b style="color:#ffffff;">SCAN FOR LEADS:</b> Searches Reddit (r/newjersey, r/HomeImprovement) for real NJ homeowner posts. If no Reddit results, generates AI practice leads.<br><br>
+              <b style="color:#ffffff;">OUTREACH tab:</b> Select a lead → pick Email/Text/DM → click Generate → get a personalized message → click Send via Gmail.<br><br>
+              <b style="color:#ffffff;">CRM PIPELINE:</b> Track every lead through New → Contacted → Quoted → Won/Lost. Shows estimated pipeline value.<br><br>
+              <b style="color:#ffffff;">Google Search Links:</b> Pre-built searches for NJ bathroom reno homeowners. Click any link to open Google.
+            </div>
+          </div>
+
+          <!-- Employee Portal -->
+          <div style="margin-bottom:10px;border:1px solid rgba(60,198,138,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(60,198,138,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;font-weight:700;">⬛ EMPLOYEE PORTAL</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              URL: <b style="color:#4da8da;">holmes-field-ops.onrender.com</b><br><br>
+              <b style="color:#ffffff;">Employee codes:</b><br>
+              Garmar Virgin (PM): <span style="font-family:monospace;color:#f5c842;">HHC-GM-0341</span><br>
+              Jason Brown Jr (Office): <span style="font-family:monospace;color:#f5c842;">HHC-JB-7829</span><br>
+              Kimya Springer (Director): <span style="font-family:monospace;color:#f5c842;">HHC-KS-5614</span><br>
+              Zion Johnson (Tech): <span style="font-family:monospace;color:#f5c842;">HHC-ZJ-9273</span><br><br>
+              <b style="color:#ffffff;">Live view of all employees:</b><br>
+              <span style="font-family:monospace;font-size:10px;color:#4da8da;">holmes-field-ops.onrender.com/api/admin/live?secret=Holmes2025!</span>
+            </div>
+          </div>
+
+          <!-- How everything connects -->
+          <div style="border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(255,255,255,.05);font-family:'Orbitron',sans-serif;font-size:10px;color:#ffffff;font-weight:700;">⬛ HOW IT ALL CONNECTS</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.8;">
+              <b style="color:#4da8da;">Gmail Agent</b> → reads your inbox every 60s → classifies emails → saves drafts → logs to Sheets<br>
+              <b style="color:#F5A800;">Vehicle Scout</b> → runs on Render server → scans every 6h automatically → emails results to Gmail<br>
+              <b style="color:#7b6fe8;">Field Ops Portal</b> → employees log in → run agents → hours logged to Sheets → weekly CSV exported for ADP payroll<br>
+              <b style="color:#3cc68a;">Google Sheets</b> → central data log for email activity, employee hours, vehicle scan results<br>
+              <b style="color:#e8854d;">Bath Reno</b> → finds leads → outreach → CRM tracks them → won jobs flow into the Scope agent
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: AI Chatbot -->
+      <div style="display:flex;flex-direction:column;overflow:hidden;">
+        <div class="glass float-b" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;gap:10px;">
+            <div class="glow-dot" style="width:7px;height:7px;border-radius:50%;background:#4da8da;box-shadow:0 0 12px #4da8da;"></div>
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:#4da8da;font-weight:700;letter-spacing:2px;">HOLMES AI ASSISTANT</div>
+              <div style="font-size:11px;color:#8ab4d4;margin-top:2px;">Ask me anything about your Command Center, employees, vehicles, leads, or operations</div>
+            </div>
+          </div>
+
+          <!-- Chat messages -->
+          <div id="chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+            <!-- Welcome message -->
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:32px;height:32px;border-radius:9px;background:rgba(77,168,218,.15);border:1px solid rgba(77,168,218,.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🤖</div>
+              <div style="background:rgba(77,168,218,.08);border:1px solid rgba(77,168,218,.15);border-radius:12px;border-top-left-radius:3px;padding:12px 14px;max-width:85%;">
+                <div style="font-size:13px;color:#ffffff;line-height:1.7;">Hey Jason! I'm your Holmes AI Assistant. I know everything about your Command Center — all 4 tabs, your employee portal, vehicle scout, Gmail agent, and how it all connects.<br><br>Ask me anything like:<br>
+                <span style="color:#4da8da;">• "How do I find a Ford Transit under $20K?"</span><br>
+                <span style="color:#4da8da;">• "What should Garmar use for a new water damage job?"</span><br>
+                <span style="color:#4da8da;">• "How do I track a lead from Bath Reno to a won job?"</span><br>
+                <span style="color:#4da8da;">• "My employee can't run agents — what do I do?"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input -->
+          <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.25);flex-shrink:0;">
+            <div style="display:flex;gap:10px;align-items:flex-end;">
+              <textarea id="chat-input" placeholder="Ask me anything about your Holmes AI system..." style="flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;min-height:44px;max-height:100px;line-height:1.5;" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
+              <button onclick="sendChatMessage()" id="chat-send-btn" style="padding:10px 18px;background:linear-gradient(165deg,rgba(77,168,218,.25),rgba(77,168,218,.08),rgba(0,0,0,.4));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#4da8da;cursor:pointer;white-space:nowrap;height:44px;">SEND</button>
+            </div>
+            <div style="font-size:10px;color:#3d5578;margin-top:6px;">Press Enter to send · Shift+Enter for new line</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══ MESSENGER VIEW ══ -->
+    <div id="msg-view" class="hidden" style="flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+      <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#4da8da;letter-spacing:2px;margin-bottom:4px;">💬 MESSENGER</div>
+          <div style="font-size:11px;color:#8ab4d4;">Text and call your team</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:10px;" id="msg-emp-list"></div>
+      </div>
+      <div class="glass float-c" style="display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;gap:12px;">
+          <div id="chat-emp-avatar" style="width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;flex-shrink:0;">--</div>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#ffffff;" id="chat-emp-name">Select an employee</div>
+            <div style="font-size:11px;color:#8ab4d4;" id="chat-emp-status">Click a name on the left to start chatting</div>
+          </div>
+          <div style="margin-left:auto;display:none;" id="call-btns">
+            <button onclick="startCall('audio')" style="padding:8px 14px;background:rgba(60,198,138,.12);border:1px solid rgba(60,198,138,.35);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;">📞 CALL</button>
+          </div>
+        </div>
+        <div id="msg-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="text-align:center;padding:40px 20px;color:var(--dim);"><div style="font-size:24px;margin-bottom:8px;opacity:.3;">💬</div><div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;">SELECT EMPLOYEE TO CHAT</div></div>
+        </div>
         <audio id="local-audio" autoplay muted style="display:none;"></audio>
         <audio id="remote-audio" autoplay style="display:none;"></audio>
-
-        <!-- Input -->
-        <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0;" id="msg-input-area" style="display:none;">
+        <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0;display:none;" id="msg-input-area">
           <div style="display:flex;gap:8px;align-items:flex-end;">
-            <textarea id="msg-input" placeholder="Type a message..." style="flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;min-height:44px;max-height:100px;line-height:1.5;" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+            <textarea id="msg-input" placeholder="Type a message..." style="flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;min-height:44px;max-height:100px;" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
             <button onclick="sendMsg()" style="padding:10px 18px;background:linear-gradient(165deg,rgba(77,168,218,.25),rgba(77,168,218,.08),rgba(0,0,0,.4));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#4da8da;cursor:pointer;height:44px;">SEND</button>
           </div>
         </div>
@@ -995,7 +1288,7 @@ span[style*="font-size:7px"]  { font-size: 9px  !important; }
     </div>
 
     <!-- ══ FIELD VIEW ══ -->
-    <div id="field-view" style="display:none;flex:1;">
+    <div id="field-view" class="hidden">
 
       <!-- AGENT LIST -->
       <div style="display:flex;flex-direction:column;overflow-y:auto;overflow-x:visible;padding-right:2px;" id="agent-list-col">
@@ -1152,16 +1445,11 @@ let role        = "exec";
 const FLOATS    = ["float-a","float-b","float-c","float-d","float-e","float-f"];
 
 /* ── INIT ── */
-// Use DOMContentLoaded — never gets overwritten unlike window.onload
 document.addEventListener("DOMContentLoaded", function() {
-  // Load saved key into memory
-  var savedKey = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
-  if (savedKey && savedKey.length > 20) {
-    apiKey = savedKey;
-    showApp(); // ensure app is visible
-  }
   buildUI();
   startClock();
+  var k = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
+  if (k && k.length > 20) { apiKey = k; showApp(); }
 });
 
 function buildUI() {
@@ -1186,7 +1474,6 @@ function activateKey() {
   apiKey = val;
   localStorage.setItem("hhc_api_key", val);
   sessionStorage.setItem("hhc_api_key", val);
-  document.documentElement.setAttribute("data-has-key","1");
   document.getElementById("key-error").style.display = "none";
   showApp();
 }
@@ -1195,7 +1482,6 @@ document.addEventListener("keydown", e => {
 });
 function clearKey() {
   localStorage.removeItem("hhc_api_key");
-  sessionStorage.removeItem("hhc_api_key");
   apiKey = "";
   document.getElementById("api-key-input").value = "";
   document.getElementById("app").style.display = "none";
@@ -1209,16 +1495,40 @@ function showApp() {
 /* ── ROLE SWITCH ── */
 function switchRole(r) {
   role = r;
-  ["exec","field","scout","reno","tips","msg"].forEach(function(k) {
-    var v = document.getElementById(k+"-view");
-    var b = document.getElementById("btn-"+k);
-    if (v) v.style.display = k===r ? (k==="exec"?"flex":"grid") : "none";
-    if (b) { if(k===r) b.classList.add("active"); else b.classList.remove("active"); }
-  });
-  if (r==="scout" && typeof startScoutPolling==="function") startScoutPolling();
-  if (r!=="scout" && typeof stopScoutPolling==="function") stopScoutPolling();
-  if (r==="exec" && typeof startEmpPolling==="function") startEmpPolling();
-  if (r==="msg" && typeof buildMsgEmpList==="function") buildMsgEmpList();
+  document.getElementById("exec-view").classList.toggle("hidden", r !== "exec");
+  document.getElementById("field-view").classList.toggle("hidden", r !== "field");
+  document.getElementById("btn-exec").classList.toggle("active", r === "exec");
+  document.getElementById("btn-field").classList.toggle("active", r === "field");
+
+  // Scout tab
+  const scoutView = document.getElementById("scout-view");
+  const scoutBtn  = document.getElementById("btn-scout");
+  if (scoutView) scoutView.classList.toggle("hidden", r !== "scout");
+  if (scoutBtn)  scoutBtn.classList.toggle("active", r === "scout");
+  if (r === "scout") {
+    if (typeof startScoutPolling === "function") startScoutPolling();
+  } else {
+    if (typeof stopScoutPolling === "function") stopScoutPolling();
+  }
+
+  // Reno tab
+  const renoView = document.getElementById("reno-view");
+  const renoBtn  = document.getElementById("btn-reno");
+  if (renoView) renoView.classList.toggle("hidden", r !== "reno");
+  if (renoBtn)  renoBtn.classList.toggle("active", r === "reno");
+
+  // Tips tab
+  const tipsView = document.getElementById("tips-view");
+  const tipsBtn  = document.getElementById("btn-tips");
+  if (tipsView) tipsView.classList.toggle("hidden", r !== "tips");
+  if (tipsBtn)  tipsBtn.classList.toggle("active", r === "tips");
+
+  // Messenger tab
+  const msgView = document.getElementById("msg-view");
+  const msgBtn  = document.getElementById("btn-msg");
+  if (msgView) msgView.classList.toggle("hidden", r !== "msg");
+  if (msgBtn)  msgBtn.classList.toggle("active", r === "msg");
+  if (r === "msg" && typeof buildMsgEmpList === "function") buildMsgEmpList();
 }
 
 /* ── BUILD KPIs ── */
@@ -2047,26 +2357,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-/* ── UNIVERSAL CLAUDE PROXY — routes through Field Ops server ── */
-async function callClaudeProxy(prompt, maxTokens) {
-  maxTokens = maxTokens || 1000;
-  // Always route through Field Ops server to avoid CORS
-  var res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
+/* ── UNIVERSAL CLAUDE PROXY ── */
+async function callClaudeProxy(prompt, maxTokens=1000) {
+  // Try direct Anthropic API first (with browser-access header)
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: maxTokens,
+        messages: [{ role:"user", content:prompt }]
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+    }
+  } catch(e) { /* fall through to proxy */ }
+
+  // Fall back to Field Ops server proxy
+  const res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
     method: "POST",
     headers: { "Content-Type":"application/json", "x-admin-secret":"Holmes2025!" },
-    body: JSON.stringify({
-      systemPrompt: "You are a helpful AI assistant for Holmes Holding Co., a NJ/NY property restoration company run by Jason Brown.",
-      userMessage: prompt,
-      maxTokens: maxTokens
-    })
+    body: JSON.stringify({ systemPrompt:"You are a helpful AI assistant for Holmes Holding Co.", userMessage:prompt, maxTokens })
   });
-  if (!res.ok) {
-    var errText = await res.text().catch(function(){return "HTTP "+res.status;});
-    throw new Error("Server error: " + res.status + " — " + errText.slice(0,100));
-  }
-  var data = await res.json();
-  if (data.error) throw new Error(typeof data.error === "string" ? data.error : data.error.message || JSON.stringify(data.error));
-  return (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+  if (!res.ok) throw new Error("Proxy failed: HTTP "+res.status);
+  const data = await res.json();
+  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
 }
 
 /* ══ BATH RENO LEAD COMMAND ══════════════════════════════ */
@@ -2428,24 +2752,24 @@ async function sendChatMessage() {
   var bubble = addChatMessage("assistant", "▋", true);
 
   try {
-    // Build full conversation context
-    var msgs = chatHistory.slice(-10);
-    var fullPrompt = HOLMES_SYSTEM + "\n\nConversation so far:\n" +
-      msgs.slice(0,-1).map(function(m){ return (m.role==="user"?"User":"Assistant") + ": " + m.content; }).join("\n") +
-      "\n\nUser: " + msg + "\n\nAssistant:";
-
-    var res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
+    var res = await fetch("https://api.anthropic.com/v1/messages", {
       method:"POST",
-      headers:{"Content-Type":"application/json","x-admin-secret":"Holmes2025!"},
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key":apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
       body:JSON.stringify({
-        systemPrompt: HOLMES_SYSTEM,
-        userMessage: msgs.map(function(m){return (m.role==="user"?"User":"Assistant")+": "+m.content;}).join("\n"),
-        maxTokens: 600
+        model:"claude-sonnet-4-20250514",
+        max_tokens:600,
+        system:HOLMES_SYSTEM,
+        messages:chatHistory.slice(-10)
       })
     });
-    if (!res.ok) throw new Error("Server error: HTTP " + res.status + " — is holmes-field-ops.onrender.com online?");
+
     var data = await res.json();
-    if (data.error) throw new Error(typeof data.error==="string"?data.error:data.error.message||"Unknown error");
+    if (data.error) throw new Error(data.error.message);
     var reply = (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
 
     // Stream reply character by character
@@ -2482,485 +2806,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 });
-
-
-/* ══ LIVE EMPLOYEE ACTIVITY ══════════════════════════════ */
-var empEventLog = [];
-var empPollInt  = null;
-var allEmployees = [
-  {id:"EMP001", name:"Garmar Virgin",   role:"Project Manager", color:"#4DA8DA"},
-  {id:"EMP002", name:"Jason Brown Jr",  role:"Office",          color:"#3CC68A"},
-  {id:"EMP003", name:"Kimya Springer",  role:"Director",        color:"#7B6FE8"},
-  {id:"EMP004", name:"Zion Johnson",    role:"Tech",            color:"#E8854D"},
-];
-
-async function pollEmployees() {
-  try {
-    var res = await fetch("https://holmes-field-ops.onrender.com/api/admin/live?secret=Holmes2025!");
-    if (!res.ok) return;
-    var data = await res.json();
-    var active = data.employees || [];
-
-    // Update live dot
-    var dot = document.getElementById("emp-live-dot");
-    var cnt = document.getElementById("emp-active-count");
-    if (dot) {
-      dot.style.cssText = active.length > 0
-        ? "width:5px;height:5px;border-radius:50%;background:#3CC68A;box-shadow:0 0 10px #3CC68A;"
-        : "width:5px;height:5px;border-radius:50%;background:var(--dim);";
-    }
-    if (cnt) cnt.textContent = active.length + " ONLINE";
-
-    // Render active employee cards
-    var list = document.getElementById("emp-active-list");
-    if (list) {
-      // Show all 4 employees — online or offline
-      var cards = allEmployees.map(function(emp) {
-        var live = active.find(function(a){ return a.name === emp.name; });
-        var isOnline = !!live;
-        return "<div style='display:flex;align-items:center;gap:8px;padding:7px 10px;background:" + (isOnline ? emp.color+"0e" : "rgba(255,255,255,.01)") + ";border:1px solid " + (isOnline ? emp.color+"33" : "rgba(255,255,255,.04)") + ";border-radius:9px;margin-bottom:5px;'>" +
-          "<div style='width:7px;height:7px;border-radius:50%;background:" + (isOnline ? emp.color : "var(--dim)") + ";box-shadow:" + (isOnline ? "0 0 8px "+emp.color : "none") + ";flex-shrink:0;" + (isOnline ? "animation:glow 2s ease-in-out infinite;" : "") + "'></div>" +
-          "<div style='flex:1;min-width:0;'>" +
-            "<div style='font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;color:" + (isOnline ? "#ffffff" : "var(--muted)") + ";'>" + emp.name + "</div>" +
-            (isOnline ? "<div style='font-size:10px;color:" + emp.color + ";overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'>" + (live.currentAgent !== "None" ? live.currentAgent.toUpperCase() + " agent" : "Idle") + (live.currentTask && live.currentTask !== "Idle" ? " — " + live.currentTask.slice(0,40) : "") + "</div>" : "<div style='font-size:10px;color:var(--dim);'>Offline</div>") +
-          "</div>" +
-          (isOnline ? "<div style='text-align:right;flex-shrink:0;'><div style='font-family:Orbitron,sans-serif;font-size:9px;color:#3CC68A;'>" + parseFloat(live.hoursWorked||0).toFixed(1) + "h</div><div style='font-size:9px;color:var(--muted);'>" + live.tasksCompleted + " tasks</div></div>" : "") +
-        "</div>";
-      }).join("");
-      list.innerHTML = cards;
-    }
-
-    // Add events to log
-    var logEl = document.getElementById("emp-event-log");
-    if (logEl && active.length > 0) {
-      var now = new Date().toLocaleTimeString("en-US",{hour12:false});
-      active.forEach(function(emp) {
-        // Check if this is a new login or new task vs last known state
-        var existing = empEventLog.find(function(e){ return e.name===emp.name && e.type==="online"; });
-        if (!existing) {
-          empEventLog.unshift({ name:emp.name, type:"online", time:emp.loginAt ? new Date(emp.loginAt).toLocaleTimeString("en-US",{hour12:false}) : now, task:"Logged in", agent:"" });
-        }
-        if (emp.currentAgent && emp.currentAgent !== "None" && emp.currentTask && emp.currentTask !== "Idle") {
-          var lastTask = empEventLog.find(function(e){ return e.name===emp.name && e.type==="task"; });
-          if (!lastTask || lastTask.task !== emp.currentTask) {
-            empEventLog.unshift({ name:emp.name, type:"task", time:emp.lastActivity||now, task:emp.currentTask, agent:emp.currentAgent });
-          }
-        }
-      });
-      // Keep last 20 events
-      empEventLog = empEventLog.slice(0, 20);
-      renderEventLog();
-    }
-
-    // Update team cards in roster
-    buildTeamCards(active);
-
-  } catch(e) {
-    // Field Ops server offline — show all employees as offline
-    buildTeamCards([]);
-  }
-}
-
-function renderEventLog() {
-  var logEl = document.getElementById("emp-event-log");
-  if (!logEl || empEventLog.length === 0) return;
-  var typeColors = { online:"#3CC68A", logout:"#E85470", task:"#4DA8DA" };
-  var typeIcons  = { online:"🟢", logout:"🔴", task:"⚡" };
-  logEl.innerHTML = empEventLog.map(function(e) {
-    var c = typeColors[e.type] || "#4DA8DA";
-    return "<div style='display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start;'>" +
-      "<span style='font-family:JetBrains Mono,monospace;font-size:9px;color:var(--dim);flex-shrink:0;'>" + (e.time||"") + "</span>" +
-      "<span style='font-size:11px;flex-shrink:0;'>" + (typeIcons[e.type]||"•") + "</span>" +
-      "<div style='flex:1;min-width:0;'>" +
-        "<span style='font-size:11px;color:" + c + ";font-weight:600;'>" + e.name.split(" ")[0] + "</span>" +
-        "<span style='font-size:11px;color:#c8e0ff;'> " + (e.type==="task" ? "ran " + e.agent + " — " + e.task.slice(0,50) : e.type==="online" ? "logged in" : "logged out") + "</span>" +
-      "</div>" +
-    "</div>";
-  }).join("");
-}
-
-function buildTeamCards(active) {
-  var el = document.getElementById("team-cards");
-  if (!el) return;
-  el.innerHTML = allEmployees.map(function(emp) {
-    var live = active.find(function(a){ return a.name===emp.name; });
-    return "<div style='display:flex;align-items:center;gap:7px;padding:5px 8px;background:" + (live ? emp.color+"0a" : "rgba(255,255,255,.01)") + ";border:1px solid " + (live ? emp.color+"25" : "rgba(255,255,255,.04)") + ";border-radius:8px;margin-bottom:4px;cursor:pointer;' onclick='switchRole(\"field\")'>" +
-      "<div style='width:5px;height:5px;border-radius:50%;background:" + (live ? emp.color : "var(--dim)") + ";flex-shrink:0;'></div>" +
-      "<span style='font-size:11px;color:" + (live ? "#ffffff" : "var(--muted)") + ";font-weight:" + (live ? "600" : "400") + ";'>" + emp.name.split(" ")[0] + "</span>" +
-      "<span style='font-size:10px;color:var(--dim);'>" + emp.role + "</span>" +
-      (live ? "<span style='margin-left:auto;font-size:10px;color:#3CC68A;font-family:Orbitron,sans-serif;'>" + parseFloat(live.hoursWorked||0).toFixed(1) + "h</span>" : "") +
-    "</div>";
-  }).join("");
-}
-
-function startEmpPolling() {
-  pollEmployees();
-  if (empPollInt) clearInterval(empPollInt);
-  empPollInt = setInterval(pollEmployees, 15000); // poll every 15 seconds
-}
-
-// Start polling when on exec view, stop when away
-var _origSwitchRole2 = switchRole;
-switchRole = function(r) {
-  _origSwitchRole2(r);
-  if (r === "exec") {
-    startEmpPolling();
-  } else if (empPollInt) {
-    clearInterval(empPollInt);
-    empPollInt = null;
-  }
-};
-
-// Also poll on page load when exec is default
-setTimeout(startEmpPolling, 2000);
-
-
-/* ══ MESSENGER + VOICE CALLING ═════════════════════════ */
-var msgCurrentEmp  = null;
-var msgPollInt     = null;
-var msgLastTs      = 0;
-var callPollInt    = null;
-var rtcConn        = null;
-var localStream    = null;
-var currentCallId  = null;
-var pendingSignal  = null;
-
-var MSG_EMPLOYEES = [
-  {id:"EMP001", name:"Garmar Virgin",   role:"Project Manager", color:"#4DA8DA", initials:"GV"},
-  {id:"EMP002", name:"Jason Brown Jr",  role:"Office",          color:"#3CC68A", initials:"JB"},
-  {id:"EMP003", name:"Kimya Springer",  role:"Director",        color:"#7B6FE8", initials:"KS"},
-  {id:"EMP004", name:"Zion Johnson",    role:"Tech",            color:"#E8854D", initials:"ZJ"},
-];
-
-var STUN_SERVERS = { iceServers: [{ urls:"stun:stun.l.google.com:19302" },{ urls:"stun:stun1.l.google.com:19302" }] };
-
-/* ── Build employee list ── */
-function buildMsgEmpList() {
-  var list = document.getElementById("msg-emp-list");
-  if (!list) return;
-  list.innerHTML = MSG_EMPLOYEES.map(function(emp) {
-    return "<div id='msg-emp-"+emp.id+"' onclick='selectMsgEmp(\""+emp.id+"\")' style='display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);margin-bottom:6px;cursor:pointer;transition:all .2s;position:relative;'>" +
-      "<div style='width:38px;height:38px;border-radius:10px;background:"+emp.color+"18;border:1px solid "+emp.color+"33;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:"+emp.color+";flex-shrink:0;'>"+emp.initials+"</div>" +
-      "<div style='flex:1;min-width:0;'>" +
-        "<div style='font-size:13px;font-weight:700;color:#ffffff;'>"+emp.name+"</div>" +
-        "<div style='font-size:11px;color:#8ab4d4;'>"+emp.role+"</div>" +
-      "</div>" +
-      "<div id='msg-badge-"+emp.id+"' style='display:none;background:#e85470;border-radius:50%;width:18px;height:18px;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;'></div>" +
-    "</div>";
-  }).join("");
-}
-
-function selectMsgEmp(empId) {
-  msgCurrentEmp = MSG_EMPLOYEES.find(function(e){ return e.id===empId; });
-  if (!msgCurrentEmp) return;
-  msgLastTs = 0;
-
-  // Update header
-  var av   = document.getElementById("chat-emp-avatar");
-  var name = document.getElementById("chat-emp-name");
-  var stat = document.getElementById("chat-emp-status");
-  var cbtns= document.getElementById("call-btns");
-  var inp  = document.getElementById("msg-input-area");
-
-  if (av)   { av.textContent=msgCurrentEmp.initials; av.style.cssText="width:36px;height:36px;border-radius:9px;background:"+msgCurrentEmp.color+"18;border:1px solid "+msgCurrentEmp.color+"33;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:12px;font-weight:700;color:"+msgCurrentEmp.color+";flex-shrink:0;"; }
-  if (name) { name.textContent=msgCurrentEmp.name; name.style.color=msgCurrentEmp.color; }
-  if (stat) { stat.textContent=msgCurrentEmp.role+" — Click CALL to start a voice call"; }
-  if (cbtns){ cbtns.style.display="flex"; }
-  if (inp)  { inp.style.display="block"; }
-
-  // Highlight selected employee
-  MSG_EMPLOYEES.forEach(function(e) {
-    var el = document.getElementById("msg-emp-"+e.id);
-    if (el) el.style.background = e.id===empId ? msgCurrentEmp.color+"14" : "rgba(255,255,255,.02)";
-    if (el) el.style.borderColor = e.id===empId ? msgCurrentEmp.color+"33" : "rgba(255,255,255,.05)";
-  });
-
-  // Clear messages and load
-  document.getElementById("msg-messages").innerHTML = "<div style='text-align:center;padding:20px;color:var(--dim);font-size:11px;'>Loading messages...</div>";
-  loadMessages(true);
-
-  // Start polling
-  if (msgPollInt) clearInterval(msgPollInt);
-  msgPollInt = setInterval(function(){ loadMessages(false); }, 3000);
-}
-
-async function loadMessages(initial) {
-  if (!msgCurrentEmp) return;
-  var convId = ["ADMIN", msgCurrentEmp.id].sort().join("_");
-  try {
-    var res = await fetch("https://holmes-field-ops.onrender.com/api/messages/"+convId+"?since="+(initial?0:msgLastTs), {
-      headers: {"x-admin-secret":"Holmes2025!"}
-    });
-    if (!res.ok) return;
-    var data = await res.json();
-    var msgs = data.messages || [];
-    if (msgs.length === 0 && initial) {
-      document.getElementById("msg-messages").innerHTML = "<div style='text-align:center;padding:40px;color:var(--dim);'><div style='font-size:22px;margin-bottom:8px;opacity:.3;'>💬</div><div style='font-family:Orbitron,sans-serif;font-size:11px;letter-spacing:2px;'>NO MESSAGES YET</div><div style='font-size:11px;margin-top:6px;'>Send a message to start the conversation</div></div>";
-      return;
-    }
-    if (msgs.length > 0) {
-      if (initial) {
-        renderMessages(msgs);
-      } else {
-        appendMessages(msgs);
-      }
-      msgLastTs = Math.max.apply(null, msgs.map(function(m){return m.ts;}));
-    }
-  } catch(e) {}
-}
-
-function renderMessages(msgs) {
-  var container = document.getElementById("msg-messages");
-  container.innerHTML = "";
-  msgs.forEach(function(m){ container.appendChild(createMsgBubble(m)); });
-  container.scrollTop = container.scrollHeight;
-}
-
-function appendMessages(msgs) {
-  var container = document.getElementById("msg-messages");
-  msgs.forEach(function(m){ container.appendChild(createMsgBubble(m)); });
-  container.scrollTop = container.scrollHeight;
-}
-
-function createMsgBubble(m) {
-  var isMe = m.from === "ADMIN";
-  var emp  = MSG_EMPLOYEES.find(function(e){ return e.id===m.from; });
-  var div  = document.createElement("div");
-  div.style.cssText = "display:flex;gap:8px;align-items:flex-end;" + (isMe?"flex-direction:row-reverse;":"");
-
-  var time = new Date(m.ts).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:true});
-  var avatarStyle = isMe
-    ? "width:28px;height:28px;border-radius:7px;background:rgba(77,168,218,.15);border:1px solid rgba(77,168,218,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:Orbitron,sans-serif;color:#4da8da;flex-shrink:0;"
-    : "width:28px;height:28px;border-radius:7px;background:"+(emp?emp.color+"18":"rgba(255,255,255,.05)")+";border:1px solid "+(emp?emp.color+"33":"rgba(255,255,255,.1)")+";display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:Orbitron,sans-serif;color:"+(emp?emp.color:"#ffffff")+";flex-shrink:0;";
-  var bubbleStyle = isMe
-    ? "background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.2);border-radius:12px;border-bottom-right-radius:3px;padding:10px 14px;max-width:75%;word-break:break-word;"
-    : "background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;border-bottom-left-radius:3px;padding:10px 14px;max-width:75%;word-break:break-word;";
-
-  div.innerHTML =
-    "<div style='"+avatarStyle+"'>"+(isMe?"JB":(emp?emp.initials:"?"))+"</div>" +
-    "<div>" +
-      "<div style='"+bubbleStyle+"'>" +
-        "<div style='font-size:13px;color:#ffffff;line-height:1.5;'>"+m.text+"</div>" +
-        "<div style='font-size:10px;color:#5a7a9a;margin-top:4px;text-align:"+(isMe?"right":"left")+";'>"+time+"</div>" +
-      "</div>" +
-    "</div>";
-  return div;
-}
-
-async function sendMsg() {
-  if (!msgCurrentEmp) return;
-  var input = document.getElementById("msg-input");
-  var text  = input ? input.value.trim() : "";
-  if (!text) return;
-  input.value = "";
-
-  try {
-    await fetch("https://holmes-field-ops.onrender.com/api/messages/send", {
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-admin-secret":"Holmes2025!"},
-      body:JSON.stringify({ from:"ADMIN", to:msgCurrentEmp.id, text })
-    });
-    loadMessages(false);
-  } catch(e) { alert("Send failed: "+e.message); }
-}
-
-/* ── Voice Calling ── */
-async function startCall(type) {
-  if (!msgCurrentEmp) return;
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:false });
-    document.getElementById("local-audio").srcObject = localStream;
-
-    rtcConn = new RTCPeerConnection(STUN_SERVERS);
-    localStream.getTracks().forEach(function(t){ rtcConn.addTrack(t, localStream); });
-
-    rtcConn.ontrack = function(e) {
-      document.getElementById("remote-audio").srcObject = e.streams[0];
-    };
-
-    rtcConn.onicecandidate = function(e) {
-      if (e.candidate) {
-        fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({ to:msgCurrentEmp.id, from:"ADMIN", type:"candidate", candidate:e.candidate, callId:currentCallId })
-        });
-      }
-    };
-
-    currentCallId = "call_"+Date.now();
-    var offer = await rtcConn.createOffer();
-    await rtcConn.setLocalDescription(offer);
-
-    await fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ to:msgCurrentEmp.id, from:"ADMIN", type:"offer", sdp:offer, callId:currentCallId })
-    });
-
-    showCallStatus("Calling "+msgCurrentEmp.name+"...");
-    startCallPolling();
-  } catch(e) {
-    alert("Could not start call. Make sure microphone access is allowed in your browser.\nError: "+e.message);
-  }
-}
-
-async function acceptCall() {
-  if (!pendingSignal) return;
-  document.getElementById("incoming-call").style.display = "none";
-
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:false });
-    document.getElementById("local-audio").srcObject = localStream;
-
-    rtcConn = new RTCPeerConnection(STUN_SERVERS);
-    localStream.getTracks().forEach(function(t){ rtcConn.addTrack(t, localStream); });
-
-    rtcConn.ontrack = function(e) {
-      document.getElementById("remote-audio").srcObject = e.streams[0];
-    };
-
-    rtcConn.onicecandidate = function(e) {
-      if (e.candidate) {
-        fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({ to:"ADMIN", from:"ADMIN", type:"candidate", candidate:e.candidate, callId:pendingSignal.callId })
-        });
-      }
-    };
-
-    await rtcConn.setRemoteDescription(new RTCSessionDescription(pendingSignal.sdp));
-    var answer = await rtcConn.createAnswer();
-    await rtcConn.setLocalDescription(answer);
-    currentCallId = pendingSignal.callId;
-
-    await fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ to:pendingSignal.from, from:"ADMIN", type:"answer", sdp:answer, callId:currentCallId })
-    });
-
-    showCallStatus("Connected with "+pendingSignal.from);
-    startCallPolling();
-  } catch(e) {
-    alert("Could not accept call: "+e.message);
-  }
-}
-
-function rejectCall() {
-  document.getElementById("incoming-call").style.display = "none";
-  if (pendingSignal) {
-    fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ to:pendingSignal.from, from:"ADMIN", type:"hangup", callId:pendingSignal.callId })
-    });
-    pendingSignal = null;
-  }
-}
-
-function hangupCall() {
-  if (rtcConn) { rtcConn.close(); rtcConn = null; }
-  if (localStream) { localStream.getTracks().forEach(function(t){t.stop();}); localStream = null; }
-  if (currentCallId) {
-    fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ to:msgCurrentEmp?msgCurrentEmp.id:"ADMIN", from:"ADMIN", type:"hangup", callId:currentCallId })
-    });
-  }
-  hideCallStatus();
-  if (callPollInt) { clearInterval(callPollInt); callPollInt = null; }
-}
-
-function showCallStatus(text) {
-  var bar = document.getElementById("call-status-bar");
-  var txt = document.getElementById("call-status-text");
-  if (bar) bar.style.display = "block";
-  if (txt) txt.textContent = "📞 "+text;
-}
-function hideCallStatus() {
-  var bar = document.getElementById("call-status-bar");
-  if (bar) bar.style.display = "none";
-}
-
-function startCallPolling() {
-  if (callPollInt) clearInterval(callPollInt);
-  callPollInt = setInterval(async function() {
-    try {
-      var res  = await fetch("https://holmes-field-ops.onrender.com/api/call/signal/ADMIN");
-      var data = await res.json();
-      var sig  = data.signal;
-      if (!sig) return;
-
-      if (sig.type === "answer" && rtcConn && rtcConn.signalingState === "have-local-offer") {
-        await rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp));
-        showCallStatus("Connected with "+sig.from);
-      } else if (sig.type === "candidate" && rtcConn) {
-        await rtcConn.addIceCandidate(new RTCIceCandidate(sig.candidate));
-      } else if (sig.type === "hangup") {
-        hangupCall();
-        var empName = MSG_EMPLOYEES.find(function(e){return e.id===sig.from;});
-        alert((empName?empName.name:"Employee")+" ended the call.");
-      } else if (sig.type === "offer" && !rtcConn) {
-        // Incoming call while not in msg tab
-        var caller = MSG_EMPLOYEES.find(function(e){return e.id===sig.from;});
-        pendingSignal = sig;
-        var inc = document.getElementById("incoming-call");
-        var incName = document.getElementById("incoming-name");
-        if (inc) inc.style.display = "block";
-        if (incName) incName.textContent = "📞 Incoming call from "+(caller?caller.name:"an employee")+"...";
-        // Switch to messenger tab
-        switchRole("msg");
-        if (caller) selectMsgEmp(caller.id);
-      }
-    } catch(e) {}
-  }, 2000);
-}
-
-/* ── Poll for unread messages across all employees ── */
-async function pollUnreadMessages() {
-  try {
-    var res  = await fetch("https://holmes-field-ops.onrender.com/api/messages/admin/all?secret=Holmes2025!");
-    if (!res.ok) return;
-    var data = await res.json();
-    var total = data.totalUnread || 0;
-    var badge = document.getElementById("msg-badge");
-    if (badge) badge.style.display = total > 0 ? "block" : "none";
-
-    // Update per-employee badges
-    var convs = data.conversations || {};
-    MSG_EMPLOYEES.forEach(function(emp) {
-      var convId = ["ADMIN", emp.id].sort().join("_");
-      var conv   = convs[convId];
-      var bdg    = document.getElementById("msg-badge-"+emp.id);
-      if (bdg) {
-        if (conv && conv.unread > 0) {
-          bdg.style.display = "flex";
-          bdg.textContent   = conv.unread;
-        } else {
-          bdg.style.display = "none";
-        }
-      }
-    });
-  } catch(e) {}
-}
-
-/* ── Start everything when Messenger tab opens ── */
-var _origSwitchRole3 = switchRole;
-switchRole = function(r) {
-  _origSwitchRole3(r);
-  var msgView = document.getElementById("msg-view");
-  var msgBtn  = document.getElementById("btn-msg");
-  if (msgView) msgView.classList.toggle("hidden", r !== "msg");
-  if (msgBtn)  msgBtn.classList.toggle("active", r === "msg");
-  if (r === "msg") {
-    buildMsgEmpList();
-    startCallPolling(); // Always listen for incoming calls
-  }
-};
-
-// Poll for unread messages every 10 seconds regardless of tab
-setInterval(pollUnreadMessages, 10000);
-setTimeout(pollUnreadMessages, 3000);
-setTimeout(function(){
-  startCallPolling(); // Listen for calls at all times
-}, 4000);
 
 </script>
 </body>
