@@ -581,7 +581,7 @@ input[type="text"], input[type="password"] {
 </div>
 
 <!-- ── API KEY SCREEN ── -->
-<div id="key-screen">
+<div id="key-screen" style="display:none;">
   <div class="key-card">
     <div style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:4px;margin-bottom:6px;" class="shimmer">HOLMES HOLDING CO.</div>
     <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:20px;">AI COMMAND CENTER // 9 AGENTS</div>
@@ -602,7 +602,7 @@ input[type="text"], input[type="password"] {
 </div>
 
 <!-- ── APP ── -->
-<div id="app" style="display:none;">
+<div id="app">
 
   <!-- HEADER -->
   <div id="header">
@@ -1449,11 +1449,15 @@ document.addEventListener("DOMContentLoaded", function() {
   buildUI();
   startClock();
   var k = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
-  if (k && k.length > 20) { apiKey = k; showApp(); }
-});
-
-function buildUI() {
-  buildKPIs(); buildQuickGrid(); buildActivityList(); buildRosterList();
+  if (k && k.length > 20) {
+    apiKey = k;
+    // Key exists — app already visible, keep key screen hidden
+    document.getElementById("key-screen").style.display = "none";
+  } else {
+    // No key — show key screen overlay
+    document.getElementById("key-screen").style.display = "flex";
+  }
+});ctivityList(); buildRosterList();
   buildAgentList(); buildPreviewGrid(); buildFooterAgents(); buildStatusPills();
 }
 
@@ -1489,7 +1493,6 @@ function clearKey() {
 }
 function showApp() {
   document.getElementById("key-screen").style.display = "none";
-  document.getElementById("app").style.display = "flex";
 }
 
 /* ── ROLE SWITCH ── */
