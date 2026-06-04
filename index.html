@@ -343,7 +343,7 @@
   /* ── EXEC VIEW ── */
   #exec-view { padding: 12px 18px; flex: 1; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
   #field-view { padding: 12px 18px; flex: 1; display: grid; grid-template-columns: 215px 1fr; gap: 12px; overflow: hidden; }
-  .hidden { display: none !important; }
+  .hidden { display: none; }
 
   /* ── QUICK ACTION GRID ── */
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; }
@@ -1020,13 +1020,9 @@ document.addEventListener("DOMContentLoaded", function() {
   if (savedKey && savedKey.length > 20) {
     apiKey = savedKey;
     showApp();
-    switchRole("exec");
   }
-});
-
-function buildUI() {
-  buildKPIs(); buildQuickGrid(); buildActivityList(); buildRosterList();
-  buildAgentList(); buildPreviewGrid(); buildFooterAgents(); buildStatusPills();
+  switchRole("exec");
+});ildAgentList(); buildPreviewGrid(); buildFooterAgents(); buildStatusPills();
 }
 
 /* ── CLOCK ── */
@@ -1067,15 +1063,30 @@ function showApp() {
 }
 
 /* ── ROLE SWITCH ── */
-/* ── switchRole ── */
+/* ── switchRole — remove class AND set inline display ── */
 function switchRole(r) {
   role = r;
-  var allViews = ["exec","field","scout","reno","tips","msg"];
-  allViews.forEach(function(k) {
-    var v = document.getElementById(k+"-view");
-    if (v) v.style.cssText += ";display:" + (k===r ? (k==="exec"?"flex":"grid") : "none") + " !important;";
-    var b = document.getElementById("btn-"+k);
-    if (b) { b.classList.toggle("active", k===r); }
+  var viewMap = {
+    exec:  {id:"exec-view",  disp:"flex"},
+    field: {id:"field-view", disp:"grid"},
+    scout: {id:"scout-view", disp:"grid"},
+    reno:  {id:"reno-view",  disp:"grid"},
+    tips:  {id:"tips-view",  disp:"grid"},
+    msg:   {id:"msg-view",   disp:"grid"}
+  };
+  Object.keys(viewMap).forEach(function(k) {
+    var el = document.getElementById(viewMap[k].id);
+    if (!el) return;
+    if (k === r) {
+      el.classList.remove("hidden");   // remove CSS class first
+      el.style.display = viewMap[k].disp;  // then set inline display
+      el.style.flex    = "1";
+    } else {
+      el.classList.add("hidden");      // add CSS class
+      el.style.display = "none";       // also set inline
+    }
+    var btn = document.getElementById("btn-"+k);
+    if (btn) btn.classList.toggle("active", k===r);
   });
   if (r==="scout" && typeof startScoutPolling==="function") startScoutPolling();
   if (r!=="scout" && typeof stopScoutPolling==="function") stopScoutPolling();
@@ -1083,15 +1094,7 @@ function switchRole(r) {
   if (r==="msg" && typeof buildMsgEmpList==="function") buildMsgEmpList();
 }
 
-/* ── BUILD KPIs ── */
-function buildKPIs() {
-  const g = document.getElementById("kpi-grid");
-  g.innerHTML = KPIS.map((k,i) => `
-    <div class="kpi-card glass ${FLOATS[i]}" style="--kc:${k.col};">
-      <div class="led" style="background:radial-gradient(ellipse,${k.col}33 0%,transparent 70%);"></div>
-      <div style="padding:14px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-size:18px;">${k.emoji}</span>
+"font-size:18px;">${k.emoji}</span>
         </div>
         <div class="kpi-value" style="font-size:${k.value.length>5?'15px':'20px'};color:${k.col};text-shadow:0 0 18px ${k.col}55;margin-bottom:4px;">${k.value}</div>
         <div style="font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;">${k.label}</div>
