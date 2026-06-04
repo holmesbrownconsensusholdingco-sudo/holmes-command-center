@@ -2295,53 +2295,47 @@ function renderLeads(googleLinks) {
   const container = document.getElementById("reno-leads-list");
   const countEl   = document.getElementById("reno-lead-count");
   const urgColor  = {hot:"#e85470", warm:"#f5c842", cool:"#4da8da"};
-  const isReal    = renoLeads.some(l => l.realLead);
+  const isReal    = renoLeads.some(function(l){ return l.realLead; });
 
   countEl.textContent = renoLeads.length + (isReal ? " REAL LEADS" : " AI LEADS");
   countEl.style.color = isReal ? "#3cc68a" : "#f5c842";
 
   if (!renoLeads.length) {
-    // Show Google search links when no leads
     if (googleLinks && googleLinks.length) renderGoogleLinks(googleLinks);
     return;
   }
 
-  // Source badge
-  const sourceBadge = isReal
-    ? "<div style='display:inline-block;padding:3px 10px;background:rgba(60,198,138,.15);border:1px solid rgba(60,198,138,.4);border-radius:8px;font-family:Orbitron,sans-serif;font-size:10px;color:#3cc68a;margin-bottom:10px;'>✓ REAL POSTS FROM REDDIT</div>"
-    : "<div style='display:inline-block;padding:3px 10px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);border-radius:8px;font-family:Orbitron,sans-serif;font-size:10px;color:#f5c842;margin-bottom:10px;'>⚠ AI-GENERATED PRACTICE LEADS</div>";
+  var badge = isReal
+    ? "<div style='display:inline-block;padding:4px 12px;background:rgba(60,198,138,.15);border:1px solid rgba(60,198,138,.4);border-radius:8px;font-family:Orbitron,sans-serif;font-size:11px;color:#3cc68a;margin-bottom:10px;'>✓ REAL POSTS FROM REDDIT</div>"
+    : "<div style='display:inline-block;padding:4px 12px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);border-radius:8px;font-family:Orbitron,sans-serif;font-size:11px;color:#f5c842;margin-bottom:10px;'>⚠ AI-GENERATED PRACTICE LEADS</div>";
 
-  container.innerHTML = sourceBadge + renoLeads.map((l,i) => {
-    const uc = urgColor[l.urgency] || "#4da8da";
-    const isRealLead = l.realLead;
+  var cards = renoLeads.map(function(l, i) {
+    var uc = urgColor[l.urgency] || "#4da8da";
+    var realBadge = l.realLead ? "<span style='font-size:11px;color:#3cc68a;'>● REAL</span>" : "<span style='font-size:11px;color:#f5c842;'>AI</span>";
+    var viewBtn   = l.url ? "<a href='" + l.url + "' target='_blank' style='padding:6px 12px;background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.3);border-radius:7px;font-family:Orbitron,sans-serif;font-size:11px;color:#4da8da;text-decoration:none;display:inline-block;'>VIEW POST →</a> " : "";
+    var outBtn    = "<button onclick='selectLeadForOutreach(" + i + ")' style='padding:6px 12px;background:rgba(232,133,77,.1);border:1px solid rgba(232,133,77,.3);border-radius:7px;font-family:Orbitron,sans-serif;font-size:11px;color:#e8854d;cursor:pointer;'>OUTREACH →</button> ";
+    var crmBtn    = "<button onclick="addToCRM(" + i + ",'new')" style='padding:6px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-family:Orbitron,sans-serif;font-size:11px;color:#c8e0ff;cursor:pointer;'>+ CRM</button>";
+    var phone     = l.phone ? "<div style='font-size:12px;color:#4da8da;margin-bottom:4px;'>📞 " + l.phone + " &nbsp; ✉ " + (l.email||"") + "</div>" : "";
+    var reddit    = (l.comments !== undefined) ? "<div style='font-size:11px;color:#8ab4d4;margin-bottom:6px;'>💬 " + l.comments + " comments · ▲ " + l.upvotes + " upvotes · by u/" + (l.author||"anon") + "</div>" : "";
     return "<div style='border:1px solid rgba(255,255,255,.08);border-left:3px solid " + uc + ";border-radius:10px;padding:12px 14px;background:rgba(8,16,44,.6);margin-bottom:8px;position:relative;'>" +
-      "<div style='position:absolute;top:9px;right:11px;display:flex;gap:5px;align-items:center;'>" +
-        (isRealLead ? "<span style='font-size:10px;color:#3cc68a;'>● REAL</span>" : "<span style='font-size:10px;color:#f5c842;'>AI</span>") +
-        "<span style='background:" + uc + "22;border:1px solid " + uc + "44;border-radius:8px;padding:2px 8px;font-family:Orbitron,sans-serif;font-size:10px;color:" + uc + ";'>" + (l.urgency||"").toUpperCase() + "</span>" +
-      "</div>" +
-      "<div style='padding-right:120px;margin-bottom:6px;'>" +
-        "<div style='font-weight:700;font-size:15px;color:#ffffff;margin-bottom:3px;'>" + (l.title||l.name||"Lead") + "</div>" +
-        "<div style='font-size:11px;color:#8ab4d4;'>" + (l.source||"") + " · " + (l.location||"NJ") + " · " + (l.postedDate||"Recent") + "</div>" +
-      "</div>" +
-      "<div style='font-size:12px;color:#c8e0ff;margin-bottom:8px;line-height:1.5;'>" + (l.notes||"").slice(0,180) + (l.notes&&l.notes.length>180?"...":"") + "</div>" +
-      (l.phone ? "<div style='font-size:12px;color:#4da8da;margin-bottom:4px;'>📞 " + l.phone + " &nbsp; ✉ " + (l.email||"") + "</div>" : "") +
-      (l.comments !== undefined ? "<div style='font-size:11px;color:#8ab4d4;margin-bottom:6px;'>💬 " + l.comments + " comments · ▲ " + l.upvotes + " upvotes · by u/" + (l.author||"anon") + "</div>" : "") +
-      "<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;'>" +
-        (l.url ? "<a href='" + l.url + "' target='_blank' style='padding:6px 12px;background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.3);border-radius:7px;font-family:Orbitron,sans-serif;font-size:10px;color:#4da8da;text-decoration:none;'>VIEW POST →</a>" : "") +
-        "<button onclick='selectLeadForOutreach(" + i + ")' style='padding:6px 12px;background:rgba(232,133,77,.1);border:1px solid rgba(232,133,77,.3);border-radius:7px;font-family:Orbitron,sans-serif;font-size:10px;color:#e8854d;cursor:pointer;'>OUTREACH →</button>" +
-        "<button onclick='addToCRM(" + i + ","new")' style='padding:6px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-family:Orbitron,sans-serif;font-size:10px;color:#c8e0ff;cursor:pointer;'>+ CRM</button>" +
-      "</div>" +
+      "<div style='position:absolute;top:9px;right:11px;display:flex;gap:5px;align-items:center;'>" + realBadge + "<span style='background:" + uc + "22;border:1px solid " + uc + "44;border-radius:8px;padding:2px 8px;font-family:Orbitron,sans-serif;font-size:10px;color:" + uc + ";'>" + (l.urgency||"warm").toUpperCase() + "</span></div>" +
+      "<div style='padding-right:120px;margin-bottom:6px;'><div style='font-weight:700;font-size:15px;color:#ffffff;margin-bottom:3px;'>" + (l.title||l.name||"Lead") + "</div><div style='font-size:11px;color:#8ab4d4;'>" + (l.source||"") + " · " + (l.location||"NJ") + " · " + (l.postedDate||"Recent") + "</div></div>" +
+      "<div style='font-size:12px;color:#c8e0ff;margin-bottom:8px;line-height:1.5;'>" + (l.notes||"").slice(0,180) + "</div>" +
+      phone + reddit +
+      "<div style='margin-top:8px;'>" + viewBtn + outBtn + crmBtn + "</div>" +
     "</div>";
-  }).join("");
+  });
 
-  // Show Google links below
+  container.innerHTML = badge + cards.join("");
+
   if (googleLinks && googleLinks.length) {
-    const gDiv = document.createElement("div");
-    gDiv.style.cssText = "margin-top:12px;";
-    gDiv.innerHTML = "<div style='font-family:Orbitron,sans-serif;font-size:11px;color:#8ab4d4;letter-spacing:2px;margin-bottom:8px;'>🔍 GOOGLE SEARCH LINKS</div>";
-    googleLinks.forEach(g => {
-      gDiv.innerHTML += "<a href='" + g.url + "' target='_blank' style='display:block;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;font-size:11px;color:#8ab4d4;text-decoration:none;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'>🔗 " + g.label + "</a>";
+    var gDiv = document.createElement("div");
+    gDiv.style.marginTop = "12px";
+    var gHtml = "<div style='font-family:Orbitron,sans-serif;font-size:11px;color:#8ab4d4;letter-spacing:2px;margin-bottom:8px;'>🔍 GOOGLE SEARCH LINKS</div>";
+    googleLinks.forEach(function(g) {
+      gHtml += "<a href='" + g.url + "' target='_blank' style='display:block;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;font-size:11px;color:#8ab4d4;text-decoration:none;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'>🔗 " + g.label + "</a>";
     });
+    gDiv.innerHTML = gHtml;
     container.appendChild(gDiv);
   }
 }
