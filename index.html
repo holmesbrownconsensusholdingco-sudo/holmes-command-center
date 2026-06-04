@@ -568,6 +568,143 @@ input[type="text"], input[type="password"] {
   font-weight: 600 !important;
 }
 
+
+/* ══ GLOBAL SCROLL + LAYOUT FIXES ═════════════════════════ */
+
+/* Wider, more visible scrollbar on all panels */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,.03); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(77,168,218,.4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(77,168,218,.7); }
+
+/* All left column panels — always scrollable */
+#field-view > div:first-child,
+#scout-view > div:first-child,
+#reno-view > div:first-child,
+#tips-view > div:first-child {
+  overflow-y: auto !important;
+  overflow-x: visible !important;
+  scroll-behavior: smooth;
+}
+
+/* Exec view — make sure lower row cards scroll */
+#exec-view {
+  overflow-y: auto !important;
+}
+#exec-view > div:last-child {
+  overflow: visible !important;
+  min-height: 0;
+}
+#exec-view > div:last-child > div {
+  overflow-y: auto !important;
+}
+
+/* Agent list in field view */
+#agent-list-col {
+  overflow-y: auto !important;
+  overflow-x: visible !important;
+}
+
+/* Scout left column panels stack — each one should size naturally */
+#scout-view > div:first-child .glass {
+  flex-shrink: 0;
+}
+/* Scout log gets remaining space and scrolls internally */
+#scout-log {
+  overflow-y: auto !important;
+  max-height: 200px;
+}
+
+/* Reno leads list */
+#reno-leads-list {
+  overflow-y: auto !important;
+}
+
+/* Tips guide left panel */
+#tips-view > div:first-child .glass {
+  flex-shrink: 0;
+}
+
+/* Output panels */
+#output-content, #output-area {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make all tab views properly fill remaining space */
+#exec-view, #field-view, #scout-view, #reno-view, #tips-view {
+  min-height: 0;
+}
+
+/* Fade gradient at bottom of scrollable left columns to indicate more content */
+#scout-view > div:first-child::after,
+#reno-view > div:first-child::after,
+#tips-view > div:first-child::after,
+#field-view > #agent-list-col::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(180deg, transparent, rgba(2,5,15,.8));
+  pointer-events: none;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* EXEC view KPI grid — don't let it overflow */
+.kpi-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+/* Make cards in lower exec row not clip */
+#exec-view > div:last-child > .glass {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* All scrollable areas — touch scroll on mobile */
+* { -webkit-overflow-scrolling: touch; }
+
+/* Prevent any container from hiding overflow unexpectedly */
+.glass { overflow: visible !important; }
+.glass > div { overflow: visible; }
+
+/* Exception — panels that need internal scroll */
+#output-content,
+#output-area,
+#agent-list,
+#activity-list,
+#roster-list,
+#scout-log,
+#scout-findings,
+#reno-leads-list,
+#chat-messages,
+#history-col,
+#recent-list,
+.glass[id*="log"] { overflow: hidden !important; }
+
+/* Scout view specific — left column height */
+#scout-view > div:first-child {
+  max-height: calc(100vh - 140px);
+}
+
+/* Bath reno left column */
+#reno-view > div:first-child {
+  max-height: calc(100vh - 140px);
+}
+
+/* Tips left column */
+#tips-view > div:first-child {
+  max-height: calc(100vh - 140px);
+}
+
+/* Field ops agent column */
+#agent-list-col {
+  max-height: calc(100vh - 140px) !important;
+}
+
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
