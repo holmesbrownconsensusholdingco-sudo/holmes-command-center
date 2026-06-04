@@ -1022,8 +1022,2827 @@ document.addEventListener("DOMContentLoaded", function() {
     showApp();
   }
   switchRole("exec");
-});ildAgentList(); buildPreviewGrid(); buildFooterAgents(); buildStatusPills();
+});
+
+function buildAgentList(){}
+function buildPreviewGrid(){}
+function buildFooterAgents(){}
+function buildStatusPills(){}
+
+/* ── CLOCK ── */
+function startClock() {
+  const el = document.getElementById("clock");
+  setInterval(() => { el.textContent = new Date().toLocaleTimeString("en-US",{hour12:false}); }, 1000);
+  el.textContent = new Date().toLocaleTimeString("en-US",{hour12:false});
 }
+
+/* ── KEY HANDLING ── */
+function activateKey() {
+  const val = document.getElementById("api-key-input").value.trim();
+  if (!val.startsWith("sk-ant-") && !val.startsWith("sk-")) {
+    document.getElementById("key-error").style.display = "block";
+    return;
+  }
+  apiKey = val;
+  localStorage.setItem("hhc_api_key", val);
+  sessionStorage.setItem("hhc_api_key", val);
+  document.documentElement.setAttribute("data-has-key","1");
+  document.getElementById("key-error").style.display = "none";
+  showApp();
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("key-screen").style.display !== "none") activateKey();
+});
+function clearKey() {
+  localStorage.removeItem("hhc_api_key");
+  sessionStorage.removeItem("hhc_api_key");
+  apiKey = "";
+  document.getElementById("api-key-input").value = "";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("key-screen").style.display = "flex";
+}
+function showApp() {
+  document.getElementById("key-screen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+}
+
+/* ── ROLE SWITCH ── */
+/* ── switchRole — remove class AND set inline display ── */
+function switchRole(r) {
+  role = r;
+  var viewMap = {
+    exec:  {id:"exec-view",  disp:"flex"},
+    field: {id:"field-view", disp:"grid"},
+    scout: {id:"scout-view", disp:"grid"},
+    reno:  {id:"reno-view",  disp:"grid"},
+    tips:  {id:"tips-view",  disp:"grid"},
+    msg:   {id:"msg-view",   disp:"grid"}
+  };
+  Object.keys(viewMap).forEach(function(k) {
+    var el = document.getElementById(viewMap[k].id);
+    if (!el) return;
+    if (k === r) {
+      el.classList.remove("hidden");   // remove CSS class first
+      el.style.display = viewMap[k].disp;  // then set inline display
+      el.style.flex    = "1";
+    } else {
+      el.classList.add("hidden");      // add CSS class
+      el.style.display = "none";       // also set inline
+    }
+    var btn = document.getElementById("btn-"+k);
+    if (btn) btn.classList.toggle("active", k===r);
+  });
+  if (r==="scout" && typeof startScoutPolling==="function") startScoutPolling();
+  if (r!=="scout" && typeof stopScoutPolling==="function") stopScoutPolling();
+  if (r==="exec" && typeof startEmpPolling==="function") startEmpPolling();
+  if (r==="msg" && typeof buildMsgEmpList==="function") buildMsgEmpList();
+}
+
+"font-size:18px;">${k.emoji}</span>
+        </div>
+        <div class="kpi-value" style="font-size:${k.value.length>5?'15px':'20px'};color:${k.col};text-shadow:0 0 18px ${k.col}55;margin-bottom:4px;">${k.value}</div>
+        <div style="font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;">${k.label}</div>
+        <div style="font-size:10px;color:var(--muted);">${k.sub}</div>
+        <div style="margin-top:10px;height:2px;background:linear-gradient(90deg,${k.col}66,${k.col}11);border-radius:1px;"></div>
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ── QUICK GRID ── */
+function buildQuickGrid() {
+  document.getElementById("quick-grid").innerHTML = QUICK_ACTIONS.map(q => `
+    <button class="quick-btn" style="color:${q.col};border-color:${q.col}28;border-top-color:${q.col}44;background:${q.col}0e;" onclick="launchAgent('${q.id}')">
+      ${q.label.toUpperCase()}
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 7 10 10M17 7v10H7"/></svg>
+    </button>
+  `).join("");
+}
+
+/* ── ACTIVITY ── */
+function buildActivityList() {
+  document.getElementById("activity-list").innerHTML = ACTIVITY.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.col};box-shadow:0 0 6px ${a.col};"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;color:var(--text);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.msg}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;">${a.time}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ── ROSTER ── */
+function buildRosterList() {
+  document.getElementById("roster-list").innerHTML = AGENTS.map(a => `
+    <button onclick="launchAgent('${a.id}')" style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:9px;margin-bottom:5px;width:100%;text-align:left;cursor:pointer;transition:all .2s;">
+      <div style="width:26px;height:26px;border-radius:7px;background:${a.col}12;border:1px solid ${a.col}28;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">${a.emoji}</div>
+      <div style="flex:1;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text);letter-spacing:1px;">${a.label.toUpperCase()}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px;">${a.full}</div>
+      </div>
+      <div style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);"></div>
+    </button>
+  `).join("");
+}
+
+/* ── AGENT LIST (field) ── */
+function buildAgentList() {
+  document.getElementById("agent-list").innerHTML = AGENTS.map((a,i) => `
+    <div class="agent-btn ${FLOATS[i%6]}" id="agent-btn-${a.id}" style="--agent-col:${a.col};--agent-rgb:${a.rgb};margin-bottom:6px;" onclick="selectAgent('${a.id}')">
+      <div class="led" style="background:radial-gradient(ellipse,${a.col}22 0%,transparent 70%);bottom:-8px;"></div>
+      <div class="agent-icon" id="agent-icon-${a.id}" style="background:rgba(255,255,255,.03);color:var(--muted);font-size:15px;">${a.emoji}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:600;color:var(--text);letter-spacing:1px;" id="agent-label-${a.id}">${a.label.toUpperCase()}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.full}</div>
+      </div>
+      <svg id="agent-chevron-${a.id}" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  `).join("");
+}
+
+/* ── PREVIEW GRID ── */
+function buildPreviewGrid() {
+  document.getElementById("preview-grid").innerHTML = AGENTS.map((a,i) => `
+    <div class="agent-preview-item ${FLOATS[i%6]}" style="background:${a.col}08;border:1px solid ${a.col}22;border-top:1px solid ${a.col}38;box-shadow:0 8px 22px rgba(0,0,0,.5);" onclick="selectAgent('${a.id}')">
+      <div class="led" style="background:radial-gradient(ellipse,${a.col}33 0%,transparent 70%);bottom:-5px;left:20%;right:20%;height:8px;"></div>
+      <div style="font-size:16px;filter:drop-shadow(0 0 6px ${a.col});">${a.emoji}</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:${a.col};letter-spacing:1px;">${a.label.toUpperCase()}</div>
+    </div>
+  `).join("");
+}
+
+/* ── FOOTER ── */
+function buildFooterAgents() {
+  document.getElementById("footer-agents").innerHTML = AGENTS.map(a => `
+    <button class="footer-agent-btn" id="footer-${a.id}" onclick="selectAgent('${a.id}');switchRole('field');" style="color:var(--muted);" title="${a.full}">${a.emoji}</button>
+  `).join("");
+}
+function buildStatusPills() {
+  const pills = [{l:"API",c:"#3cc68a"},{l:"LIVE",c:"#4da8da"},{l:"NJ/NY",c:"#7b6fe8"}];
+  document.getElementById("status-pills").innerHTML = pills.map(p => `
+    <div class="status-pill" style="background:${p.c}08;border:1px solid ${p.c}22;border-top:1px solid ${p.c}38;color:${p.c};">
+      <div class="glow-dot" style="width:4px;height:4px;border-radius:50%;background:${p.c};box-shadow:0 0 6px ${p.c};"></div>${p.l}
+    </div>
+  `).join("");
+}
+
+/* ── AGENT SELECTION ── */
+function selectAgent(id) {
+  if (activeAgent?.id === id) { deactivateAgent(); return; }
+  if (activeAgent) deactivateAgent();
+  activeAgent = AGENTS.find(a => a.id === id);
+  if (!activeAgent) return;
+
+  // Highlight button
+  const btn = document.getElementById(`agent-btn-${id}`);
+  if (btn) {
+    btn.classList.add("active");
+    document.getElementById(`agent-icon-${id}`).style.cssText = `background:${activeAgent.col}18;color:${activeAgent.col};font-size:15px;filter:drop-shadow(0 0 7px ${activeAgent.col});border-color:${activeAgent.col}44;`;
+    document.getElementById(`agent-label-${id}`).style.cssText = `font-family:'Orbitron',sans-serif;font-size:9px;font-weight:600;color:${activeAgent.col};letter-spacing:1px;text-shadow:0 0 10px ${activeAgent.col};`;
+    document.getElementById(`agent-chevron-${id}`).style.cssText = `display:block;flex-shrink:0;color:${activeAgent.col};filter:drop-shadow(0 0 4px ${activeAgent.col});`;
+  }
+
+  // Header badge
+  const badge = document.getElementById("active-badge");
+  badge.style.cssText = `display:flex;padding:6px 14px;border-radius:9px;align-items:center;gap:7px;background:${activeAgent.col}12;border:1px solid ${activeAgent.col}33;border-top:1px solid ${activeAgent.col}55;box-shadow:0 0 18px ${activeAgent.col}18;`;
+  const dot = badge.querySelector(".pulse");
+  dot.style.cssText = `width:6px;height:6px;border-radius:50%;background:${activeAgent.col};box-shadow:0 0 10px ${activeAgent.col};`;
+  document.getElementById("active-badge-text").style.color = activeAgent.col;
+  document.getElementById("active-badge-text").textContent = activeAgent.full.toUpperCase();
+
+  // Input panel update
+  document.getElementById("input-dot").style.cssText = `width:5px;height:5px;border-radius:50%;background:${activeAgent.col};box-shadow:0 0 8px ${activeAgent.col};display:block;`;
+  document.getElementById("input-label").style.cssText = `font-family:'Orbitron',sans-serif;font-size:8px;color:${activeAgent.col};letter-spacing:3px;text-shadow:0 0 10px ${activeAgent.col};`;
+  document.getElementById("input-label").textContent = `// ${activeAgent.full.toUpperCase()} — INPUT`;
+  document.getElementById("user-input").placeholder = `Enter your task for ${activeAgent.full}...`;
+
+  // Run button
+  const runBtn = document.getElementById("run-btn");
+  runBtn.style.cssText = `padding:8px 24px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:${activeAgent.col};display:flex;align-items:center;gap:7px;border-radius:10px;border:1px solid ${activeAgent.col}44;border-top:1px solid ${activeAgent.col}77;background:linear-gradient(160deg,${activeAgent.col}25,${activeAgent.col}08,rgba(0,0,0,.35));text-shadow:0 0 12px ${activeAgent.col};box-shadow:0 6px 20px rgba(0,0,0,.5),0 0 20px ${activeAgent.col}18;`;
+  document.getElementById("run-label").textContent = `RUN ${activeAgent.label.toUpperCase()}`;
+
+  // Footer
+  const fBtn = document.getElementById(`footer-${id}`);
+  if (fBtn) fBtn.style.cssText = `width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:${activeAgent.col}14;border:1px solid ${activeAgent.col}33;border-top:1px solid ${activeAgent.col}55;box-shadow:0 3px 8px rgba(0,0,0,.35),0 0 14px ${activeAgent.col}22;color:${activeAgent.col};position:relative;overflow:hidden;`;
+}
+
+function deactivateAgent() {
+  if (!activeAgent) return;
+  const id = activeAgent.id;
+  const btn = document.getElementById(`agent-btn-${id}`);
+  if (btn) {
+    btn.classList.remove("active");
+    document.getElementById(`agent-icon-${id}`).style.cssText = `background:rgba(255,255,255,.03);color:var(--muted);font-size:15px;width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.06);transition:all .25s;`;
+    document.getElementById(`agent-label-${id}`).style.cssText = `font-family:'Orbitron',sans-serif;font-size:9px;font-weight:600;color:var(--text);letter-spacing:1px;`;
+    document.getElementById(`agent-chevron-${id}`).style.display = "none";
+  }
+  document.getElementById("active-badge").style.display = "none";
+  document.getElementById(`footer-${id}`).style.cssText = `width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-top:1px solid rgba(255,255,255,.09);box-shadow:0 3px 8px rgba(0,0,0,.35);color:var(--muted);position:relative;overflow:hidden;`;
+  activeAgent = null;
+}
+
+function launchAgent(id) {
+  selectAgent(id);
+  switchRole("field");
+}
+
+/* ── AUTO-DETECT ── */
+const KW = {
+  scope:["scope","damage","field","notes","restoration","water","fire","storm","mold"],
+  billing:["billing","invoice","payment","overdue","collect","owed","outstanding"],
+  email:["email","reply","respond","draft","adjuster","vendor","message"],
+  intake:["intake","lead","new client","new job","inquiry","referred"],
+  video:["video","sora","content","instagram","tiktok","youtube","reel"],
+  crm:["crm","track","status","pipeline","active","pending"],
+  estimate:["estimate","quote","price","cost","line item"],
+  docs:["document","docs","missing","authorization","aob","w9","certificate"],
+  permits:["permit","violation","dob","ecb","stop work","occupancy"],
+};
+
+document.getElementById("user-input").addEventListener("input", e => {
+  const v = e.target.value;
+  if (v.length > 10 && !activeAgent) {
+    const low = v.toLowerCase();
+    let best = null, top = 0;
+    Object.entries(KW).forEach(([id, words]) => {
+      const s = words.filter(w => low.includes(w)).length;
+      if (s > top) { top = s; best = id; }
+    });
+    if (best && (!detected || detected.id !== best)) {
+      detected = AGENTS.find(a => a.id === best);
+      if (detected && !activeAgent) selectAgent(detected.id);
+    }
+  } else if (!v) {
+    detected = null;
+    if (activeAgent) deactivateAgent();
+  }
+});
+
+document.getElementById("user-input").addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key === "Enter") runAgent();
+});
+
+/* ── RUN ── */
+async function runAgent() {
+  const ag = activeAgent || detected;
+  const input = document.getElementById("user-input").value.trim();
+  if (!ag || !input || isLoading) return;
+  isLoading = true;
+  outputText = "";
+
+  // Show loading
+  document.getElementById("empty-state").style.display = "none";
+  document.getElementById("response-state").style.display = "none";
+  document.getElementById("loading-state").style.display = "flex";
+  document.getElementById("loading-icon").textContent = ag.emoji;
+  document.getElementById("loading-label").style.cssText = `font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:4px;text-align:center;color:${ag.col};text-shadow:0 0 18px ${ag.col};`;
+  document.getElementById("loading-label").textContent = `${ag.label.toUpperCase()} PROCESSING`;
+  document.getElementById("output-label").textContent = "// PROCESSING...";
+  document.getElementById("output-dot").style.display = "none";
+  document.getElementById("copy-btn").style.display = "none";
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: ag.prompt,
+        messages: [{ role: "user", content: input }]
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+
+    // Show response with streaming effect
+    document.getElementById("loading-state").style.display = "none";
+    document.getElementById("response-state").style.display = "block";
+
+    // Agent badge
+    document.getElementById("resp-icon").style.cssText = `width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:${ag.col}12;border:1px solid ${ag.col}35;box-shadow:0 0 18px ${ag.col}18;`;
+    document.getElementById("resp-icon").textContent = ag.emoji;
+    document.getElementById("resp-agent-name").style.cssText = `font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;margin-bottom:2px;color:${ag.col};text-shadow:0 0 10px ${ag.col};`;
+    document.getElementById("resp-agent-name").textContent = ag.full.toUpperCase();
+    document.getElementById("resp-divider").style.background = `linear-gradient(90deg,${ag.col}22,transparent)`;
+    document.getElementById("resp-time").textContent = `${new Date().toLocaleTimeString("en-US",{hour12:false})} // RESPONSE COMPLETE`;
+
+    // Output label
+    document.getElementById("output-dot").style.cssText = `width:5px;height:5px;border-radius:50%;background:${ag.col};box-shadow:0 0 8px ${ag.col};display:block;`;
+    document.getElementById("output-label").style.cssText = `font-family:'Orbitron',sans-serif;font-size:8px;color:${ag.col};letter-spacing:3px;`;
+    document.getElementById("output-label").textContent = `// ${ag.full.toUpperCase()} — OUTPUT`;
+    document.getElementById("cursor").style.cssText = `width:6px;height:12px;background:${ag.col};display:block;animation:blink .55s step-end infinite;box-shadow:0 0 8px ${ag.col};`;
+
+    // Stream text
+    const el = document.getElementById("output-text");
+    el.textContent = "";
+    let built = "";
+    for (let i = 0; i < text.length; i++) {
+      built += text[i];
+      el.textContent = built;
+      if (i % 6 === 0) await new Promise(r => setTimeout(r, 3));
+    }
+    outputText = text;
+    document.getElementById("cursor").style.display = "none";
+    document.getElementById("copy-btn").style.display = "flex";
+    document.getElementById("copy-btn").style.cssText = `display:flex;padding:4px 12px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:1px;color:var(--muted);align-items:center;gap:4px;border-radius:10px;border:1px solid rgba(255,255,255,.07);border-top:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.02);box-shadow:0 3px 8px rgba(0,0,0,.4);position:relative;overflow:hidden;`;
+
+    // History
+    history.unshift({ ...ag, inp: input.slice(0, 52) + "…", out: text });
+    if (history.length > 6) history.pop();
+    buildHistory();
+
+  } catch (e) {
+    document.getElementById("loading-state").style.display = "none";
+    document.getElementById("response-state").style.display = "block";
+    document.getElementById("output-text").textContent = "⚠ Error: " + e.message + "\n\nMake sure your API key is valid and has credits.";
+  }
+
+  isLoading = false;
+}
+
+/* ── HISTORY ── */
+function buildHistory() {
+  const col = document.getElementById("history-col");
+  if (!history.length) { col.innerHTML = ""; return; }
+  col.innerHTML = `
+    <div style="font-size:7px;color:var(--muted);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-bottom:6px;padding-left:2px;font-size:10px;font-family:'Orbitron',sans-serif;color:var(--muted);letter-spacing:2px;">RECENT</div>
+    ${history.map((h,i) => `
+      <div class="history-item" onclick="document.getElementById('output-text').textContent=histories[${i}]" style="border-color:${h.col}22;" onmouseenter="this.style.borderColor='${h.col}44'" onmouseleave="this.style.borderColor='${h.col}22'">
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:${h.col};margin-bottom:2px;">${h.label.toUpperCase()}</div>
+        <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h.inp}</div>
+      </div>
+    `).join("")}
+  `;
+}
+// expose history for onclick
+window.histories = [];
+const origBuildHistory = buildHistory;
+function buildHistory() {
+  window.histories = history.map(h => h.out);
+  origBuildHistory();
+}
+
+/* ── COPY ── */
+function copyOutput() {
+  if (!outputText) return;
+  navigator.clipboard.writeText(outputText).then(() => {
+    const btn = document.getElementById("copy-btn");
+    btn.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> COPIED`;
+    btn.style.color = "var(--green)"; btn.style.borderColor = "rgba(60,198,138,.4)";
+    setTimeout(() => {
+      btn.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> COPY`;
+      btn.style.color = "var(--muted)"; btn.style.borderColor = "rgba(255,255,255,.07)";
+    }, 2000);
+  });
+}
+
+/* ── CLEAR ── */
+function clearAll() {
+  document.getElementById("user-input").value = "";
+  outputText = "";
+  if (activeAgent) deactivateAgent();
+  detected = null;
+  document.getElementById("empty-state").style.display = "flex";
+  document.getElementById("loading-state").style.display = "none";
+  document.getElementById("response-state").style.display = "none";
+  document.getElementById("output-label").style.cssText = "font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:3px;";
+  document.getElementById("output-label").textContent = "// AWAITING COMMAND";
+  document.getElementById("output-dot").style.display = "none";
+  document.getElementById("copy-btn").style.display = "none";
+  document.getElementById("input-label").style.cssText = "font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:3px;";
+  document.getElementById("input-label").textContent = "// SELECT AGENT TO BEGIN";
+  document.getElementById("input-dot").style.display = "none";
+  document.getElementById("run-btn").style.cssText = "padding:8px 24px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:7px;opacity:.55;border-radius:10px;border:1px solid rgba(255,255,255,.07);border-top:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.02);";
+  document.getElementById("run-label").textContent = "RUN AGENT";
+}
+
+
+/* ══ PLOTLY 3D CHARTS ══════════════════════════════════════ */
+function initCharts() {
+  if (typeof Plotly === 'undefined') {
+    setTimeout(initCharts, 500);
+    return;
+  }
+
+  const FONT = { family: "'Orbitron', sans-serif", color: '#3d5578', size: 9 };
+  const BG   = 'rgba(0,0,0,0)';
+  const AXIS = { gridcolor: 'rgba(255,255,255,.04)', color: '#3d5578', tickfont: FONT, titlefont: FONT, zerolinecolor: 'rgba(255,255,255,.05)' };
+  const SCENE_AXIS = { gridcolor: 'rgba(255,255,255,.06)', color: '#3d5578', tickfont: { family: "'Orbitron',sans-serif", size: 8, color: '#3d5578' }, backgroundcolor: 'rgba(0,0,0,0)', showbackground: false };
+  const CONFIG = { displayModeBar: false, responsive: true };
+
+  /* ── 1. 3D REVENUE SURFACE ── */
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN'];
+  const jobTypes = ['WATER','FIRE','STORM'];
+  const z = [
+    [14200, 19800, 16500, 23400, 21000, 27500],
+    [9800,  13200, 10400, 16200, 13800, 18900],
+    [6100,  8400,  7200,  10800, 9500,  13200],
+  ];
+
+  Plotly.newPlot('chart-revenue', [{
+    type: 'surface',
+    z: z,
+    x: months,
+    y: jobTypes,
+    colorscale: [
+      [0,   '#0a1a38'],
+      [0.2, '#0f305c'],
+      [0.4, '#1c5295'],
+      [0.6, '#2d5cab'],
+      [0.8, '#4da8da'],
+      [1.0, '#00ffcc'],
+    ],
+    opacity: 0.92,
+    contours: {
+      z: { show: true, usecolormap: true, project: { z: true }, width: 1, color: 'rgba(0,255,200,.3)' }
+    },
+    lighting: { ambient: 0.6, diffuse: 0.8, specular: 0.4, roughness: 0.5 },
+    lightposition: { x: 100, y: 200, z: 300 },
+    showscale: false,
+  }], {
+    paper_bgcolor: BG, plot_bgcolor: BG,
+    margin: { l: 0, r: 0, t: 36, b: 0 },
+    scene: {
+      bgcolor: BG,
+      xaxis: { ...SCENE_AXIS, title: '' },
+      yaxis: { ...SCENE_AXIS, title: '' },
+      zaxis: { ...SCENE_AXIS, title: '', tickprefix: '$', tickformat: ',.0f' },
+      camera: { eye: { x: 1.6, y: -1.4, z: 1.1 }, up: { x: 0, y: 0, z: 1 } },
+      aspectratio: { x: 1.4, y: 0.7, z: 0.7 },
+    },
+    font: FONT,
+  }, CONFIG);
+
+  /* ── 2. 3D CLAIMS SCATTER ── */
+  const claimVals   = [8500, 14200, 22000, 6800, 31000, 18500, 9200, 26000, 12400, 7600, 45000, 11200];
+  const claimDays   = [12,   28,    45,    8,    62,    35,    19,   51,    24,    14,   78,    21  ];
+  const claimPri    = [7,    8,     9,     5,    10,    8,     6,    9,     7,     5,    10,    6   ];
+  const claimStatus = ['Water','Fire','Storm','Water','Fire','Storm','Water','Fire','Storm','Water','Fire','Storm'];
+  const claimCols   = claimStatus.map(s => s==='Water'?'#4da8da':s==='Fire'?'#e85470':'#f5c842');
+  const claimSizes  = claimPri.map(p => p * 5 + 10);
+
+  Plotly.newPlot('chart-claims', [{
+    type: 'scatter3d',
+    x: claimVals,
+    y: claimDays,
+    z: claimPri,
+    mode: 'markers+text',
+    marker: {
+      size: claimSizes,
+      color: claimCols,
+      opacity: 0.85,
+      line: { color: 'rgba(255,255,255,.15)', width: 1 },
+    },
+    text: claimStatus,
+    textfont: { family: "'Orbitron',sans-serif", size: 7, color: 'rgba(200,220,255,.5)' },
+    textposition: 'top center',
+    hovertemplate: '<b>$%{x:,.0f}</b><br>%{y} days open<br>Priority: %{z}<extra></extra>',
+  }], {
+    paper_bgcolor: BG, plot_bgcolor: BG,
+    margin: { l: 0, r: 0, t: 36, b: 0 },
+    scene: {
+      bgcolor: BG,
+      xaxis: { ...SCENE_AXIS, title: 'VALUE ($)', titlefont: { size: 7, color: '#3d5578', family: "'Orbitron',sans-serif" } },
+      yaxis: { ...SCENE_AXIS, title: 'DAYS OPEN' },
+      zaxis: { ...SCENE_AXIS, title: 'PRIORITY' },
+      camera: { eye: { x: 1.5, y: -1.2, z: 1.0 } },
+      aspectratio: { x: 1.2, y: 0.8, z: 0.6 },
+    },
+    font: FONT,
+  }, CONFIG);
+
+  /* ── 3. JOB STATUS DONUT ── */
+  Plotly.newPlot('chart-jobs', [{
+    type: 'pie',
+    values: [7, 5, 4, 12, 3],
+    labels: ['ACTIVE', 'IN PROGRESS', 'CLAIMS', 'COMPLETE', 'PENDING'],
+    hole: 0.55,
+    textinfo: 'label+percent',
+    textfont: { family: "'Orbitron',sans-serif", size: 8, color: '#deeaff' },
+    marker: {
+      colors: ['#4da8da','#3cc68a','#f5c842','#7b6fe8','#e85470'],
+      line: { color: 'rgba(0,0,0,.4)', width: 2 }
+    },
+    insidetextorientation: 'radial',
+    pull: [0.04, 0, 0, 0, 0],
+    rotation: -45,
+  }], {
+    paper_bgcolor: BG, plot_bgcolor: BG,
+    margin: { l: 8, r: 8, t: 36, b: 8 },
+    showlegend: false,
+    font: FONT,
+    annotations: [{
+      text: '<b>31</b><br>JOBS',
+      x: 0.5, y: 0.5,
+      font: { family: "'Orbitron',sans-serif", size: 13, color: '#deeaff' },
+      showarrow: false,
+    }]
+  }, CONFIG);
+}
+
+// Init charts after DOM + Plotly load
+if (document.readyState === 'complete') {
+  initCharts();
+} else {
+  window.addEventListener('load', initCharts);
+}
+
+
+
+/* ══ VEHICLE SCOUT ══════════════════════════════════════════ */
+const SCOUT_SERVER = "https://holmes-vehicle-scout.onrender.com";
+const SCOUT_SECRET = "Holmes2025!";
+let scoutPollInt = null;
+let scoutMode = "hunt";
+let scoutSched = "0 */6 * * *";
+const SCOUT_LOG_COLS = {system:"#5050a0",deploy:"#F5A800",success:"#3cc68a",warn:"#FF8C00",error:"#E85470",heal:"#FF6B35",watchdog:"#a040f0",scheduler:"#00aaff"};
+const SCOUT_SC = {idle:"#252545",scanning:"#F5A800",found:"#3cc68a",done:"#3a3a5a",error:"#E85470"};
+
+async function scoutApi(endpoint, method="GET", body=null) {
+  const opts = {method, headers:{"Content-Type":"application/json","x-admin-secret":SCOUT_SECRET}};
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${SCOUT_SERVER}${endpoint}`, opts);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+function calcScoutProfit(priceStr, catId) {
+  const cats = {economy:45,midsize:65,suv:88,minivan:95,van:115,luxury:195,truck:92,sports:155};
+  const daily = cats[catId]; if (!daily) return null;
+  const p = parseInt(String(priceStr||"").replace(/[^0-9]/g,""));
+  if (!p||p<500) return null;
+  const gross=Math.round(daily*30*.65), costs=310+Math.round(p*.025/12)+80, net=gross-costs;
+  const roi=parseFloat(((net*12)/p*100).toFixed(1)), pay=net>0?Math.round(p/net):999;
+  return {daily,gross,costs,net,roi,pay};
+}
+
+function roiColor(roi){return roi>=25?"#3cc68a":roi>=15?"#F5C842":roi>=5?"#FF8C00":"#E85470";}
+
+async function pollScout() {
+  /* ── STATUS (required) ── */
+  try {
+    // Try auth status first, fall back to public root
+    let st;
+    try { st = await scoutApi("/status"); }
+    catch(e) { st = await scoutPublic("/"); }
+    const phase  = st.phase||"idle";
+    const isLive = phase==="running"||phase==="orchestrating";
+
+    // Show LIVE
+    document.getElementById("scout-conn-dot").style.cssText = "width:5px;height:5px;border-radius:50%;background:#3cc68a;box-shadow:0 0 8px #3cc68a;";
+    document.getElementById("scout-conn-val").style.color = "#3cc68a";
+    document.getElementById("scout-conn-val").textContent = "LIVE";
+    document.getElementById("scout-phase-val").textContent = phase.toUpperCase();
+    document.getElementById("scout-phase-val").style.color = isLive ? "#F5A800" : "var(--text)";
+    document.getElementById("scout-scans-val").textContent = st.totalScans||0;
+    document.getElementById("scout-found-val").textContent = st.totalFound||0;
+
+    // Agents
+    const agents = st.agents||[];
+    if (agents.length > 0) {
+      document.getElementById("scout-agents-lbl").textContent = isLive ? "AGENTS LIVE" : "WORKER AGENTS";
+      document.getElementById("scout-agents-lbl").style.color = isLive ? "#F5A800" : "var(--muted)";
+      document.getElementById("scout-agents-dot").style.cssText = isLive
+        ? "width:5px;height:5px;border-radius:50%;background:#F5A800;box-shadow:0 0 8px #F5A800;"
+        : "width:5px;height:5px;border-radius:50%;background:var(--muted);";
+      const SC = {idle:"#252545",scanning:"#F5A800",found:"#3cc68a",done:"#3a3a5a",error:"#E85470"};
+      document.getElementById("scout-agents-list").innerHTML = agents.map(a => {
+        const sc = SC[a.status]||SC.idle;
+        return `<div style="border:1px solid ${sc}${a.status!=="idle"?"44":"22"};border-radius:9px;padding:7px 10px;background:${a.status!=="idle"?sc+"0e":"rgba(255,255,255,.01)"};display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <div style="width:24px;height:24px;flex-shrink:0;border:1px solid ${sc}44;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:${sc};background:${sc}0a;">${(a.id||"?").slice(0,2)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--text);">${a.id}</div>
+            <div style="font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.platform||""}</div>
+          </div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:${sc};">${a.status==="scanning"?"● SCAN":a.status==="found"?(a.count||0)+" HIT"+(a.count!==1?"S":""):a.status==="done"?"NONE":a.status==="error"?"FAULT":"STBY"}</div>
+        </div>`;
+      }).join("");
+    } else {
+      document.getElementById("scout-agents-list").innerHTML = '<div style="font-size:10px;color:var(--dim);font-family:monospace;">No agents active — hit INITIATE SEARCH</div>';
+    }
+
+    // Live badge
+    document.getElementById("scout-live-badge").style.display = isLive ? "block" : "none";
+
+    // Sync config
+    if (st.config) {
+      if (st.config.mode) setScoutMode(st.config.mode, false);
+    }
+
+  } catch(e) {
+    document.getElementById("scout-conn-dot").style.cssText = "width:5px;height:5px;border-radius:50%;background:#E85470;box-shadow:0 0 8px #E85470;";
+    document.getElementById("scout-conn-val").style.color = "#E85470";
+    document.getElementById("scout-conn-val").textContent = "OFFLINE";
+    return; // stop if status fails
+  }
+
+  /* ── LOGS (optional) ── */
+  try {
+    const lg = await scoutApi("/logs?limit=80&secret="+SCOUT_SECRET);
+    const logs = lg.logs||[];
+    const LC = {system:"#5050a0",deploy:"#F5A800",success:"#3cc68a",warn:"#FF8C00",error:"#E85470",heal:"#FF6B35",watchdog:"#a040f0",scheduler:"#00aaff"};
+    document.getElementById("scout-log-count").textContent = `${logs.length} entries`;
+    if (logs.length > 0) {
+      const logEl = document.getElementById("scout-log");
+      logEl.innerHTML = logs.map(l => `
+        <div style="display:flex;gap:7px;font-size:9px;font-family:'JetBrains Mono',monospace;">
+          <span style="color:#1a2840;flex-shrink:0;">${new Date(l.ts).toLocaleTimeString("en-US",{hour12:false})}</span>
+          <span style="color:${LC[l.type]||"#888"}">${l.msg}</span>
+        </div>`).join("");
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+  } catch(e) { /* logs optional */ }
+
+  /* ── FINDINGS (optional) ── */
+  try {
+    const fi = await scoutApi("/findings?secret="+SCOUT_SECRET);
+    const findings = fi.findings||[];
+    const catId = document.getElementById("scout-cat")?.value||"van";
+    document.getElementById("scout-count-lbl").textContent = `${findings.length} LISTING${findings.length!==1?"S":""}`;
+    document.getElementById("scout-count-lbl").style.color = findings.length>0?"#3cc68a":"var(--dim)";
+    document.getElementById("scout-feed-lbl").textContent = scoutMode==="rental"?"RENTAL PROFIT INTEL":"LIVE INTEL FEED";
+
+    if (findings.length > 0) {
+      document.getElementById("scout-empty").style.display = "none";
+      const container = document.getElementById("scout-findings");
+      const existingCards = container.querySelectorAll(".scout-card").length;
+      if (existingCards !== findings.length) {
+        container.innerHTML = "";
+        findings.forEach((f,i) => {
+          const div = document.createElement("div");
+          div.className = "scout-card";
+          div.style.cssText = "border:1px solid rgba(255,255,255,.08);border-left:4px solid #3cc68a;border-radius:12px;padding:14px 16px;background:rgba(8,16,44,.6);margin-bottom:10px;";
+          var scHtml = "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:12px;'>" +
+            "<div style='flex:1;min-width:0;'>" +
+              "<div style='font-weight:700;font-size:15px;color:#ffffff;margin-bottom:3px;'>" + (f.title||"Vehicle Listing") + "</div>" +
+              "<div style='font-size:12px;color:#8ab4d4;margin-top:2px;'>" + (f.source||"") + " · " + (f.location||"") + "</div>" +
+            "</div>" +
+            "<div style='font-family:Orbitron,sans-serif;font-weight:700;font-size:18px;color:#3cc68a;flex-shrink:0;'>" + (f.price||"N/A") + "</div>" +
+          "</div>" +
+          "<div style='display:flex;gap:16px;margin-bottom:8px;'>" +
+            (f.mileage ? "<div style='font-size:13px;'>🔢 <span style='font-family:monospace;color:#ffffff;'>" + f.mileage + "</span></div>" : "") +
+            (f.condition ? "<div style='font-size:13px;'>⭐ <span style='color:#F5C842;font-weight:600;'>" + f.condition + "</span></div>" : "") +
+          "</div>" +
+          (f.notes ? "<div style='font-size:12px;color:#c8e0ff;border-top:1px solid rgba(255,255,255,.06);padding-top:8px;line-height:1.6;'>" + f.notes + "</div>" : "") +
+          (f.url && f.url.startsWith("http") ? "<div style='margin-top:10px;'><a href='" + f.url + "' target='_blank' style='font-size:12px;color:#F5A800;text-decoration:none;padding:6px 12px;background:rgba(245,168,0,.1);border:1px solid rgba(245,168,0,.3);border-radius:8px;display:inline-block;'>VIEW LISTING →</a></div>" : "");
+          div.innerHTML = scHtml;
+          container.appendChild(div);
+        });
+      }
+    } else {
+      document.getElementById("scout-empty").style.display = "block";
+    }
+  } catch(e) { /* findings optional */ }
+}
+
+function startScoutPolling() {
+  if (scoutPollInt) clearInterval(scoutPollInt);
+  pollScout();
+  scoutPollInt = setInterval(pollScout, 8000);
+}
+
+function stopScoutPolling() {
+  if (scoutPollInt) { clearInterval(scoutPollInt); scoutPollInt = null; }
+}
+
+function setScoutMode(m, updateServer=false) {
+  scoutMode = m;
+  document.getElementById("scout-hunt-field").style.display   = m==="hunt"?"block":"none";
+  document.getElementById("scout-rental-field").style.display = m==="rental"?"block":"none";
+  const hBtn = document.getElementById("scout-mode-hunt");
+  const rBtn = document.getElementById("scout-mode-rental");
+  hBtn.style.cssText = m==="hunt" ? "padding:7px;border-radius:9px;border:1px solid #4da8da44;border-top:1px solid #4da8da77;background:#4da8da12;font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;" : "padding:7px;border-radius:9px;border:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.02);font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;";
+  rBtn.style.cssText = m==="rental" ? "padding:7px;border-radius:9px;border:1px solid #3cc68a44;border-top:1px solid #3cc68a77;background:#3cc68a12;font-family:'Orbitron',sans-serif;font-size:8px;color:#3cc68a;letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;" : "padding:7px;border-radius:9px;border:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.02);font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;cursor:pointer;position:relative;overflow:hidden;";
+}
+
+function setScoutSched(s) {
+  scoutSched = s;
+  document.querySelectorAll("#scout-sched-btns button").forEach(b=>{
+    const active = b.dataset.sched===s;
+    b.style.cssText = `flex:1;padding:5px 0;background:${active?"#00aaff18":"rgba(255,255,255,.02)"};border:1px solid ${active?"#00aaff44":"#1a2840"};border-top:1px solid ${active?"#00aaff66":"rgba(255,255,255,.07)"};border-radius:8px;font-size:8px;color:${active?"#00aaff":"var(--muted)"};cursor:pointer;font-family:'Orbitron',sans-serif;transition:all .2s;position:relative;overflow:hidden;`;
+  });
+}
+
+async function saveScoutConfig() {
+  const btn = document.getElementById("scout-save-btn");
+  btn.textContent = "● SAVING...";
+  try {
+    await scoutApi("/config?secret="+SCOUT_SECRET,"POST",{
+      mode: scoutMode,
+      target: window._scoutFullTarget || document.getElementById("scout-target-preview")?.textContent?.replace("TARGET: ","") || "Ram ProMaster 1500",
+      category: document.getElementById("scout-cat").value,
+      maxPrice: document.getElementById("scout-price").value,
+      schedule: scoutSched,
+    });
+    btn.textContent = "✓ SAVED TO SERVER";
+    btn.style.color = "#3cc68a";
+    setTimeout(()=>{ btn.textContent="⚙ SAVE CONFIG TO SERVER"; btn.style.color="#F5A800"; },3000);
+    pollScout();
+  } catch(e) {
+    btn.textContent = "⚠ SAVE FAILED";
+    btn.style.color = "#E85470";
+    setTimeout(()=>{ btn.textContent="⚙ SAVE CONFIG TO SERVER"; btn.style.color="#F5A800"; },3000);
+  }
+}
+
+async function triggerScoutScan() {
+  const btn = document.getElementById("scout-scan-btn");
+  btn.textContent = "● TRIGGERING...";
+  btn.style.opacity = ".6";
+  try {
+    await scoutApi("/scan?secret="+SCOUT_SECRET,"POST");
+    btn.textContent = "● AGENTS LIVE";
+    setTimeout(()=>{ btn.innerHTML='▶ INITIATE SEARCH'; btn.style.opacity="1"; },3000);
+    setTimeout(pollScout, 1000);
+  } catch(e) {
+    btn.textContent = "⚠ FAILED — RETRY";
+    btn.style.opacity = "1";
+    setTimeout(()=>{ btn.textContent="▶ INITIATE SEARCH"; },3000);
+  }
+}
+
+async function sendScoutEmail() {
+  const btn = document.getElementById("scout-email-btn");
+  btn.textContent = "● SENDING...";
+  try {
+    await scoutApi("/email?secret="+SCOUT_SECRET,"POST");
+    btn.textContent = "✓ SENT";
+    btn.style.color = "#3cc68a";
+    btn.style.borderColor = "#3cc68a44";
+    setTimeout(()=>{ btn.textContent="✉ SEND REPORT"; btn.style.color=""; btn.style.borderColor=""; },3000);
+  } catch(e) {
+    btn.textContent = "⚠ FAILED";
+    setTimeout(()=>{ btn.textContent="✉ SEND REPORT"; },3000);
+  }
+}
+
+// switchRole handles all 3 tabs above
+
+
+/* ══ VEHICLE SCOUT MAKE/MODEL/YEAR ══════════════════════ */
+const SCOUT_MODELS = {
+  /* ── AMERICAN ── */
+  "Ram":           ["ProMaster 1500","ProMaster 2500","ProMaster 3500","ProMaster City","1500 Classic","1500","2500","3500","3500 Chassis","4500","5500"],
+  "Ford":          ["Transit 150","Transit 250","Transit 350","Transit 350 HD","Transit Connect","E-150","E-250","E-350","E-450","F-150","F-250","F-350","F-450","F-550","Maverick","Ranger","Explorer","Expedition","Escape","Edge","Bronco","Bronco Sport","EcoSport","Flex","Fusion","Taurus","Mustang","Mustang Mach-E"],
+  "Chevrolet":     ["Express 1500","Express 2500","Express 3500","Silverado 1500","Silverado 2500HD","Silverado 3500HD","Colorado","Avalanche","Blazer","Equinox","Traverse","Tahoe","Suburban","Trailblazer","Trax","Camaro","Corvette","Malibu","Impala","Sonic","Spark","Volt","Bolt EV","Bolt EUV"],
+  "GMC":           ["Savana 1500","Savana 2500","Savana 3500","Sierra 1500","Sierra 2500HD","Sierra 3500HD","Canyon","Terrain","Acadia","Yukon","Yukon XL","Envoy","Jimmy","Safari"],
+  "Dodge":         ["Grand Caravan","Caravan","Durango","Journey","Challenger","Charger","Viper","Neon","Dart","Avenger","Caliber","Nitro","Ram 1500","Ram 2500","Ram 3500"],
+  "Jeep":          ["Wrangler","Wrangler Unlimited","Gladiator","Grand Cherokee","Grand Cherokee L","Grand Cherokee 4xe","Cherokee","Compass","Renegade","Patriot","Commander","Liberty","CJ"],
+  "Chrysler":      ["Pacifica","Pacifica Hybrid","Voyager","300","200","Town & Country","Sebring","PT Cruiser","Crossfire"],
+  "Lincoln":       ["Navigator","Aviator","Corsair","Nautilus","MKC","MKX","MKZ","MKT","MKS","Continental","Town Car","Mark LT"],
+  "Cadillac":      ["Escalade","Escalade ESV","XT4","XT5","XT6","CT4","CT5","CT6","ATS","CTS","XTS","SRX","STS","DTS","Eldorado","DeVille"],
+  "Buick":         ["Enclave","Encore","Encore GX","Envision","Envision Plus","LaCrosse","Regal","Verano","Cascada","Lucerne","Allure","Rendezvous","Terraza","Rainier"],
+  "Pontiac":       ["Grand Prix","Grand Am","G6","G8","Vibe","Torrent","Aztek","Bonneville","Firebird","GTO","Solstice"],
+  "Saturn":        ["Ion","Vue","Outlook","Aura","Sky","Relay"],
+  "Hummer":        ["H1","H2","H3","H3T","EV Pickup","EV SUV"],
+  "Tesla":         ["Model S","Model 3","Model X","Model Y","Cybertruck","Roadster"],
+  "Rivian":        ["R1T","R1S"],
+  "Lucid":         ["Air","Gravity"],
+  /* ── VANS / CARGO ── */
+  "Mercedes-Benz": ["Sprinter 1500","Sprinter 2500","Sprinter 3500","Sprinter 3500XD","Metris","G-Class","GLA","GLB","GLC","GLE","GLS","GLC Coupe","GLE Coupe","AMG GT","C-Class","E-Class","S-Class","A-Class","CLA","CLS","SL","SLC"],
+  "Nissan":        ["NV200","NV1500","NV2500","NV2500 HD","NV3500 HD","Frontier","Titan","Titan XD","Pathfinder","Armada","Murano","Rogue","Rogue Sport","Kicks","Sentra","Altima","Maxima","Leaf","Ariya","370Z","350Z","240SX","Versa"],
+  "Toyota":        ["Sienna","HiAce","Tundra","Tacoma","4Runner","Land Cruiser","FJ Cruiser","Sequoia","Prius","Prius Prime","Prius V","Corolla","Camry","Avalon","Venza","RAV4","RAV4 Prime","Highlander","Highlander Hybrid","C-HR","bZ4X","GR86","Supra","Celica"],
+  "Honda":         ["Odyssey","Ridgeline","Pilot","Passport","CR-V","HR-V","Civic","Accord","Insight","Fit","Jazz","Element","Crosstour","Prologue"],
+  "Freightliner":  ["Sprinter 2500","Sprinter 3500","Sprinter 3500XD","M2 106","MT55","MT45"],
+  "Volkswagen":    ["Transporter","Crafter","Multivan","ID.Buzz","Jetta","Golf","Passat","Tiguan","Atlas","Atlas Cross Sport","Arteon","ID.4","Beetle","CC","Eos","Phaeton","Touareg","GTI","GLI","R32"],
+  "Hyundai":       ["Staria","H-1","Santa Fe","Tucson","Sonata","Elantra","Accent","Venue","Kona","Ioniq","Ioniq 5","Ioniq 6","Palisade","Nexo","Azera","Genesis Coupe","Veloster","Tiburon"],
+  "Kia":           ["Carnival","Sedona","Sorento","Telluride","Sportage","Stinger","K5","Forte","Rio","Soul","Niro","EV6","EV9","Seltos","Stonic"],
+  "Mazda":         ["Mazda3","Mazda6","CX-3","CX-30","CX-5","CX-50","CX-60","CX-70","CX-80","CX-90","MX-5 Miata","MX-30","RX-8","RX-7","B-Series Truck"],
+  "Subaru":        ["Outback","Forester","Crosstrek","Impreza","Legacy","Ascent","BRZ","WRX","STI","Baja","SVX","Tribeca"],
+  "Mitsubishi":    ["Outlander","Outlander PHEV","Eclipse Cross","Galant","Eclipse","Lancer","Lancer Evolution","Mirage","Diamante","Montero","3000GT","Endeavor","Raider"],
+  /* ── EUROPEAN ── */
+  "BMW":           ["X1","X2","X3","X4","X5","X6","X7","2 Series","3 Series","4 Series","5 Series","6 Series","7 Series","8 Series","M2","M3","M4","M5","M8","Z4","i3","i4","i5","i7","iX","iX3","Z3","1 Series","E30","E36","E46","E90","E60"],
+  "Audi":          ["A3","A4","A5","A6","A7","A8","Q3","Q4 e-tron","Q5","Q7","Q8","Q8 e-tron","TT","R8","e-tron","e-tron GT","RS3","RS4","RS5","RS6","RS7","S3","S4","S5","S6","S7","S8","SQ5","SQ7","SQ8","Allroad"],
+  "Volkswagen-VW": ["Jetta","Golf","GTI","Passat","Tiguan","Atlas","Taos","ID.4","Beetle","CC","Arteon","Touareg","Phaeton"],
+  "Porsche":       ["Cayenne","Macan","Panamera","911","718 Boxster","718 Cayman","Taycan","Taycan Cross Turismo"],
+  "Land Rover":    ["Defender","Discovery","Discovery Sport","Range Rover","Range Rover Sport","Range Rover Velar","Range Rover Evoque","Freelander","LR2","LR3","LR4"],
+  "Jaguar":        ["F-Pace","E-Pace","I-Pace","XE","XF","XJ","F-Type","XK","S-Type","X-Type"],
+  "Volvo":         ["XC90","XC60","XC40","V90","V60","S90","S60","C40","EX40","EX90","240","850","S40","S70","V40","V70","C30","C70"],
+  "MINI":          ["Cooper","Cooper Clubman","Cooper Countryman","Cooper Paceman","Cooper Roadster","Cooper Coupe","Convertible"],
+  "Fiat":          ["500","500X","500L","500e","Ducato","Scudo","Doblo","Punto","Bravo","Tipo","Panda","Qubo"],
+  "Alfa Romeo":    ["Giulia","Stelvio","Tonale","4C","8C","GTV","Spider","147","156","159","Brera"],
+  "Maserati":      ["Ghibli","Quattroporte","Levante","GranTurismo","Grecale","MC20"],
+  "Ferrari":       ["488","F8","SF90","Roma","Portofino","812","296","F40","F50","Enzo","LaFerrari","458","430","360","348"],
+  "Lamborghini":   ["Huracan","Urus","Revuelto","Gallardo","Murcielago","Diablo","Countach"],
+  /* ── ASIAN LUXURY ── */
+  "Lexus":         ["LX","GX","RX","RX 350h","NX","NX 450h+","UX","UX 300e","ES","IS","GS","LS","RC","LC","LFA","CT","HS"],
+  "Acura":         ["MDX","RDX","TLX","ILX","NSX","ZDX","RSX","TSX","TL","RL","RDX","CDX","Legend","Integra"],
+  "Infiniti":      ["QX80","QX60","QX55","QX50","QX30","Q50","Q60","Q70","Q45","FX","EX","JX","M","G","I"],
+  "Genesis":       ["GV80","GV70","GV60","G80","G70","G90","GV90","Electrified GV70","Electrified G80"],
+  /* ── TRUCKS / WORK ── */
+  "International": ["MV","CV","HV","LT","LoneStar","ProStar","DuraStar","WorkStar","PayStar"],
+  "Kenworth":      ["T680","T880","W900","T370","T270","T170","K270","K370"],
+  "Peterbilt":     ["389","579","567","520","536","348","220","325","337","330"],
+  "Isuzu":         ["NPR","NQR","NRR","FTR","FVR","FXR","N-Series","F-Series","i-280","i-290","i-370","VehiCROSS","Trooper","Axiom","Amigo","Rodeo"],
+  "Hino":          ["155","195","258","268","338","155h","195h","XL8","XL7","XL6"],
+  "Mitsubishi Fuso":["Canter FE","Canter FG","FE125","FE145","FE160","FE180","FG4X4"],
+  "UD Trucks":     ["Condor","Quon","Croner"],
+  "Mack":          ["Anthem","Pinnacle","Granite","LR","TerraPro","MD Series"],
+  "Volvo Trucks":  ["VNL","VNR","VNX","VAH","VHD","FH","FM","FMX"],
+  "Sprinter":      ["1500","2500","3500","3500XD","All-Wheel Drive","Crew","Cargo","Passenger"],
+};
+
+function updateScoutModels() {
+  const make  = document.getElementById("scout-make")?.value;
+  const mdSel = document.getElementById("scout-model");
+  if (!mdSel) return;
+  const models = SCOUT_MODELS[make] || [];
+  mdSel.innerHTML = models.length
+    ? models.map(m=>`<option value="${m}">${m}</option>`).join("")
+    : '<option value="">-- Select Make First --</option>';
+  updateScoutTargetPreview();
+}
+
+function populateScoutYears() {
+  const curYear = new Date().getFullYear();
+  const fromSel = document.getElementById("scout-year-from");
+  const toSel   = document.getElementById("scout-year-to");
+  if (!fromSel||!toSel) return;
+  let opts = '<option value="any">Any</option>';
+  for (let y = curYear+1; y >= 1990; y--) {
+    opts += `<option value="${y}"${y===2018?' selected':''}>${y}</option>`;
+  }
+  fromSel.innerHTML = opts;
+  let opts2 = '<option value="any">Any</option>';
+  for (let y = curYear+1; y >= 1990; y--) {
+    opts2 += `<option value="${y}"${y===curYear?' selected':''}>${y}</option>`;
+  }
+  toSel.innerHTML = opts2;
+}
+
+function updateScoutTargetPreview() {
+  const make  = document.getElementById("scout-make")?.value||"";
+  const model = document.getElementById("scout-model")?.value||"";
+  const yFrom = document.getElementById("scout-year-from")?.value||"any";
+  const yTo   = document.getElementById("scout-year-to")?.value||"any";
+  const cond  = document.getElementById("scout-condition")?.value||"any";
+  const miles = document.getElementById("scout-miles")?.value||"any";
+
+  const yearStr = yFrom==="any"&&yTo==="any" ? "Any Year" : yFrom===yTo ? yFrom : `${yFrom}–${yTo}`;
+  const condStr = cond==="any" ? "" : ` | ${cond.toUpperCase()}`;
+  const mileStr = miles==="any" ? "" : ` | <${parseInt(miles).toLocaleString()}mi`;
+  const target  = `${make} ${model}`.trim() || "No vehicle selected";
+
+  const prev = document.getElementById("scout-target-preview");
+  if (prev) prev.textContent = `TARGET: ${target} ${yearStr}${condStr}${mileStr}`;
+
+  // Update hidden target for server
+  const hiddenTarget = `${make} ${model} ${yearStr}${condStr}${mileStr}`.trim();
+  window._scoutFullTarget = hiddenTarget || "Ram ProMaster 1500";
+}
+
+// Init year dropdowns and set defaults
+document.addEventListener("DOMContentLoaded", () => {
+  populateScoutYears();
+  // Set Ram ProMaster 1500 as default
+  const makeEl = document.getElementById("scout-make");
+  if (makeEl) {
+    makeEl.value = "Ram";
+    updateScoutModels();
+    const modelEl = document.getElementById("scout-model");
+    if (modelEl) modelEl.value = "ProMaster 1500";
+    updateScoutTargetPreview();
+  }
+  // Add change listeners
+  ["scout-make","scout-model","scout-year-from","scout-year-to","scout-condition","scout-miles"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("change", updateScoutTargetPreview);
+  });
+});
+
+
+
+/* ── UNIVERSAL CLAUDE PROXY — routes through Field Ops server ── */
+async function callClaudeProxy(prompt, maxTokens) {
+  maxTokens = maxTokens || 1000;
+  // Always route through Field Ops server to avoid CORS
+  var res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
+    method: "POST",
+    headers: { "Content-Type":"application/json", "x-admin-secret":"Holmes2025!" },
+    body: JSON.stringify({
+      systemPrompt: "You are a helpful AI assistant for Holmes Holding Co., a NJ/NY property restoration company run by Jason Brown.",
+      userMessage: prompt,
+      maxTokens: maxTokens
+    })
+  });
+  if (!res.ok) {
+    var errText = await res.text().catch(function(){return "HTTP "+res.status;});
+    throw new Error("Server error: " + res.status + " — " + errText.slice(0,100));
+  }
+  var data = await res.json();
+  if (data.error) throw new Error(typeof data.error === "string" ? data.error : data.error.message || JSON.stringify(data.error));
+  return (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+}
+
+/* ══ BATH RENO LEAD COMMAND ══════════════════════════════ */
+let renoLeads      = [];
+let renoCRM        = { new:[], contacted:[], quoted:[], won:[], lost:[] };
+let selectedLead   = null;
+let outreachChannel= "email";
+let renoScanning   = false;
+
+/* ── SWITCH RENO SUB-TAB ── */
+function switchRenoTab(tab) {
+  ["leads","outreach","crm"].forEach(t => {
+    const view = document.getElementById(`reno-${t}-view`);
+    const btn  = document.getElementById(`reno-tab-${t}`);
+    if (!view||!btn) return;
+    const active = t===tab;
+    view.classList.toggle("hidden", !active);
+    btn.style.cssText = active
+      ? "padding:6px 16px;border-radius:9px;border:1px solid rgba(232,133,77,.4);border-top:1px solid rgba(232,133,77,.7);background:rgba(232,133,77,.12);font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:#e8854d;cursor:pointer;"
+      : "padding:6px 16px;border-radius:9px;border:1px solid transparent;background:transparent;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;";
+  });
+  if (tab==="crm") renderCRMBoard();
+}
+
+/* ── SCAN FOR LEADS ── */
+async function generateAILeads(location, budget, jobType) {
+  const p = "Generate 5 bathroom reno leads in " + location + " NJ. Budget:" + budget + " Job:" + jobType + ". Return ONLY JSON array. Fields: name,phone,email,address,jobType,budget,urgency,score,source,notes. No markdown, no extra text.";
+  const raw = await callClaudeProxy(p, 1500);
+  const s = raw.indexOf("["), e = raw.lastIndexOf("]") + 1;
+  if (s < 0 || e <= s) throw new Error("No JSON in response");
+  return JSON.parse(raw.slice(s, e));
+}
+
+async function scanRenoLeads() {
+  if (renoScanning || !apiKey) return;
+  renoScanning = true;
+  const btn = document.getElementById("reno-scan-btn");
+  btn.textContent = "⏳ SCANNING...";
+  btn.style.opacity = ".6";
+
+  const location = document.getElementById("reno-location").value;
+  const jobType  = document.getElementById("reno-type").value;
+  const budget   = document.getElementById("reno-budget").value;
+  let leads = [];
+
+  // Try real scraper first (Craigslist + Reddit via Field Ops server)
+  try {
+    const params = new URLSearchParams({ location, jobType, secret:"Holmes2025!" });
+    const r      = await fetch("https://holmes-field-ops.onrender.com/api/scan-leads?" + params);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.leads && d.leads.length > 0) leads = d.leads;
+      if (d.googleLinks) window._googleLinks = d.googleLinks;
+      else window._googleLinks = [];
+    }
+  } catch(e) { console.log("Real scraper unavailable, using AI fallback"); }
+
+  // Fall back to AI-generated leads if nothing found
+  if (leads.length === 0) {
+    try {
+      leads = await generateAILeads(location, budget, jobType);
+    } catch(e2) {
+      btn.textContent = "SCAN FOR LEADS";
+      btn.style.opacity = "1";
+      renoScanning = false;
+      alert("Scan failed: " + e2.message);
+      return;
+    }
+  }
+
+    renoLeads = leads;
+  renderLeads(window._googleLinks||[]);
+  updateRenoStats();
+  populateOutreachSelect();
+
+  const hot = leads.find(l => l.urgency === "hot");
+  if (hot) {
+    document.getElementById("hot-lead-box").style.display = "block";
+    document.getElementById("hot-lead-content").innerHTML = "<b style='color:#e85470;'>" + hot.name + "</b> — " + hot.jobType + "<br>" + (hot.address||"NJ") + "<br><b style='color:#f5c842;'>" + (hot.budget||"") + "</b> budget · " + (hot.notes||"");
+  }
+
+  btn.textContent = "🔍 SCAN FOR LEADS";
+  btn.style.opacity = "1";
+  renoScanning = false;
+}
+
+
+function addToCRMFromBtn(btn) {
+  var idx = parseInt(btn.getAttribute('data-idx'));
+  var stage = btn.getAttribute('data-stage') || 'new';
+  addToCRM(idx, stage);
+}
+function selectLeadFromBtn(btn) {
+  var idx = parseInt(btn.getAttribute('data-idx'));
+  selectLeadForOutreach(idx);
+}
+
+/* ── RENDER LEADS ── */
+function renderLeads(googleLinks) {
+  const container = document.getElementById("reno-leads-list");
+  const countEl   = document.getElementById("reno-lead-count");
+  const urgColor  = {hot:"#e85470", warm:"#f5c842", cool:"#4da8da"};
+  const isReal    = renoLeads.some(function(l){ return l.realLead; });
+
+  countEl.textContent = renoLeads.length + (isReal ? " REAL LEADS" : " AI LEADS");
+  countEl.style.color = isReal ? "#3cc68a" : "#f5c842";
+
+  if (!renoLeads.length) {
+    if (googleLinks && googleLinks.length) renderGoogleLinks(googleLinks);
+    return;
+  }
+
+  var badge = isReal
+    ? "<div style='display:inline-block;padding:4px 12px;background:rgba(60,198,138,.15);border:1px solid rgba(60,198,138,.4);border-radius:8px;font-family:Orbitron,sans-serif;font-size:11px;color:#3cc68a;margin-bottom:10px;'>✓ REAL POSTS FROM REDDIT</div>"
+    : "<div style='display:inline-block;padding:4px 12px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);border-radius:8px;font-family:Orbitron,sans-serif;font-size:11px;color:#f5c842;margin-bottom:10px;'>⚠ AI-GENERATED PRACTICE LEADS</div>";
+
+  var cards = renoLeads.map(function(l, i) {
+    var uc = urgColor[l.urgency] || "#4da8da";
+    var realBadge = l.realLead ? "<span style='font-size:11px;color:#3cc68a;'>● REAL</span>" : "<span style='font-size:11px;color:#f5c842;'>AI</span>";
+    var viewBtn   = l.url ? "<a href='" + l.url + "' target='_blank' style='padding:6px 12px;background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.3);border-radius:7px;font-family:Orbitron,sans-serif;font-size:11px;color:#4da8da;text-decoration:none;display:inline-block;'>VIEW POST →</a> " : "";
+    var outBtn    = "<button data-idx='" + i + "' onclick='selectLeadFromBtn(this)' style='padding:6px 12px;background:rgba(232,133,77,.1);border:1px solid rgba(232,133,77,.3);border-radius:7px;font-family:Orbitron,sans-serif;font-size:11px;color:#e8854d;cursor:pointer;'>OUTREACH →</button> ";
+    var crmBtn    = "<button data-idx='" + i + "' data-stage='new' onclick='addToCRMFromBtn(this)' style='padding:6px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-family:Orbitron,sans-serif;font-size:11px;color:#c8e0ff;cursor:pointer;'>+ CRM</button>";
+    var phone     = l.phone ? "<div style='font-size:12px;color:#4da8da;margin-bottom:4px;'>📞 " + l.phone + " &nbsp; ✉ " + (l.email||"") + "</div>" : "";
+    var reddit    = (l.comments !== undefined) ? "<div style='font-size:11px;color:#8ab4d4;margin-bottom:6px;'>💬 " + l.comments + " comments · ▲ " + l.upvotes + " upvotes · by u/" + (l.author||"anon") + "</div>" : "";
+    return "<div style='border:1px solid rgba(255,255,255,.08);border-left:3px solid " + uc + ";border-radius:10px;padding:12px 14px;background:rgba(8,16,44,.6);margin-bottom:8px;position:relative;'>" +
+      "<div style='position:absolute;top:9px;right:11px;display:flex;gap:5px;align-items:center;'>" + realBadge + "<span style='background:" + uc + "22;border:1px solid " + uc + "44;border-radius:8px;padding:2px 8px;font-family:Orbitron,sans-serif;font-size:10px;color:" + uc + ";'>" + (l.urgency||"warm").toUpperCase() + "</span></div>" +
+      "<div style='padding-right:120px;margin-bottom:6px;'><div style='font-weight:700;font-size:15px;color:#ffffff;margin-bottom:3px;'>" + (l.title||l.name||"Lead") + "</div><div style='font-size:11px;color:#8ab4d4;'>" + (l.source||"") + " · " + (l.location||"NJ") + " · " + (l.postedDate||"Recent") + "</div></div>" +
+      "<div style='font-size:12px;color:#c8e0ff;margin-bottom:8px;line-height:1.5;'>" + (l.notes||"").slice(0,180) + "</div>" +
+      phone + reddit +
+      "<div style='margin-top:8px;'>" + viewBtn + outBtn + crmBtn + "</div>" +
+    "</div>";
+  });
+
+  container.innerHTML = badge + cards.join("");
+
+  if (googleLinks && googleLinks.length) {
+    var gDiv = document.createElement("div");
+    gDiv.style.marginTop = "12px";
+    var gHtml = "<div style='font-family:Orbitron,sans-serif;font-size:11px;color:#8ab4d4;letter-spacing:2px;margin-bottom:8px;'>🔍 GOOGLE SEARCH LINKS</div>";
+    googleLinks.forEach(function(g) {
+      gHtml += "<a href='" + g.url + "' target='_blank' style='display:block;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;font-size:11px;color:#8ab4d4;text-decoration:none;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'>🔗 " + g.label + "</a>";
+    });
+    gDiv.innerHTML = gHtml;
+    container.appendChild(gDiv);
+  }
+}
+
+function renderGoogleLinks(links) {
+  const el = document.getElementById("google-links-default");
+  if (!el || !links) return;
+  el.innerHTML = links.map(g =>
+    "<a href='" + g.url + "' target='_blank' style='display:block;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;font-size:11px;color:#8ab4d4;text-decoration:none;margin-bottom:5px;'>🔗 " + g.label + "</a>"
+  ).join("");
+}
+
+/* ── OUTREACH ── */
+function selectLeadForOutreach(i) {
+  selectedLead = renoLeads[i];
+  switchRenoTab("outreach");
+  switchRole("reno");
+  const sel = document.getElementById("outreach-lead-select");
+  if (sel) sel.value = selectedLead.name;
+}
+
+function populateOutreachSelect() {
+  const sel = document.getElementById("outreach-lead-select");
+  if (!sel) return;
+  sel.innerHTML = renoLeads.map(l=>`<option value="${l.name}">${l.name} — ${l.jobType}</option>`).join("");
+}
+
+function setOutreachChannel(ch) {
+  outreachChannel = ch;
+  ["email","text","dm"].forEach(c => {
+    const btn = document.getElementById("ch-"+c);
+    if (!btn) return;
+    btn.style.cssText = c===ch
+      ? "flex:1;padding:6px;border-radius:8px;border:1px solid rgba(77,168,218,.4);background:rgba(77,168,218,.12);font-family:'Orbitron',sans-serif;font-size:8px;color:#4da8da;cursor:pointer;"
+      : "flex:1;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);cursor:pointer;";
+  });
+}
+
+async function generateOutreach() {
+  const selName = document.getElementById("outreach-lead-select")?.value;
+  const lead    = renoLeads.find(l=>l.name===selName) || selectedLead || renoLeads[0];
+  if (!lead||!apiKey) return;
+
+  const channelInstr = outreachChannel==="email"
+    ? "Write a professional email with a subject line. Format: SUBJECT: [subject]\n\n[body]"
+    : outreachChannel==="text"
+    ? "Write a short professional SMS text message (under 160 chars)"
+    : "Write a friendly social media DM message (under 300 chars)";
+
+  const prompt = `You are writing outreach for Holmes Holding Co., a licensed property restoration and renovation company in Wayne, NJ. Phone: 862-245-1318. Website: holmesholdingco.com.
+
+Lead info:
+- Name: ${lead.name}
+- Job: ${lead.jobType}
+- Budget: ${lead.budget}
+- Location: ${lead.address}
+- Notes: ${lead.notes}
+
+${channelInstr}
+
+Be warm, professional, specific to their project, and include a clear call to action. Sign from Jason Brown, Holmes Holding Co.`;
+
+  document.getElementById("outreach-result").style.display = "none";
+  try {
+    const text = await callClaudeProxy(prompt, 500);
+
+    let subject="", body=text;
+    if (text.startsWith("SUBJECT:")) {
+      const lines = text.split("\n");
+      subject = lines[0].replace("SUBJECT:","").trim();
+      body    = lines.slice(2).join("\n").trim();
+    }
+
+    document.getElementById("outreach-subject").textContent = subject ? "SUBJECT: "+subject : "";
+    document.getElementById("outreach-text").textContent    = body;
+    document.getElementById("outreach-result").style.display = "block";
+    window._outreachFull = {subject, body, lead};
+  } catch(e) { alert("Generation failed: "+e.message); }
+}
+
+function copyOutreach() {
+  if (!window._outreachFull) return;
+  const {subject, body} = window._outreachFull;
+  navigator.clipboard.writeText((subject?"Subject: "+subject+"\n\n":"")+body).then(()=>{
+    document.getElementById("outreach-copy-btn").textContent = "✓ COPIED";
+    setTimeout(()=>{ document.getElementById("outreach-copy-btn").textContent = "COPY"; },2000);
+  });
+}
+
+function sendToGmail() {
+  if (!window._outreachFull) return;
+  const {subject, body, lead} = window._outreachFull;
+  const url = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(lead.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(url, "_blank");
+  markLeadContacted();
+}
+
+function markLeadContacted() {
+  if (!window._outreachFull) return;
+  addToCRM(renoLeads.indexOf(window._outreachFull.lead), "contacted");
+  updateRenoStats();
+}
+
+/* ── CRM ── */
+function addToCRM(i, stage) {
+  const lead = renoLeads[i];
+  if (!lead) return;
+  // Remove from other stages
+  Object.keys(renoCRM).forEach(s => {
+    renoCRM[s] = renoCRM[s].filter(l=>l.name!==lead.name);
+  });
+  renoCRM[stage].push({...lead, addedAt: new Date().toLocaleString(), stage});
+  updateRenoStats();
+  renderCRMBoard();
+}
+
+function updateRenoStats() {
+  document.getElementById("stat-leads").textContent     = renoLeads.length;
+  document.getElementById("stat-contacted").textContent = renoCRM.contacted.length + renoCRM.quoted.length;
+  document.getElementById("stat-quoted").textContent    = renoCRM.quoted.length;
+  document.getElementById("stat-won").textContent       = renoCRM.won.length;
+  const totalVal = [...renoCRM.quoted,...renoCRM.won].reduce((sum,l)=>sum+parseInt(String(l.budget||"0").replace(/[^0-9]/g,"")||0),0);
+  document.getElementById("stat-value").textContent = "$"+totalVal.toLocaleString();
+}
+
+function renderCRMBoard() {
+  const board = document.getElementById("reno-crm-board");
+  if (!board) return;
+  const cols = [
+    {id:"new",      label:"NEW LEADS",   col:"#4da8da"},
+    {id:"contacted",label:"CONTACTED",   col:"#f5c842"},
+    {id:"quoted",   label:"QUOTED",      col:"#e8854d"},
+    {id:"won",      label:"WON ✓",       col:"#3cc68a"},
+    {id:"lost",     label:"LOST",        col:"#e85470"},
+  ];
+  board.innerHTML = cols.map(col=>`
+    <div style="flex-shrink:0;width:190px;display:flex;flex-direction:column;gap:6px;">
+      <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:${col.col};letter-spacing:2px;padding:6px 10px;background:${col.col}12;border:1px solid ${col.col}33;border-radius:8px;text-align:center;margin-bottom:2px;">${col.label} (${renoCRM[col.id].length})</div>
+      ${renoCRM[col.id].map(l=>`
+        <div style="background:rgba(8,16,44,.6);border:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 10px;">
+          <div style="font-size:11px;font-weight:600;color:#deeaff;margin-bottom:3px;">${l.name}</div>
+          <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">${l.jobType}</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;margin-bottom:6px;">${l.budget}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            ${cols.filter(c=>c.id!==col.id&&c.id!=="new").map(nc=>`
+              <button onclick="moveCRM('${l.name}','${nc.id}')" style="padding:3px 7px;background:${nc.col}10;border:1px solid ${nc.col}30;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:7px;color:${nc.col};cursor:pointer;">${nc.label.replace(" ✓","")}</button>
+            `).join("")}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+}
+
+function moveCRM(name, stage) {
+  Object.keys(renoCRM).forEach(s => {
+    const lead = renoCRM[s].find(l=>l.name===name);
+    if (lead) {
+      renoCRM[s] = renoCRM[s].filter(l=>l.name!==name);
+      renoCRM[stage].push({...lead, stage});
+    }
+  });
+  updateRenoStats();
+  renderCRMBoard();
+}
+
+
+/* ══ TIPS TAB — AI CHATBOT ══════════════════════════════ */
+var chatHistory = [];
+var chatLoading = false;
+
+var HOLMES_SYSTEM = "You are HOLMES AI, the built-in assistant for Holmes Holding Co.'s AI Command Center. You work for Jason Brown, owner and President of Holmes Holding Co., a property restoration and renovation company in Wayne NJ (holmesholdingco.com, 862-245-1318).\n\nYou have deep knowledge of all systems:\n\nCOMMAND CENTER (holmes-command-center.onrender.com):\n- 5 tabs: Executive (KPIs, 3D charts), Field Ops (9 agents), Vehicle Scout, Bath Reno, Tips & Help\n- Executive tab shows: Active Jobs, Claims, Pipeline value, Compliance, Inbox alerts, Scout status, 3D revenue/claims charts\n- Field Ops agents: Scope (field notes to scope of work), Billing (invoice follow-up), Email (read+reply), Intake (new job form), Video (social media content), CRM (client tracking), Estimate/Invoice, Docs (document collection), Permits (violations)\n- Vehicle Scout: 5 autonomous agents scan Facebook/Craigslist/eBay/CarGurus/AutoTrader, Vehicle Hunt and Rental Profit modes, auto-scans every 6h, emails results to Gmail\n- Bath Reno: finds NJ homeowners via Reddit, outreach generator, CRM pipeline kanban\n\nEMPLOYEE PORTAL (holmes-field-ops.onrender.com):\n- Employees: Garmar Virgin (PM, code HHC-GM-0341), Jason Brown Jr (Office, HHC-JB-7829), Kimya Springer (Director, HHC-KS-5614), Zion Johnson (Tech, HHC-ZJ-9273)\n- Each employee sees only their permitted agents and personal performance charts\n- Session timer tracks hours worked, logs to Google Sheets\n- Weekly ADP-compatible CSV auto-generated every Friday\n- Admin live view: holmes-field-ops.onrender.com/api/admin/live?secret=Holmes2025!\n\nGMAIL AGENT (holmes-gmail-agent.onrender.com): monitors inbox every 60s, classifies emails, applies labels, logs to Google Sheets, saves draft replies\n\nVEHICLE SCOUT SERVER (holmes-vehicle-scout.onrender.com): autonomous Node.js server with self-healing, watchdog, cron scheduler\n\nGOOGLE SHEETS (ID: 1983Ci__r0u2NPL_jlKHvmK5HJ5LxsoPdSxwMri9FPyQ): central data log\n\nBe direct, specific, and action-oriented. Answer in 2-4 sentences for simple questions, more for complex ones. Use bullet points for multi-step instructions. Know that Jason communicates in ALL CAPS and prefers direct answers.";
+
+function addChatMessage(role, text, isStreaming) {
+  var msgs = document.getElementById("chat-messages");
+  if (!msgs) return;
+
+  var div = document.createElement("div");
+  div.style.cssText = "display:flex;gap:10px;align-items:flex-start;" + (role==="user" ? "flex-direction:row-reverse;" : "");
+  div.id = isStreaming ? "chat-streaming" : "";
+
+  var avatar = document.createElement("div");
+  avatar.style.cssText = "width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;" + (role==="user" ? "background:rgba(245,200,66,.15);border:1px solid rgba(245,200,66,.3);" : "background:rgba(77,168,218,.15);border:1px solid rgba(77,168,218,.3);");
+  avatar.textContent = role==="user" ? "👤" : "🤖";
+
+  var bubble = document.createElement("div");
+  bubble.style.cssText = "border-radius:12px;padding:12px 14px;max-width:85%;font-size:13px;color:#ffffff;line-height:1.7;" + (role==="user" ? "background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.15);border-top-right-radius:3px;" : "background:rgba(77,168,218,.08);border:1px solid rgba(77,168,218,.15);border-top-left-radius:3px;");
+  bubble.id = isStreaming ? "chat-bubble-streaming" : "";
+  bubble.innerHTML = text.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<b style='color:#ffffff;'>$1</b>").replace(/•/g,"&bull;");
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return bubble;
+}
+
+async function sendChatMessage() {
+  if (chatLoading || !apiKey) return;
+  var input = document.getElementById("chat-input");
+  var msg   = input ? input.value.trim() : "";
+  if (!msg) return;
+
+  input.value = "";
+  input.style.height = "44px";
+  chatLoading = true;
+
+  var sendBtn = document.getElementById("chat-send-btn");
+  if (sendBtn) { sendBtn.textContent = "..."; sendBtn.style.opacity = ".5"; }
+
+  // Add user message
+  addChatMessage("user", msg);
+  chatHistory.push({ role:"user", content:msg });
+
+  // Add streaming placeholder
+  var bubble = addChatMessage("assistant", "▋", true);
+
+  try {
+    // Build full conversation context
+    var msgs = chatHistory.slice(-10);
+    var fullPrompt = HOLMES_SYSTEM + "\n\nConversation so far:\n" +
+      msgs.slice(0,-1).map(function(m){ return (m.role==="user"?"User":"Assistant") + ": " + m.content; }).join("\n") +
+      "\n\nUser: " + msg + "\n\nAssistant:";
+
+    var res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-admin-secret":"Holmes2025!"},
+      body:JSON.stringify({
+        systemPrompt: HOLMES_SYSTEM,
+        userMessage: msgs.map(function(m){return (m.role==="user"?"User":"Assistant")+": "+m.content;}).join("\n"),
+        maxTokens: 600
+      })
+    });
+    if (!res.ok) throw new Error("Server error: HTTP " + res.status + " — is holmes-field-ops.onrender.com online?");
+    var data = await res.json();
+    if (data.error) throw new Error(typeof data.error==="string"?data.error:data.error.message||"Unknown error");
+    var reply = (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+
+    // Stream reply character by character
+    if (bubble) {
+      bubble.innerHTML = "";
+      var built = "";
+      for (var i=0; i<reply.length; i++) {
+        built += reply[i];
+        bubble.innerHTML = built.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<b style='color:#ffffff;'>$1</b>") + "<span style='opacity:.5;'>▋</span>";
+        if (i % 4 === 0) await new Promise(function(r){setTimeout(r,8);});
+      }
+      bubble.innerHTML = reply.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<b style='color:#ffffff;'>$1</b>");
+    }
+
+    chatHistory.push({ role:"assistant", content:reply });
+
+  } catch(e) {
+    if (bubble) bubble.innerHTML = "Error: " + e.message + ". Make sure your API key is valid.";
+  }
+
+  chatLoading = false;
+  if (sendBtn) { sendBtn.textContent = "SEND"; sendBtn.style.opacity = "1"; }
+  var msgs = document.getElementById("chat-messages");
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Auto-resize chat textarea
+document.addEventListener("DOMContentLoaded", function() {
+  var inp = document.getElementById("chat-input");
+  if (inp) {
+    inp.addEventListener("input", function() {
+      this.style.height = "44px";
+      this.style.height = Math.min(this.scrollHeight, 100) + "px";
+    });
+  }
+});
+
+
+/* ══ LIVE EMPLOYEE ACTIVITY ══════════════════════════════ */
+var empEventLog = [];
+var empPollInt  = null;
+var allEmployees = [
+  {id:"EMP001", name:"Garmar Virgin",   role:"Project Manager", color:"#4DA8DA"},
+  {id:"EMP002", name:"Jason Brown Jr",  role:"Office",          color:"#3CC68A"},
+  {id:"EMP003", name:"Kimya Springer",  role:"Director",        color:"#7B6FE8"},
+  {id:"EMP004", name:"Zion Johnson",    role:"Tech",            color:"#E8854D"},
+];
+
+async function pollEmployees() {
+  try {
+    var res = await fetch("https://holmes-field-ops.onrender.com/api/admin/live?secret=Holmes2025!");
+    if (!res.ok) return;
+    var data = await res.json();
+    var active = data.employees || [];
+
+    // Update live dot
+    var dot = document.getElementById("emp-live-dot");
+    var cnt = document.getElementById("emp-active-count");
+    if (dot) {
+      dot.style.cssText = active.length > 0
+        ? "width:5px;height:5px;border-radius:50%;background:#3CC68A;box-shadow:0 0 10px #3CC68A;"
+        : "width:5px;height:5px;border-radius:50%;background:var(--dim);";
+    }
+    if (cnt) cnt.textContent = active.length + " ONLINE";
+
+    // Render active employee cards
+    var list = document.getElementById("emp-active-list");
+    if (list) {
+      // Show all 4 employees — online or offline
+      var cards = allEmployees.map(function(emp) {
+        var live = active.find(function(a){ return a.name === emp.name; });
+        var isOnline = !!live;
+        return "<div style='display:flex;align-items:center;gap:8px;padding:7px 10px;background:" + (isOnline ? emp.color+"0e" : "rgba(255,255,255,.01)") + ";border:1px solid " + (isOnline ? emp.color+"33" : "rgba(255,255,255,.04)") + ";border-radius:9px;margin-bottom:5px;'>" +
+          "<div style='width:7px;height:7px;border-radius:50%;background:" + (isOnline ? emp.color : "var(--dim)") + ";box-shadow:" + (isOnline ? "0 0 8px "+emp.color : "none") + ";flex-shrink:0;" + (isOnline ? "animation:glow 2s ease-in-out infinite;" : "") + "'></div>" +
+          "<div style='flex:1;min-width:0;'>" +
+            "<div style='font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;color:" + (isOnline ? "#ffffff" : "var(--muted)") + ";'>" + emp.name + "</div>" +
+            (isOnline ? "<div style='font-size:10px;color:" + emp.color + ";overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'>" + (live.currentAgent !== "None" ? live.currentAgent.toUpperCase() + " agent" : "Idle") + (live.currentTask && live.currentTask !== "Idle" ? " — " + live.currentTask.slice(0,40) : "") + "</div>" : "<div style='font-size:10px;color:var(--dim);'>Offline</div>") +
+          "</div>" +
+          (isOnline ? "<div style='text-align:right;flex-shrink:0;'><div style='font-family:Orbitron,sans-serif;font-size:9px;color:#3CC68A;'>" + parseFloat(live.hoursWorked||0).toFixed(1) + "h</div><div style='font-size:9px;color:var(--muted);'>" + live.tasksCompleted + " tasks</div></div>" : "") +
+        "</div>";
+      }).join("");
+      list.innerHTML = cards;
+    }
+
+    // Add events to log
+    var logEl = document.getElementById("emp-event-log");
+    if (logEl && active.length > 0) {
+      var now = new Date().toLocaleTimeString("en-US",{hour12:false});
+      active.forEach(function(emp) {
+        // Check if this is a new login or new task vs last known state
+        var existing = empEventLog.find(function(e){ return e.name===emp.name && e.type==="online"; });
+        if (!existing) {
+          empEventLog.unshift({ name:emp.name, type:"online", time:emp.loginAt ? new Date(emp.loginAt).toLocaleTimeString("en-US",{hour12:false}) : now, task:"Logged in", agent:"" });
+        }
+        if (emp.currentAgent && emp.currentAgent !== "None" && emp.currentTask && emp.currentTask !== "Idle") {
+          var lastTask = empEventLog.find(function(e){ return e.name===emp.name && e.type==="task"; });
+          if (!lastTask || lastTask.task !== emp.currentTask) {
+            empEventLog.unshift({ name:emp.name, type:"task", time:emp.lastActivity||now, task:emp.currentTask, agent:emp.currentAgent });
+          }
+        }
+      });
+      // Keep last 20 events
+      empEventLog = empEventLog.slice(0, 20);
+      renderEventLog();
+    }
+
+    // Update team cards in roster
+    buildTeamCards(active);
+
+  } catch(e) {
+    // Field Ops server offline — show all employees as offline
+    buildTeamCards([]);
+  }
+}
+
+function renderEventLog() {
+  var logEl = document.getElementById("emp-event-log");
+  if (!logEl || empEventLog.length === 0) return;
+  var typeColors = { online:"#3CC68A", logout:"#E85470", task:"#4DA8DA" };
+  var typeIcons  = { online:"🟢", logout:"🔴", task:"⚡" };
+  logEl.innerHTML = empEventLog.map(function(e) {
+    var c = typeColors[e.type] || "#4DA8DA";
+    return "<div style='display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start;'>" +
+      "<span style='font-family:JetBrains Mono,monospace;font-size:9px;color:var(--dim);flex-shrink:0;'>" + (e.time||"") + "</span>" +
+      "<span style='font-size:11px;flex-shrink:0;'>" + (typeIcons[e.type]||"•") + "</span>" +
+      "<div style='flex:1;min-width:0;'>" +
+        "<span style='font-size:11px;color:" + c + ";font-weight:600;'>" + e.name.split(" ")[0] + "</span>" +
+        "<span style='font-size:11px;color:#c8e0ff;'> " + (e.type==="task" ? "ran " + e.agent + " — " + e.task.slice(0,50) : e.type==="online" ? "logged in" : "logged out") + "</span>" +
+      "</div>" +
+    "</div>";
+  }).join("");
+}
+
+function buildTeamCards(active) {
+  var el = document.getElementById("team-cards");
+  if (!el) return;
+  el.innerHTML = allEmployees.map(function(emp) {
+    var live = active.find(function(a){ return a.name===emp.name; });
+    return "<div style='display:flex;align-items:center;gap:7px;padding:5px 8px;background:" + (live ? emp.color+"0a" : "rgba(255,255,255,.01)") + ";border:1px solid " + (live ? emp.color+"25" : "rgba(255,255,255,.04)") + ";border-radius:8px;margin-bottom:4px;cursor:pointer;' onclick='switchRole(\"field\")'>" +
+      "<div style='width:5px;height:5px;border-radius:50%;background:" + (live ? emp.color : "var(--dim)") + ";flex-shrink:0;'></div>" +
+      "<span style='font-size:11px;color:" + (live ? "#ffffff" : "var(--muted)") + ";font-weight:" + (live ? "600" : "400") + ";'>" + emp.name.split(" ")[0] + "</span>" +
+      "<span style='font-size:10px;color:var(--dim);'>" + emp.role + "</span>" +
+      (live ? "<span style='margin-left:auto;font-size:10px;color:#3CC68A;font-family:Orbitron,sans-serif;'>" + parseFloat(live.hoursWorked||0).toFixed(1) + "h</span>" : "") +
+    "</div>";
+  }).join("");
+}
+
+function startEmpPolling() {
+  pollEmployees();
+  if (empPollInt) clearInterval(empPollInt);
+  empPollInt = setInterval(pollEmployees, 15000); // poll every 15 seconds
+}
+
+// Start polling when on exec view, stop when away
+
+/* emp poll handled by consolidated switchRole */
+// Also poll on page load when exec is default
+setTimeout(startEmpPolling, 2000);
+
+
+/* ══ MESSENGER + VOICE CALLING ═════════════════════════ */
+var msgCurrentEmp  = null;
+var msgPollInt     = null;
+var msgLastTs      = 0;
+var callPollInt    = null;
+var rtcConn        = null;
+var localStream    = null;
+var currentCallId  = null;
+var pendingSignal  = null;
+
+var MSG_EMPLOYEES = [
+  {id:"EMP001", name:"Garmar Virgin",   role:"Project Manager", color:"#4DA8DA", initials:"GV"},
+  {id:"EMP002", name:"Jason Brown Jr",  role:"Office",          color:"#3CC68A", initials:"JB"},
+  {id:"EMP003", name:"Kimya Springer",  role:"Director",        color:"#7B6FE8", initials:"KS"},
+  {id:"EMP004", name:"Zion Johnson",    role:"Tech",            color:"#E8854D", initials:"ZJ"},
+];
+
+var STUN_SERVERS = { iceServers: [{ urls:"stun:stun.l.google.com:19302" },{ urls:"stun:stun1.l.google.com:19302" }] };
+
+/* ── Build employee list ── */
+function buildMsgEmpList() {
+  var list = document.getElementById("msg-emp-list");
+  if (!list) return;
+  list.innerHTML = MSG_EMPLOYEES.map(function(emp) {
+    return "<div id='msg-emp-"+emp.id+"' onclick='selectMsgEmp(\""+emp.id+"\")' style='display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);margin-bottom:6px;cursor:pointer;transition:all .2s;position:relative;'>" +
+      "<div style='width:38px;height:38px;border-radius:10px;background:"+emp.color+"18;border:1px solid "+emp.color+"33;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:"+emp.color+";flex-shrink:0;'>"+emp.initials+"</div>" +
+      "<div style='flex:1;min-width:0;'>" +
+        "<div style='font-size:13px;font-weight:700;color:#ffffff;'>"+emp.name+"</div>" +
+        "<div style='font-size:11px;color:#8ab4d4;'>"+emp.role+"</div>" +
+      "</div>" +
+      "<div id='msg-badge-"+emp.id+"' style='display:none;background:#e85470;border-radius:50%;width:18px;height:18px;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;'></div>" +
+    "</div>";
+  }).join("");
+}
+
+function selectMsgEmp(empId) {
+  msgCurrentEmp = MSG_EMPLOYEES.find(function(e){ return e.id===empId; });
+  if (!msgCurrentEmp) return;
+  msgLastTs = 0;
+
+  // Update header
+  var av   = document.getElementById("chat-emp-avatar");
+  var name = document.getElementById("chat-emp-name");
+  var stat = document.getElementById("chat-emp-status");
+  var cbtns= document.getElementById("call-btns");
+  var inp  = document.getElementById("msg-input-area");
+
+  if (av)   { av.textContent=msgCurrentEmp.initials; av.style.cssText="width:36px;height:36px;border-radius:9px;background:"+msgCurrentEmp.color+"18;border:1px solid "+msgCurrentEmp.color+"33;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:12px;font-weight:700;color:"+msgCurrentEmp.color+";flex-shrink:0;"; }
+  if (name) { name.textContent=msgCurrentEmp.name; name.style.color=msgCurrentEmp.color; }
+  if (stat) { stat.textContent=msgCurrentEmp.role+" — Click CALL to start a voice call"; }
+  if (cbtns){ cbtns.style.display="flex"; }
+  if (inp)  { inp.style.display="block"; }
+
+  // Highlight selected employee
+  MSG_EMPLOYEES.forEach(function(e) {
+    var el = document.getElementById("msg-emp-"+e.id);
+    if (el) el.style.background = e.id===empId ? msgCurrentEmp.color+"14" : "rgba(255,255,255,.02)";
+    if (el) el.style.borderColor = e.id===empId ? msgCurrentEmp.color+"33" : "rgba(255,255,255,.05)";
+  });
+
+  // Clear messages and load
+  document.getElementById("msg-messages").innerHTML = "<div style='text-align:center;padding:20px;color:var(--dim);font-size:11px;'>Loading messages...</div>";
+  loadMessages(true);
+
+  // Start polling
+  if (msgPollInt) clearInterval(msgPollInt);
+  msgPollInt = setInterval(function(){ loadMessages(false); }, 3000);
+}
+
+async function loadMessages(initial) {
+  if (!msgCurrentEmp) return;
+  var convId = ["ADMIN", msgCurrentEmp.id].sort().join("_");
+  try {
+    var res = await fetch("https://holmes-field-ops.onrender.com/api/messages/"+convId+"?since="+(initial?0:msgLastTs), {
+      headers: {"x-admin-secret":"Holmes2025!"}
+    });
+    if (!res.ok) return;
+    var data = await res.json();
+    var msgs = data.messages || [];
+    if (msgs.length === 0 && initial) {
+      document.getElementById("msg-messages").innerHTML = "<div style='text-align:center;padding:40px;color:var(--dim);'><div style='font-size:22px;margin-bottom:8px;opacity:.3;'>💬</div><div style='font-family:Orbitron,sans-serif;font-size:11px;letter-spacing:2px;'>NO MESSAGES YET</div><div style='font-size:11px;margin-top:6px;'>Send a message to start the conversation</div></div>";
+      return;
+    }
+    if (msgs.length > 0) {
+      if (initial) {
+        renderMessages(msgs);
+      } else {
+        appendMessages(msgs);
+      }
+      msgLastTs = Math.max.apply(null, msgs.map(function(m){return m.ts;}));
+    }
+  } catch(e) {}
+}
+
+function renderMessages(msgs) {
+  var container = document.getElementById("msg-messages");
+  container.innerHTML = "";
+  msgs.forEach(function(m){ container.appendChild(createMsgBubble(m)); });
+  container.scrollTop = container.scrollHeight;
+}
+
+function appendMessages(msgs) {
+  var container = document.getElementById("msg-messages");
+  msgs.forEach(function(m){ container.appendChild(createMsgBubble(m)); });
+  container.scrollTop = container.scrollHeight;
+}
+
+function createMsgBubble(m) {
+  var isMe = m.from === "ADMIN";
+  var emp  = MSG_EMPLOYEES.find(function(e){ return e.id===m.from; });
+  var div  = document.createElement("div");
+  div.style.cssText = "display:flex;gap:8px;align-items:flex-end;" + (isMe?"flex-direction:row-reverse;":"");
+
+  var time = new Date(m.ts).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:true});
+  var avatarStyle = isMe
+    ? "width:28px;height:28px;border-radius:7px;background:rgba(77,168,218,.15);border:1px solid rgba(77,168,218,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:Orbitron,sans-serif;color:#4da8da;flex-shrink:0;"
+    : "width:28px;height:28px;border-radius:7px;background:"+(emp?emp.color+"18":"rgba(255,255,255,.05)")+";border:1px solid "+(emp?emp.color+"33":"rgba(255,255,255,.1)")+";display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:Orbitron,sans-serif;color:"+(emp?emp.color:"#ffffff")+";flex-shrink:0;";
+  var bubbleStyle = isMe
+    ? "background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.2);border-radius:12px;border-bottom-right-radius:3px;padding:10px 14px;max-width:75%;word-break:break-word;"
+    : "background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;border-bottom-left-radius:3px;padding:10px 14px;max-width:75%;word-break:break-word;";
+
+  div.innerHTML =
+    "<div style='"+avatarStyle+"'>"+(isMe?"JB":(emp?emp.initials:"?"))+"</div>" +
+    "<div>" +
+      "<div style='"+bubbleStyle+"'>" +
+        "<div style='font-size:13px;color:#ffffff;line-height:1.5;'>"+m.text+"</div>" +
+        "<div style='font-size:10px;color:#5a7a9a;margin-top:4px;text-align:"+(isMe?"right":"left")+";'>"+time+"</div>" +
+      "</div>" +
+    "</div>";
+  return div;
+}
+
+async function sendMsg() {
+  if (!msgCurrentEmp) return;
+  var input = document.getElementById("msg-input");
+  var text  = input ? input.value.trim() : "";
+  if (!text) return;
+  input.value = "";
+
+  try {
+    await fetch("https://holmes-field-ops.onrender.com/api/messages/send", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-admin-secret":"Holmes2025!"},
+      body:JSON.stringify({ from:"ADMIN", to:msgCurrentEmp.id, text })
+    });
+    loadMessages(false);
+  } catch(e) { alert("Send failed: "+e.message); }
+}
+
+/* ── Voice Calling ── */
+async function startCall(type) {
+  if (!msgCurrentEmp) return;
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:false });
+    document.getElementById("local-audio").srcObject = localStream;
+
+    rtcConn = new RTCPeerConnection(STUN_SERVERS);
+    localStream.getTracks().forEach(function(t){ rtcConn.addTrack(t, localStream); });
+
+    rtcConn.ontrack = function(e) {
+      document.getElementById("remote-audio").srcObject = e.streams[0];
+    };
+
+    rtcConn.onicecandidate = function(e) {
+      if (e.candidate) {
+        fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ to:msgCurrentEmp.id, from:"ADMIN", type:"candidate", candidate:e.candidate, callId:currentCallId })
+        });
+      }
+    };
+
+    currentCallId = "call_"+Date.now();
+    var offer = await rtcConn.createOffer();
+    await rtcConn.setLocalDescription(offer);
+
+    await fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ to:msgCurrentEmp.id, from:"ADMIN", type:"offer", sdp:offer, callId:currentCallId })
+    });
+
+    showCallStatus("Calling "+msgCurrentEmp.name+"...");
+    startCallPolling();
+  } catch(e) {
+    alert("Could not start call. Make sure microphone access is allowed in your browser.\nError: "+e.message);
+  }
+}
+
+async function acceptCall() {
+  if (!pendingSignal) return;
+  document.getElementById("incoming-call").style.display = "none";
+
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:false });
+    document.getElementById("local-audio").srcObject = localStream;
+
+    rtcConn = new RTCPeerConnection(STUN_SERVERS);
+    localStream.getTracks().forEach(function(t){ rtcConn.addTrack(t, localStream); });
+
+    rtcConn.ontrack = function(e) {
+      document.getElementById("remote-audio").srcObject = e.streams[0];
+    };
+
+    rtcConn.onicecandidate = function(e) {
+      if (e.candidate) {
+        fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ to:"ADMIN", from:"ADMIN", type:"candidate", candidate:e.candidate, callId:pendingSignal.callId })
+        });
+      }
+    };
+
+    await rtcConn.setRemoteDescription(new RTCSessionDescription(pendingSignal.sdp));
+    var answer = await rtcConn.createAnswer();
+    await rtcConn.setLocalDescription(answer);
+    currentCallId = pendingSignal.callId;
+
+    await fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ to:pendingSignal.from, from:"ADMIN", type:"answer", sdp:answer, callId:currentCallId })
+    });
+
+    showCallStatus("Connected with "+pendingSignal.from);
+    startCallPolling();
+  } catch(e) {
+    alert("Could not accept call: "+e.message);
+  }
+}
+
+function rejectCall() {
+  document.getElementById("incoming-call").style.display = "none";
+  if (pendingSignal) {
+    fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ to:pendingSignal.from, from:"ADMIN", type:"hangup", callId:pendingSignal.callId })
+    });
+    pendingSignal = null;
+  }
+}
+
+function hangupCall() {
+  if (rtcConn) { rtcConn.close(); rtcConn = null; }
+  if (localStream) { localStream.getTracks().forEach(function(t){t.stop();}); localStream = null; }
+  if (currentCallId) {
+    fetch("https://holmes-field-ops.onrender.com/api/call/signal", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ to:msgCurrentEmp?msgCurrentEmp.id:"ADMIN", from:"ADMIN", type:"hangup", callId:currentCallId })
+    });
+  }
+  hideCallStatus();
+  if (callPollInt) { clearInterval(callPollInt); callPollInt = null; }
+}
+
+function showCallStatus(text) {
+  var bar = document.getElementById("call-status-bar");
+  var txt = document.getElementById("call-status-text");
+  if (bar) bar.style.display = "block";
+  if (txt) txt.textContent = "📞 "+text;
+}
+function hideCallStatus() {
+  var bar = document.getElementById("call-status-bar");
+  if (bar) bar.style.display = "none";
+}
+
+function startCallPolling() {
+  if (callPollInt) clearInterval(callPollInt);
+  callPollInt = setInterval(async function() {
+    try {
+      var res  = await fetch("https://holmes-field-ops.onrender.com/api/call/signal/ADMIN");
+      var data = await res.json();
+      var sig  = data.signal;
+      if (!sig) return;
+
+      if (sig.type === "answer" && rtcConn && rtcConn.signalingState === "have-local-offer") {
+        await rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp));
+        showCallStatus("Connected with "+sig.from);
+      } else if (sig.type === "candidate" && rtcConn) {
+        await rtcConn.addIceCandidate(new RTCIceCandidate(sig.candidate));
+      } else if (sig.type === "hangup") {
+        hangupCall();
+        var empName = MSG_EMPLOYEES.find(function(e){return e.id===sig.from;});
+        alert((empName?empName.name:"Employee")+" ended the call.");
+      } else if (sig.type === "offer" && !rtcConn) {
+        // Incoming call while not in msg tab
+        var caller = MSG_EMPLOYEES.find(function(e){return e.id===sig.from;});
+        pendingSignal = sig;
+        var inc = document.getElementById("incoming-call");
+        var incName = document.getElementById("incoming-name");
+        if (inc) inc.style.display = "block";
+        if (incName) incName.textContent = "📞 Incoming call from "+(caller?caller.name:"an employee")+"...";
+        // Switch to messenger tab
+        switchRole("msg");
+        if (caller) selectMsgEmp(caller.id);
+      }
+    } catch(e) {}
+  }, 2000);
+}
+
+/* ── Poll for unread messages across all employees ── */
+async function pollUnreadMessages() {
+  try {
+    var res  = await fetch("https://holmes-field-ops.onrender.com/api/messages/admin/all?secret=Holmes2025!");
+    if (!res.ok) return;
+    var data = await res.json();
+    var total = data.totalUnread || 0;
+    var badge = document.getElementById("msg-badge");
+    if (badge) badge.style.display = total > 0 ? "block" : "none";
+
+    // Update per-employee badges
+    var convs = data.conversations || {};
+    MSG_EMPLOYEES.forEach(function(emp) {
+      var convId = ["ADMIN", emp.id].sort().join("_");
+      var conv   = convs[convId];
+      var bdg    = document.getElementById("msg-badge-"+emp.id);
+      if (bdg) {
+        if (conv && conv.unread > 0) {
+          bdg.style.display = "flex";
+          bdg.textContent   = conv.unread;
+        } else {
+          bdg.style.display = "none";
+        }
+      }
+    });
+  } catch(e) {}
+}
+
+/* ── Start everything when Messenger tab opens ── */
+
+/* msg handled by consolidated switchRole */
+// Poll for unread messages every 10 seconds regardless of tab
+setInterval(pollUnreadMessages, 10000);
+setTimeout(pollUnreadMessages, 3000);
+setTimeout(function(){
+  startCallPolling(); // Listen for calls at all times
+}, 4000);
+
+</script>
+</body>
+</html>});!DOCTYPE html>
+<html lang="en">
+<!-- Holmes Command Center v4.1 -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holmes Holding Co. — AI Command Center</title>
+<script>
+// Runs BEFORE page renders — no flash of key screen if key is saved
+(function(){
+  try {
+    var k = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
+    if (k && k.length > 20) {
+      document.documentElement.setAttribute("data-has-key","1");
+    }
+  } catch(e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:      #02050f;
+    --surface: rgba(8,16,44,.62);
+    --border:  rgba(255,255,255,.065);
+    --borderT: rgba(255,255,255,.13);
+    --text:    #deeaff;
+    --muted:   #3d5578;
+    --dim:     #1a2840;
+    --blue:    #4da8da;
+    --navy:    #0f305c;
+    --green:   #3cc68a;
+    --amber:   #f5c842;
+    --red:     #e85470;
+    --purple:  #7b6fe8;
+    --orange:  #e8854d;
+    --teal:    #42d4c4;
+  }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: var(--bg); font-family: 'Rajdhani', sans-serif; color: var(--text); }
+  textarea, input, button { font-family: inherit; }
+  textarea, input { outline: none; }
+  button { cursor: pointer; border: none; background: none; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes floatA { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes floatB { 0%,100%{transform:translateY(-3px)} 50%{transform:translateY(-11px)} }
+  @keyframes floatC { 0%,100%{transform:translateY(-6px)} 50%{transform:translateY(-13px)} }
+  @keyframes floatD { 0%,100%{transform:translateY(-1px)} 50%{transform:translateY(-9px)} }
+  @keyframes floatE { 0%,100%{transform:translateY(-4px)} 50%{transform:translateY(-12px)} }
+  @keyframes floatF { 0%,100%{transform:translateY(-2px)} 50%{transform:translateY(-10px)} }
+  @keyframes orb1   { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(35px,-28px) scale(1.05)} }
+  @keyframes orb2   { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,32px) scale(1.04)} }
+  @keyframes orb3   { 0%,100%{transform:translate(0,0)} 50%{transform:translate(22px,18px)} }
+  @keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.18} }
+  @keyframes glow   { 0%,100%{opacity:.55} 50%{opacity:1} }
+  @keyframes spin   { to{transform:rotate(360deg)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideL { from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes shimmer{ 0%{background-position:-400% center} 100%{background-position:400% center} }
+  @keyframes blink  { 0%,100%{opacity:1} 50%{opacity:0} }
+  @keyframes stream { from{opacity:.4} to{opacity:1} }
+
+  .float-a { animation: floatA 3.8s ease-in-out infinite; }
+  .float-b { animation: floatB 4.2s ease-in-out infinite; }
+  .float-c { animation: floatC 3.5s ease-in-out infinite; }
+  .float-d { animation: floatD 4.6s ease-in-out infinite; }
+  .float-e { animation: floatE 3.9s ease-in-out infinite; }
+  .float-f { animation: floatF 4.3s ease-in-out infinite; }
+  .pulse    { animation: pulse 1.5s ease-in-out infinite; }
+  .glow-dot { animation: glow  2.2s ease-in-out infinite; }
+  .spin     { animation: spin .85s linear infinite; }
+  .fade-up  { animation: fadeUp .5s cubic-bezier(.16,1,.3,1) both; }
+  .slide-l  { animation: slideL .4s cubic-bezier(.16,1,.3,1) both; }
+
+  /* ── SHIMMER TEXT ── */
+  .shimmer {
+    background: linear-gradient(90deg, var(--blue) 0%, var(--text) 35%, #b5d4ff 65%, var(--blue) 100%);
+    background-size: 400% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 7s linear infinite;
+  }
+
+  /* ── GLASS CARD ── */
+  .glass {
+    background: var(--surface);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid var(--border);
+    border-top: 1px solid var(--borderT);
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+    overflow: hidden;
+    position: relative;
+  }
+  .glass::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 42%;
+    background: linear-gradient(180deg, rgba(255,255,255,.055) 0%, transparent 100%);
+    border-radius: 14px 14px 0 0;
+    pointer-events: none;
+  }
+  .glass.accent-blue  { border-color: rgba(77,168,218,.3);  border-top-color: rgba(77,168,218,.5);  box-shadow: 0 20px 50px rgba(0,0,0,.55), 0 0 40px rgba(77,168,218,.1); }
+  .glass.accent-green { border-color: rgba(60,198,138,.3);  border-top-color: rgba(60,198,138,.5);  }
+  .glass.accent-amber { border-color: rgba(245,200,66,.25); border-top-color: rgba(245,200,66,.45); }
+  .glass.accent-red   { border-color: rgba(232,84,112,.25); border-top-color: rgba(232,84,112,.45); }
+  .glass.accent-purple{ border-color: rgba(123,111,232,.25);border-top-color: rgba(123,111,232,.45);}
+
+  /* ── LED GLOW ── */
+  .led {
+    position: absolute;
+    bottom: -10px; left: 12%; right: 12%; height: 18px;
+    filter: blur(10px);
+    pointer-events: none;
+    border-radius: 50%;
+  }
+
+  /* ── 3D BUTTON ── */
+  .btn-3d {
+    position: relative;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-top: 1px solid rgba(255,255,255,.13);
+    background: linear-gradient(160deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,.02) 50%, rgba(0,0,0,.3) 100%);
+    box-shadow: 0 6px 20px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+    transition: all .15s cubic-bezier(.16,1,.3,1);
+    overflow: hidden;
+  }
+  .btn-3d::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 45%;
+    background: linear-gradient(180deg, rgba(255,255,255,.07), transparent);
+    border-radius: 10px 10px 0 0;
+    pointer-events: none;
+  }
+  .btn-3d:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.1); }
+  .btn-3d:active { transform: translateY(2px); box-shadow: 0 2px 8px rgba(0,0,0,.6); }
+
+  /* ── LAYOUT ── */
+  #app { height: 100vh; display: flex; flex-direction: column; }
+
+  /* BACKGROUND */
+  #bg {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(2px);
+  }
+
+  /* ── HEADER ── */
+  #header { position: relative; z-index: 20; padding: 10px 18px 0; flex-shrink: 0; }
+
+  /* ── MAIN ── */
+  #main { flex: 1; position: relative; z-index: 10; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* ── FOOTER ── */
+  #footer { position: relative; z-index: 20; padding: 0 18px 10px; flex-shrink: 0; }
+
+  /* ── ROLE TOGGLE ── */
+  .role-toggle {
+    display: flex;
+    gap: 0;
+    background: rgba(0,0,0,.4);
+    border: 1px solid var(--dim);
+    border-radius: 11px;
+    padding: 3px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.4);
+  }
+  .role-btn {
+    padding: 7px 16px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+    transition: all .2s;
+    position: relative; overflow: hidden;
+  }
+  .role-btn.active {
+    border-color: rgba(77,168,218,.4);
+    border-top-color: rgba(77,168,218,.7);
+    background: rgba(77,168,218,.12);
+    color: var(--blue);
+    text-shadow: 0 0 10px var(--blue);
+    box-shadow: 0 0 20px rgba(77,168,218,.18);
+  }
+  .role-btn.active::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 45%;
+    background: linear-gradient(180deg, rgba(255,255,255,.07), transparent);
+    border-radius: 9px 9px 0 0;
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+  .kpi-card { position: relative; }
+  .kpi-value {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* ── AGENT BUTTON ── */
+  .agent-btn {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.05);
+    border-top: 1px solid rgba(255,255,255,.09);
+    background: rgba(8,16,44,.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 14px 36px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+    transition: all .2s cubic-bezier(.16,1,.3,1);
+    overflow: hidden;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    text-align: left; width: 100%;
+  }
+  .agent-btn::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 42%;
+    background: linear-gradient(180deg, rgba(255,255,255,.055), transparent);
+    border-radius: 12px 12px 0 0;
+    pointer-events: none;
+  }
+  .agent-btn:hover { transform: translateY(-2px); }
+  .agent-btn.active {
+    border-left: 3px solid var(--agent-col);
+    border-color: rgba(var(--agent-rgb),.4);
+    border-top-color: rgba(var(--agent-rgb),.65);
+    background: rgba(var(--agent-rgb),.1);
+    box-shadow: 0 18px 45px rgba(0,0,0,.65), 0 0 30px rgba(var(--agent-rgb),.15);
+  }
+  .agent-icon {
+    width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.06);
+    font-size: 15px;
+    transition: all .25s;
+  }
+
+  /* ── INPUT / OUTPUT PANELS ── */
+  .workspace { display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  #input-panel, #output-panel { position: relative; }
+  #output-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  #user-input {
+    width: 100%; background: transparent; border: none;
+    padding: 14px 16px; color: var(--text);
+    font-size: 13px; line-height: 1.75; font-family: 'Rajdhani', sans-serif;
+    min-height: 100px; max-height: 160px; resize: none;
+  }
+  #user-input::placeholder { color: var(--muted); }
+
+  #output-content { flex: 1; overflow-y: auto; padding: 16px; }
+  #output-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; line-height: 1.9; color: var(--text);
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  /* ── API KEY SCREEN ── */
+  #key-screen {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(2,5,15,.9);
+    backdrop-filter: blur(20px);
+  }
+  .key-card {
+    background: rgba(8,16,44,.8);
+    border: 1px solid rgba(77,168,218,.3);
+    border-top: 1px solid rgba(77,168,218,.6);
+    border-radius: 16px;
+    padding: 36px 40px;
+    max-width: 440px; width: 90%;
+    text-align: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,.7), 0 0 60px rgba(77,168,218,.1);
+    position: relative; overflow: hidden;
+  }
+  .key-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 40%;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+    border-radius: 16px 16px 0 0; pointer-events: none;
+  }
+  #api-key-input {
+    width: 100%;
+    background: rgba(0,0,0,.4);
+    border: 1px solid rgba(77,168,218,.25);
+    border-top: 1px solid rgba(77,168,218,.45);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin: 20px 0 14px;
+  }
+  #api-key-input::placeholder { color: var(--muted); }
+
+  /* ── EMPTY STATE GRID ── */
+  .agent-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    max-width: 360px;
+  }
+  .agent-preview-item {
+    border-radius: 10px;
+    padding: 11px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative; overflow: hidden;
+  }
+  .agent-preview-item::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 45%;
+    background: linear-gradient(180deg, rgba(255,255,255,.055), transparent);
+    border-radius: 10px 10px 0 0; pointer-events: none;
+  }
+
+  /* ── EXEC VIEW ── */
+  #exec-view { padding: 12px 18px; flex: 1; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+  #field-view { padding: 12px 18px; flex: 1; display: grid; grid-template-columns: 215px 1fr; gap: 12px; overflow: hidden; }
+  .hidden { display: none; }
+
+  /* ── QUICK ACTION GRID ── */
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; }
+  .quick-btn {
+    padding: 9px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.06);
+    border-top: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.03);
+    font-family: 'Orbitron', monospace;
+    font-size: 11px; letter-spacing: 1px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 5px 14px rgba(0,0,0,.45);
+    transition: all .2s; cursor: pointer;
+    position: relative; overflow: hidden;
+  }
+  .quick-btn::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%; background: linear-gradient(180deg,rgba(255,255,255,.06),transparent); border-radius: 10px 10px 0 0; pointer-events: none; }
+
+  /* ── ACTIVITY LIST ── */
+  .activity-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 7px 10px;
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.04);
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
+  .activity-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+
+  /* ── HISTORY ── */
+  .history-item {
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.05);
+    background: rgba(8,16,44,.4);
+    backdrop-filter: blur(12px);
+    padding: 7px 10px;
+    cursor: pointer;
+    margin-bottom: 6px;
+    transition: all .2s;
+  }
+
+  /* ── FOOTER PILLS ── */
+  .status-pill {
+    padding: 3px 10px;
+    border-radius: 8px;
+    display: flex; align-items: center; gap: 4px;
+    font-size: 7px; font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0,0,0,.35);
+  }
+  .status-pill::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%; background: linear-gradient(180deg,rgba(255,255,255,.05),transparent); border-radius: 8px 8px 0 0; pointer-events: none; }
+  .footer-agent-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,.05);
+    border-top: 1px solid rgba(255,255,255,.09);
+    background: rgba(255,255,255,.02);
+    box-shadow: 0 3px 8px rgba(0,0,0,.35);
+    transition: all .18s;
+    position: relative; overflow: hidden;
+  }
+  .footer-agent-btn::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%; background: linear-gradient(180deg,rgba(255,255,255,.06),transparent); border-radius: 8px 8px 0 0; pointer-events: none; }
+
+  /* SPINNER */
+  .spinner {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    animation: spin .85s linear infinite;
+  }
+
+  /* ── FONT SIZE OVERRIDES ── */
+  .role-btn { font-size: 11px !important; }
+  .agent-btn .agent-label { font-size: 12px !important; }
+  #agent-list .agent-btn { font-size: 11px; }
+  .quick-btn { font-size: 11px !important; letter-spacing: 1px !important; }
+  .footer-agent-btn { font-size: 16px !important; }
+  #user-input { font-size: 14px !important; }
+  #output-text { font-size: 14px !important; }
+  .shimmer { font-size: 16px !important; }
+  .key-card input { font-size: 13px !important; }
+  .status-pill { font-size: 9px !important; }
+
+
+/* ══ GLOBAL FONT BRIGHTNESS + SIZE OVERRIDES ══════════ */
+:root {
+  --text:  #ffffff !important;
+  --muted: #8ab4d4 !important;
+  --dim:   #4a6a8a !important;
+}
+
+body, button, input, select, textarea {
+  font-size: 14px !important;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* All Orbitron labels bigger and brighter */
+[style*="Orbitron"] {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* KPI values */
+.kpi-value, [class*="kpi"] {
+  color: #ffffff !important;
+  font-size: 22px !important;
+}
+
+/* Agent buttons */
+.agent-btn { font-size: 13px !important; }
+.agent-btn div { color: #ffffff !important; }
+
+/* Role buttons */
+.role-btn { font-size: 12px !important; font-weight: 700 !important; }
+
+/* Quick buttons */
+.quick-btn { font-size: 12px !important; }
+
+/* All small Orbitron labels */
+span[style*="font-size:8px"],
+span[style*="font-size:9px"],
+span[style*="font-size:10px"],
+div[style*="font-size:8px"],
+div[style*="font-size:9px"],
+div[style*="font-size:10px"] {
+  font-size: 12px !important;
+  color: #c8e0ff !important;
+}
+
+/* All muted text brighter */
+div[style*="color:var(--muted)"],
+span[style*="color:var(--muted)"] {
+  color: #8ab4d4 !important;
+}
+
+/* Output text */
+#output-text { font-size: 15px !important; line-height: 1.9 !important; color: #ffffff !important; }
+
+/* User input */
+#user-input { font-size: 15px !important; color: #ffffff !important; }
+#user-input::placeholder { color: #5a7a9a !important; }
+
+/* Input labels */
+#input-lbl, #output-lbl {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+/* Agent name in workspace */
+#resp-name { font-size: 12px !important; color: #ffffff !important; }
+#resp-time  { font-size: 11px !important; color: #8ab4d4 !important; }
+
+/* Clock */
+#clock { font-size: 16px !important; font-weight: 700 !important; color: #4da8da !important; }
+
+/* Employee name */
+#emp-name { font-size: 14px !important; font-weight: 700 !important; color: #ffffff !important; }
+#emp-role  { font-size: 12px !important; color: #8ab4d4 !important; }
+
+/* Session timer */
+#session-timer { font-size: 20px !important; }
+
+/* Footer text */
+#footer-tasks, #footer-location { font-size: 12px !important; color: #8ab4d4 !important; }
+
+/* Scout log */
+#scout-log div, #scout-log span { font-size: 11px !important; }
+#scout-log-count { font-size: 11px !important; color: #8ab4d4 !important; }
+
+/* Scout status cards */
+#scout-conn-val, #scout-phase-val, #scout-scans-val, #scout-found-val {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+/* Reno stats */
+#stat-leads, #stat-contacted, #stat-quoted, #stat-won {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+}
+#stat-value { font-size: 20px !important; font-weight: 700 !important; }
+
+/* Activity log */
+.activity-item div { font-size: 12px !important; color: #c8e0ff !important; }
+
+/* Roster items */
+#roster-list button div { font-size: 12px !important; color: #c8e0ff !important; }
+
+/* History items */
+.history-item div { font-size: 12px !important; }
+
+/* KPI sub text */
+.kpi-card div[style*="font-size:9px"],
+.kpi-card div[style*="font-size:10px"] {
+  font-size: 12px !important;
+  color: #c8e0ff !important;
+}
+
+/* Loading labels */
+#loading-label, #loading-lbl { font-size: 13px !important; font-weight: 700 !important; }
+
+/* Select dropdowns */
+select { font-size: 13px !important; color: #ffffff !important; }
+select option { color: #000000 !important; }
+
+/* Bath Reno sub-tabs */
+#reno-tab-leads, #reno-tab-outreach, #reno-tab-crm {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+/* All inputs */
+input[type="text"], input[type="password"] {
+  font-size: 14px !important;
+  color: #ffffff !important;
+}
+
+/* Header company name */
+.shimmer { font-size: 16px !important; }
+
+/* Scan button texts */
+#reno-scan-btn, #scout-scan-btn, #run-btn, #run-btn * {
+  font-size: 12px !important;
+}
+
+/* KPI card label */
+.kpi-grid > div div[style*="font-size:11px"],
+.kpi-grid > div div[style*="font-size:12px"] {
+  font-size: 13px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+
+
+
+
+/* ── SAFE OVERRIDES — no display rules on view IDs ── */
+body { color: #deeaff; }
+.role-toggle {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+  gap: 2px !important;
+  flex-shrink: 1 !important;
+  max-width: 62vw !important;
+}
+.role-toggle::-webkit-scrollbar { display: none !important; }
+.role-btn {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  font-size: 9px !important;
+  letter-spacing: 1px !important;
+  padding: 6px 10px !important;
+  cursor: pointer !important;
+  pointer-events: all !important;
+}
+.role-btn svg { display: none !important; }
+button { cursor: pointer !important; pointer-events: all !important; }
+.quick-btn { font-size: 10px !important; }
+#user-input { font-size: 13px !important; color: #ffffff !important; }
+#output-text { font-size: 13px !important; }
+.kpi-value { font-size: 20px !important; }
+
+</style>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+
+<!-- ── BACKGROUND ── -->
+<div id="bg">
+  <div class="orb" style="top:-18%;left:-8%;width:55vw;height:55vw;background:radial-gradient(circle,rgba(15,48,92,.38) 0%,transparent 65%);animation:orb1 22s ease-in-out infinite"></div>
+  <div class="orb" style="bottom:-20%;right:-8%;width:48vw;height:48vw;background:radial-gradient(circle,rgba(28,82,149,.25) 0%,transparent 65%);animation:orb2 28s ease-in-out infinite"></div>
+  <div class="orb" style="top:30%;right:22%;width:28vw;height:28vw;background:radial-gradient(circle,rgba(77,168,218,.07) 0%,transparent 65%);animation:orb3 16s ease-in-out infinite"></div>
+</div>
+
+<!-- ── API KEY SCREEN ── -->
+<div id="key-screen">
+  <div class="key-card">
+    <div style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:4px;margin-bottom:6px;" class="shimmer">HOLMES HOLDING CO.</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:20px;">AI COMMAND CENTER // 9 AGENTS</div>
+
+    <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:4px;">Enter your Anthropic API key to activate all 9 agents.</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:4px;">Your key is stored locally on this device only — never sent anywhere except directly to Anthropic.</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Get your key at: <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--blue);">console.anthropic.com</a></div>
+
+    <input id="api-key-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off">
+    <div id="key-error" style="color:var(--red);font-size:11px;margin-bottom:10px;display:none;">Invalid key — must start with sk-ant-</div>
+
+    <button class="btn-3d" onclick="activateKey()" style="width:100%;padding:12px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:3px;color:var(--blue);background:rgba(77,168,218,.12);border-color:rgba(77,168,218,.4);border-top-color:rgba(77,168,218,.7);text-shadow:0 0 12px var(--blue);box-shadow:0 6px 20px rgba(0,0,0,.5),0 0 24px rgba(77,168,218,.18);">
+      ACTIVATE COMMAND CENTER
+    </button>
+
+    <div style="margin-top:12px;font-size:10px;color:var(--dim);">Key is saved to this browser. You won't need to enter it again.</div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" style="display:none;">
+
+  <!-- HEADER -->
+  <div id="header">
+    <div class="glass float-a" style="margin-bottom:0;">
+      <div style="padding:10px 20px;display:flex;align-items:center;gap:14px;">
+        <!-- Logo -->
+        <div style="width:44px;height:44px;border-radius:11px;background:linear-gradient(145deg,var(--navy),var(--bg));border:1px solid rgba(77,168,218,.45);border-top:1px solid rgba(77,168,218,.75);display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(77,168,218,.3),0 8px 24px rgba(0,0,0,.6);flex-shrink:0;">
+          <span style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;color:var(--blue);text-shadow:0 0 16px var(--blue);">HH</span>
+        </div>
+        <div>
+          <div class="shimmer" style="font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:4px;">HOLMES HOLDING CO.</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:2px;">AI COMMAND CENTER // NJ / NY OPERATIONS</div>
+        </div>
+
+        <div style="width:1px;height:36px;background:linear-gradient(180deg,transparent,rgba(77,168,218,.3),transparent);margin:0 6px;"></div>
+
+        <!-- Role Toggle -->
+        <div class="role-toggle">
+          <button class="role-btn active" style="font-size:11px;" id="btn-exec" onclick="switchRole('exec')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            EXECUTIVE
+          </button>
+          <button class="role-btn" id="btn-field" onclick="switchRole('field')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="4"/><rect x="2" y="11" width="6" height="4"/><rect x="2" y="19" width="6" height="2"/><line x1="12" y1="5" x2="22" y2="5"/><line x1="12" y1="13" x2="22" y2="13"/><line x1="12" y1="20" x2="22" y2="20"/></svg>
+            FIELD OPS
+          </button>
+          <button class="role-btn" id="btn-scout" onclick="switchRole('scout')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            VEHICLE SCOUT
+          </button>
+          <button class="role-btn" id="btn-reno" onclick="switchRole('reno')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            BATH RENO
+          </button>
+          <button class="role-btn" id="btn-tips" onclick="switchRole('tips')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            TIPS & AI HELP
+          </button>
+          <button class="role-btn" id="btn-msg" onclick="switchRole('msg')" style="position:relative;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            MESSENGER
+            <span id="msg-badge" style="display:none;position:absolute;top:3px;right:3px;background:#e85470;border-radius:50%;width:8px;height:8px;box-shadow:0 0 6px #e85470;"></span>
+          </button>
+        </div>
+
+        <!-- Active agent indicator -->
+        <div id="active-badge" style="display:none;padding:6px 14px;border-radius:9px;align-items:center;gap:7px;box-shadow:0 0 18px rgba(0,0,0,.3);">
+          <div class="pulse" style="width:6px;height:6px;border-radius:50%;"></div>
+          <span style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;" id="active-badge-text"></span>
+        </div>
+
+        <div style="margin-left:auto;display:flex;gap:14px;align-items:center;">
+          <div style="text-align:right;">
+            <div style="font-size:9px;color:var(--muted);letter-spacing:2px;font-family:'Orbitron',sans-serif;">OPERATOR</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--blue);margin-top:1px;">JASON BROWN</div>
+          </div>
+          <div class="glass" style="padding:5px 13px;border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue);letter-spacing:2px;" id="clock">--:--:--</div>
+          <button onclick="clearKey()" style="font-size:8px;color:var(--dim);font-family:'Orbitron',sans-serif;letter-spacing:1px;padding:4px 10px;border:1px solid var(--dim);border-radius:6px;transition:.2s;" title="Change API key">KEY ✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- ══ EXECUTIVE VIEW ══ -->
+    <div id="exec-view">
+
+      <!-- KPI ROW -->
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <!-- CHART ROW -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-shrink:0;height:220px;">
+
+        <!-- 3D REVENUE SURFACE -->
+        <div class="glass float-b" style="position:relative;">
+          <div style="position:absolute;top:10px;left:16px;z-index:2;display:flex;align-items:center;gap:7px;">
+            <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#4da8da;box-shadow:0 0 8px #4da8da;"></div>
+            <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#4da8da;letter-spacing:3px;">REVENUE PIPELINE // 3D</span>
+          </div>
+          <div id="chart-revenue" style="width:100%;height:100%;"></div>
+        </div>
+
+        <!-- 3D CLAIMS SCATTER -->
+        <div class="glass float-c" style="position:relative;">
+          <div style="position:absolute;top:10px;left:16px;z-index:2;display:flex;align-items:center;gap:7px;">
+            <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:#f5c842;box-shadow:0 0 8px #f5c842;"></div>
+            <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#f5c842;letter-spacing:3px;">CLAIMS ANALYSIS // 3D</span>
+          </div>
+          <div id="chart-claims" style="width:100%;height:100%;"></div>
+        </div>
+      </div>
+
+      <!-- LOWER -->
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;overflow:hidden;">
+
+        <!-- QUICK LAUNCH -->
+        <div class="glass float-d">
+          <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--blue);letter-spacing:2px;font-size:10px;">QUICK LAUNCH</span>
+            </div>
+            <div class="quick-grid" id="quick-grid"></div>
+          </div>
+        </div>
+
+        <!-- LIVE EMPLOYEE ACTIVITY -->
+        <div class="glass float-e">
+          <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div class="pulse" id="emp-live-dot" style="width:5px;height:5px;border-radius:50%;background:var(--dim);"></div>
+                <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--purple);letter-spacing:2px;">EMPLOYEE ACTIVITY</span>
+              </div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);" id="emp-active-count">0 ONLINE</span>
+            </div>
+            <div id="emp-active-list" style="flex-shrink:0;"></div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;margin:8px 0 5px;flex-shrink:0;">RECENT EVENTS</div>
+            <div style="flex:1;overflow-y:auto;" id="emp-event-log">
+              <div style="font-size:11px;color:var(--dim);font-style:italic;padding:4px;">Watching for activity...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEAM & AGENTS -->
+        <div class="glass float-f">
+          <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column;overflow:hidden;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-shrink:0;">
+              <div class="glow-dot" style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--green);letter-spacing:2px;">TEAM & AGENTS</span>
+            </div>
+            <div id="team-cards" style="flex-shrink:0;margin-bottom:8px;"></div>
+            <div style="flex:1;overflow-y:auto;" id="roster-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- ══ MESSENGER VIEW ══ -->
+    <div id="msg-view" class="hidden" style="flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+
+      <!-- LEFT: Employee list -->
+      <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#4da8da;letter-spacing:2px;margin-bottom:2px;">💬 MESSENGER</div>
+          <div style="font-size:11px;color:#8ab4d4;">Text or call your team</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:10px;">
+          <div id="msg-emp-list"></div>
+        </div>
+        <!-- Call status -->
+        <div id="call-status-bar" style="display:none;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(60,198,138,.08);">
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;margin-bottom:4px;" id="call-status-text">CALL ACTIVE</div>
+          <button onclick="hangupCall()" style="width:100%;padding:7px;background:rgba(232,84,112,.2);border:1px solid rgba(232,84,112,.4);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#e85470;cursor:pointer;letter-spacing:1px;">📵 END CALL</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Chat window -->
+      <div class="glass float-c" style="display:flex;flex-direction:column;overflow:hidden;">
+
+        <!-- Chat header -->
+        <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;gap:12px;" id="chat-header">
+          <div id="chat-emp-avatar" style="width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;flex-shrink:0;">--</div>
+          <div style="flex:1;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#ffffff;" id="chat-emp-name">Select an employee</div>
+            <div style="font-size:11px;color:#8ab4d4;" id="chat-emp-status">Click a name on the left to start chatting</div>
+          </div>
+          <div style="display:flex;gap:8px;" id="call-btns" style="display:none;">
+            <button onclick="startCall('audio')" id="call-audio-btn" style="padding:8px 14px;background:rgba(60,198,138,.12);border:1px solid rgba(60,198,138,.35);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;display:flex;align-items:center;gap:5px;">📞 CALL</button>
+          </div>
+        </div>
+
+        <!-- Incoming call alert -->
+        <div id="incoming-call" style="display:none;padding:12px 16px;background:rgba(60,198,138,.1);border-bottom:1px solid rgba(60,198,138,.3);flex-shrink:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:#3cc68a;" id="incoming-name">📞 Incoming call from...</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="acceptCall()" style="padding:7px 14px;background:rgba(60,198,138,.2);border:1px solid rgba(60,198,138,.5);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;">✓ ACCEPT</button>
+              <button onclick="rejectCall()" style="padding:7px 14px;background:rgba(232,84,112,.15);border:1px solid rgba(232,84,112,.4);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#e85470;cursor:pointer;">✗ DECLINE</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="msg-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="text-align:center;padding:40px 20px;color:var(--dim);">
+            <div style="font-size:24px;margin-bottom:8px;opacity:.3;">💬</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;">SELECT EMPLOYEE TO CHAT</div>
+          </div>
+        </div>
+
+        <!-- Audio elements -->
+        <audio id="local-audio" autoplay muted style="display:none;"></audio>
+        <audio id="remote-audio" autoplay style="display:none;"></audio>
+
+        <!-- Input -->
+        <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0;" id="msg-input-area" style="display:none;">
+          <div style="display:flex;gap:8px;align-items:flex-end;">
+            <textarea id="msg-input" placeholder="Type a message..." style="flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;min-height:44px;max-height:100px;line-height:1.5;" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+            <button onclick="sendMsg()" style="padding:10px 18px;background:linear-gradient(165deg,rgba(77,168,218,.25),rgba(77,168,218,.08),rgba(0,0,0,.4));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#4da8da;cursor:pointer;height:44px;">SEND</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FIELD VIEW ══ -->
+    <div id="field-view" class="hidden">
+
+      <!-- AGENT LIST -->
+      <div style="display:flex;flex-direction:column;overflow-y:auto;overflow-x:visible;padding-right:2px;" id="agent-list-col">
+        <div style="font-size:7px;color:var(--muted);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-bottom:6px;padding-left:2px;font-size:10px;font-family:'Orbitron',sans-serif;color:var(--muted);letter-spacing:2px;">SELECT AGENT</div>
+        <div id="agent-list"></div>
+        <div id="history-col" style="margin-top:8px;"></div>
+      </div>
+
+      <!-- WORKSPACE -->
+      <div class="workspace">
+        <!-- INPUT -->
+        <div id="input-panel" class="glass float-b">
+          <div style="padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;" id="input-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="input-dot" style="width:5px;height:5px;border-radius:50%;background:var(--muted);display:none;" class="pulse"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:3px;" id="input-label">// SELECT AGENT TO BEGIN</span>
+            </div>
+            <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;" style="font-size:10px;">Ctrl+Enter to run</span>
+          </div>
+          <textarea id="user-input" placeholder="Type your task — scope notes, email, invoice, intake, video, permit — AI detects the right agent automatically."></textarea>
+          <div style="padding:9px 16px;border-top:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.2);">
+            <button class="btn-3d" onclick="clearAll()" style="padding:6px 14px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:5px;">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              CLEAR
+            </button>
+            <button class="btn-3d" id="run-btn" onclick="runAgent()" style="padding:8px 24px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:7px;opacity:.55;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <span id="run-label">RUN AGENT</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div id="output-panel" class="glass float-c">
+          <div style="padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;" id="output-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="output-dot" style="width:5px;height:5px;border-radius:50%;background:var(--muted);display:none;" class="glow-dot"></div>
+              <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:3px;" id="output-label">// AWAITING COMMAND</span>
+              <div id="cursor" style="width:6px;height:12px;background:var(--blue);display:none;animation:blink .55s step-end infinite;"></div>
+            </div>
+            <button class="btn-3d" id="copy-btn" onclick="copyOutput()" style="display:none;padding:4px 12px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:1px;color:var(--muted);display:none;align-items:center;gap:4px;">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              COPY
+            </button>
+          </div>
+          <div id="output-content">
+            <!-- EMPTY STATE -->
+            <div id="empty-state" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;">
+              <div class="agent-preview-grid" id="preview-grid"></div>
+              <div style="text-align:center;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--muted);letter-spacing:5px;margin-bottom:5px;">COMMAND CENTER READY</div>
+                <div style="font-size:10px;color:var(--dim);">Select an agent or type a task above</div>
+              </div>
+            </div>
+            <!-- LOADING -->
+            <div id="loading-state" style="display:none;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+              <div style="position:relative;width:56px;height:56px;">
+                <div class="spinner" style="position:absolute;inset:0;border-top-color:var(--blue);border-bottom-color:transparent;border-left-color:transparent;border-right-color:transparent;border-width:2px;border-style:solid;border-radius:50%;"></div>
+                <div class="spinner" style="position:absolute;inset:9px;border-bottom-color:var(--blue);border-top-color:transparent;border-left-color:transparent;border-right-color:transparent;border-width:1px;border-style:solid;border-radius:50%;animation-direction:reverse;animation-duration:1.3s;"></div>
+                <div id="loading-icon" style="position:absolute;inset:20px;display:flex;align-items:center;justify-content:center;font-size:14px;"></div>
+              </div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:4px;text-align:center;" id="loading-label">PROCESSING</div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:2px;">CLAUDE AI ANALYZING...</div>
+            </div>
+            <!-- RESPONSE -->
+            <div id="response-state" style="display:none;" class="fade-up">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.05);">
+                <div id="resp-icon" style="width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);"></div>
+                <div>
+                  <div style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;margin-bottom:2px;" id="resp-agent-name"></div>
+                  <div style="font-size:8px;color:var(--muted);font-family:'JetBrains Mono',monospace;" id="resp-time"></div>
+                </div>
+                <div id="resp-divider" style="flex:1;height:1px;background:linear-gradient(90deg,rgba(77,168,218,.2),transparent);"></div>
+              </div>
+              <pre id="output-text"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div id="footer">
+    <div class="glass float-f" style="margin-top:0;">
+      <div style="padding:7px 18px;display:flex;align-items:center;gap:7px;">
+        <div id="footer-agents" style="display:flex;gap:5px;"></div>
+        <div style="width:1px;height:18px;background:var(--dim);margin:0 4px;"></div>
+        <span style="font-size:8px;color:var(--dim);font-family:'Orbitron',sans-serif;letter-spacing:1px;" style="font-size:10px;">HHC.AI · COMMAND CENTER · 9 AGENTS · holmesholdingco.com</span>
+        <div style="margin-left:auto;display:flex;gap:5px;" id="status-pills"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── AGENTS ── */
+const AGENTS = [
+  {id:"scope",    emoji:"📋", label:"Scope",    full:"Scope Assistant",       col:"#4da8da", rgb:"77,168,218",
+   prompt:"You are the Scope Assistant for Holmes Holding Co., a NJ/NY property restoration company run by Jason Brown. Convert field notes into a professional SCOPE OF WORK with project overview, line-items, affected areas, materials, labor, and timeline."},
+  {id:"billing",  emoji:"💰", label:"Billing",  full:"Billing Follow-Up",     col:"#3cc68a", rgb:"60,198,138",
+   prompt:"You are the Billing Follow-Up Assistant for Holmes Holding Co. run by Jason Brown. Write a professional, firm follow-up for unpaid invoices including invoice reference, amount, deadline, payment options, and email subject line."},
+  {id:"email",    emoji:"✉️",  label:"Email",    full:"Email Operations",      col:"#5c9bc8", rgb:"92,155,200",
+   prompt:"You are the Email Operations Assistant for Holmes Holding Co. run by Jason Brown. Classify the email (urgent/normal/low), summarize it, and write a complete ready-to-send reply with subject line."},
+  {id:"intake",   emoji:"👤", label:"Intake",   full:"Intake Assistant",      col:"#7b6fe8", rgb:"123,111,232",
+   prompt:"You are the Intake Assistant for Holmes Holding Co. run by Jason Brown. Create a complete INTAKE SUMMARY: client contact, property address, damage description, insurance info, urgency level, and recommended next steps."},
+  {id:"video",    emoji:"🎬", label:"Video",    full:"Video Content Agent",   col:"#e8854d", rgb:"232,133,77",
+   prompt:"You are the Daily Video Content Agent for Holmes Holding Co. run by Jason Brown. Produce a complete VIDEO CONTENT PACKAGE: Sora prompt, hook (0-3sec), full script (30-60sec), on-screen captions, hashtags, and posting strategy for Instagram, TikTok, YouTube Shorts, Facebook."},
+  {id:"crm",      emoji:"👥", label:"CRM",      full:"CRM Agent",             col:"#e85470", rgb:"232,84,112",
+   prompt:"You are the CRM Agent for Holmes Holding Co. run by Jason Brown. Create a structured CRM ENTRY: client info, job type, status, insurance details, key dates, action items with deadlines, and recommended next action."},
+  {id:"estimate", emoji:"🧾", label:"Estimate", full:"Estimate & Invoice",    col:"#f5c842", rgb:"245,200,66",
+   prompt:"You are the Estimate & Invoice Agent for Holmes Holding Co. | Wayne, NJ | 862-245-1318 | holmesholdingco.com. Create a professional ESTIMATE or INVOICE with header, client info, detailed line items, subtotal, tax, TOTAL, payment terms, and signature line."},
+  {id:"docs",     emoji:"📁", label:"Docs",     full:"Document Collection",   col:"#42d4c4", rgb:"66,212,196",
+   prompt:"You are the Document Collection Agent for Holmes Holding Co. run by Jason Brown. Produce a DOCUMENT TRACKER showing received/missing documents and a professional collection request email. Common docs: AOB, Authorization to Inspect, Insurance Policy, W-9, COI, Scope Authorization."},
+  {id:"permits",  emoji:"⚠️",  label:"Permits",  full:"Permit & Violation",    col:"#e85470", rgb:"232,84,112",
+   prompt:"You are the Permit & Violation Tracker for Holmes Holding Co. run by Jason Brown, Licensed GC in NY and NJ. Produce a PERMIT & VIOLATION REPORT with property info, violation type, authority, dates, fines, status, and resolution steps."},
+];
+
+const KPIS = [
+  {label:"Active Jobs",    value:"7",       sub:"+2 this week",       col:"#4da8da", emoji:"💼"},
+  {label:"Open Claims",    value:"4",       sub:"2 pending adjuster", col:"#f5c842", emoji:"📄"},
+  {label:"Pipeline",       value:"$127K",   sub:"Est. job revenue",   col:"#3cc68a", emoji:"💵"},
+  {label:"Compliance",     value:"ACTIVE",  sub:"All licenses valid", col:"#3cc68a", emoji:"🛡️"},
+  {label:"Inbox Alerts",   value:"3",       sub:"Unread priority",    col:"#e85470", emoji:"📬"},
+  {label:"Vehicle Scout",  value:"LIVE",    sub:"Scans every 6h",     col:"#4da8da", emoji:"📡"},
+];
+
+const QUICK_ACTIONS = [
+  {label:"New Intake",   id:"intake",  col:"#7b6fe8"},
+  {label:"Draft Scope",  id:"scope",   col:"#4da8da"},
+  {label:"Follow-Up",    id:"billing", col:"#3cc68a"},
+  {label:"Video Post",   id:"video",   col:"#e8854d"},
+  {label:"Check Permit", id:"permits", col:"#e85470"},
+  {label:"Estimate",     id:"estimate",col:"#f5c842"},
+];
+
+const ACTIVITY = [
+  {time:"09:41", msg:"Scope generated — 14 Atlantic Ave, Newark",      col:"#4da8da"},
+  {time:"09:18", msg:"Invoice follow-up sent — Claim 30-96X2",          col:"#3cc68a"},
+  {time:"08:55", msg:"New intake — Residential, Fire damage",            col:"#7b6fe8"},
+  {time:"08:22", msg:"Scout: 3 ProMaster 1500 listings found",           col:"#f5c842"},
+  {time:"07:44", msg:"Gmail agent processed 6 emails",                   col:"#4da8da"},
+  {time:"07:00", msg:"Compliance check passed — all licenses current",   col:"#3cc68a"},
+];
+
+/* ── STATE ── */
+let apiKey      = localStorage.getItem("hhc_api_key") || "";
+let activeAgent = null;
+let detected    = null;
+let outputText  = "";
+let isLoading   = false;
+let history     = [];
+let role        = "exec";
+const FLOATS    = ["float-a","float-b","float-c","float-d","float-e","float-f"];
+
+/* ── INIT ── */
+// Use DOMContentLoaded — never gets overwritten unlike window.onload
+document.addEventListener("DOMContentLoaded", function() {
+  buildUI();
+  startClock();
+  var savedKey = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
+  if (savedKey && savedKey.length > 20) {
+    apiKey = savedKey;
+    showApp();
+  }
+  switchRole("exec");
+});
+
+function buildAgentList(){}
+function buildPreviewGrid(){}
+function buildFooterAgents(){}
+function buildStatusPills(){}
 
 /* ── CLOCK ── */
 function startClock() {
