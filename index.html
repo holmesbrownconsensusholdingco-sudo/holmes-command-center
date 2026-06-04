@@ -705,6 +705,215 @@ input[type="text"], input[type="password"] {
   max-height: calc(100vh - 140px) !important;
 }
 
+
+/* ══ LAYOUT + HEADER FIX ══════════════════════════════════ */
+
+/* HEADER — prevent overflow, keep everything on one line */
+#header .glass > div {
+  flex-wrap: nowrap !important;
+  overflow: hidden;
+  padding: 8px 16px !important;
+}
+
+/* Logo — smaller */
+#header .glass > div > div:first-child {
+  width: 38px !important;
+  height: 38px !important;
+  flex-shrink: 0;
+}
+
+/* Company name — tighter */
+#header .shimmer {
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+}
+#header .glass > div > div:nth-child(2) > div:last-child {
+  font-size: 8px !important;
+  letter-spacing: 2px !important;
+}
+
+/* TAB BAR — scrollable, compact */
+.role-toggle {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  flex-shrink: 1 !important;
+  min-width: 0 !important;
+  max-width: 650px;
+}
+.role-toggle::-webkit-scrollbar { display: none !important; }
+
+/* Tab buttons — compact */
+.role-btn {
+  padding: 6px 10px !important;
+  font-size: 8px !important;
+  letter-spacing: 1px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+.role-btn svg { display: none !important; }
+
+/* Active badge — hide on small screens */
+#active-badge { display: none !important; }
+
+/* Operator + clock — compact */
+#header .glass > div > div:last-child {
+  flex-shrink: 0;
+  gap: 8px !important;
+}
+#header #clock {
+  font-size: 11px !important;
+}
+
+/* ── EXEC VIEW LAYOUT ── */
+#exec-view {
+  padding: 10px 16px !important;
+  gap: 10px !important;
+  overflow-y: auto !important;
+}
+
+/* KPI grid — fixed height */
+.kpi-grid {
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+.kpi-grid .glass {
+  overflow: hidden !important;
+}
+.kpi-grid .glass > div {
+  padding: 10px 12px !important;
+}
+.kpi-value, .countUp {
+  font-size: 18px !important;
+}
+
+/* CHART ROW — fixed height, no overflow */
+#exec-view > div:nth-child(2) {
+  height: 200px !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+#exec-view > div:nth-child(2) > .glass {
+  overflow: hidden !important;
+  height: 100% !important;
+}
+#chart-revenue, #chart-claims {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* BOTTOM ROW — flex, equal columns, NO OVERFLOW */
+#exec-view > div:last-child {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 10px !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+#exec-view > div:last-child > .glass {
+  overflow: hidden !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#exec-view > div:last-child > .glass > div {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 12px 14px !important;
+}
+
+/* Scrollable inner content */
+.quick-grid,
+#emp-active-list,
+#emp-event-log,
+#team-cards,
+#roster-list,
+#activity-list {
+  overflow-y: auto !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+/* Quick grid */
+.quick-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 5px !important;
+  overflow-y: auto !important;
+}
+.quick-btn {
+  font-size: 10px !important;
+  padding: 8px 6px !important;
+  height: auto !important;
+  min-height: 40px !important;
+}
+
+/* ── ALL VIEWS — prevent content from overflowing viewport ── */
+#field-view,
+#scout-view,
+#reno-view,
+#tips-view,
+#msg-view {
+  overflow: hidden !important;
+}
+
+/* Plotly charts — hard clip */
+.js-plotly-plot,
+.plot-container {
+  overflow: hidden !important;
+}
+.plotly svg {
+  overflow: visible !important;
+}
+
+/* ── FIELD VIEW ── */
+#field-view {
+  grid-template-columns: 200px 1fr !important;
+  padding: 10px 16px !important;
+  gap: 10px !important;
+}
+#agent-list-col {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* ── SCOUT VIEW ── */
+#scout-view {
+  grid-template-columns: 280px 1fr !important;
+  padding: 10px 16px !important;
+}
+
+/* ── RENO VIEW ── */
+#reno-view {
+  grid-template-columns: 240px 1fr !important;
+  padding: 10px 16px !important;
+}
+
+/* ── MSG VIEW ── */
+#msg-view {
+  grid-template-columns: 240px 1fr !important;
+  padding: 10px 16px !important;
+}
+
+/* ── TIPS VIEW ── */
+#tips-view {
+  grid-template-columns: 300px 1fr !important;
+  padding: 10px 16px !important;
+}
+
+/* ── FOOTER ── */
+#footer {
+  padding: 0 16px 8px !important;
+}
+#footer .glass > div {
+  padding: 6px 14px !important;
+}
+
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
