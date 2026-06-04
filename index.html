@@ -2446,40 +2446,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-/* ── UNIVERSAL CLAUDE PROXY ── */
-async function callClaudeProxy(prompt, maxTokens=1000) {
-  // Try direct Anthropic API first (with browser-access header)
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: maxTokens,
-        messages: [{ role:"user", content:prompt }]
-      })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
-    }
-  } catch(e) { /* fall through to proxy */ }
-
-  // Fall back to Field Ops server proxy
-  const res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
+/* ── UNIVERSAL CLAUDE PROXY — routes through Field Ops server ── */
+async function callClaudeProxy(prompt, maxTokens) {
+  maxTokens = maxTokens || 1000;
+  // Always route through Field Ops server to avoid CORS
+  var res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
     method: "POST",
     headers: { "Content-Type":"application/json", "x-admin-secret":"Holmes2025!" },
-    body: JSON.stringify({ systemPrompt:"You are a helpful AI assistant for Holmes Holding Co.", userMessage:prompt, maxTokens })
+    body: JSON.stringify({
+      systemPrompt: "You are a helpful AI assistant for Holmes Holding Co., a NJ/NY property restoration company run by Jason Brown.",
+      userMessage: prompt,
+      maxTokens: maxTokens
+    })
   });
-  if (!res.ok) throw new Error("Proxy failed: HTTP "+res.status);
-  const data = await res.json();
-  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+  if (!res.ok) {
+    var errText = await res.text().catch(function(){return "HTTP "+res.status;});
+    throw new Error("Server error: " + res.status + " — " + errText.slice(0,100));
+  }
+  var data = await res.json();
+  if (data.error) throw new Error(typeof data.error === "string" ? data.error : data.error.message || JSON.stringify(data.error));
+  return (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
 }
 
 /* ══ BATH RENO LEAD COMMAND ══════════════════════════════ */
@@ -2841,24 +2827,24 @@ async function sendChatMessage() {
   var bubble = addChatMessage("assistant", "▋", true);
 
   try {
-    var res = await fetch("https://api.anthropic.com/v1/messages", {
+    // Build full conversation context
+    var msgs = chatHistory.slice(-10);
+    var fullPrompt = HOLMES_SYSTEM + "\n\nConversation so far:\n" +
+      msgs.slice(0,-1).map(function(m){ return (m.role==="user"?"User":"Assistant") + ": " + m.content; }).join("\n") +
+      "\n\nUser: " + msg + "\n\nAssistant:";
+
+    var res = await fetch("https://holmes-field-ops.onrender.com/api/run-agent-open", {
       method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "x-api-key":apiKey,
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
+      headers:{"Content-Type":"application/json","x-admin-secret":"Holmes2025!"},
       body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:600,
-        system:HOLMES_SYSTEM,
-        messages:chatHistory.slice(-10)
+        systemPrompt: HOLMES_SYSTEM,
+        userMessage: msgs.map(function(m){return (m.role==="user"?"User":"Assistant")+": "+m.content;}).join("\n"),
+        maxTokens: 600
       })
     });
-
+    if (!res.ok) throw new Error("Server error: HTTP " + res.status + " — is holmes-field-ops.onrender.com online?");
     var data = await res.json();
-    if (data.error) throw new Error(data.error.message);
+    if (data.error) throw new Error(typeof data.error==="string"?data.error:data.error.message||"Unknown error");
     var reply = (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
 
     // Stream reply character by character
