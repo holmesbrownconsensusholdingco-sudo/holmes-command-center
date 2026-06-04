@@ -637,6 +637,10 @@ input[type="text"], input[type="password"] {
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             BATH RENO
           </button>
+          <button class="role-btn" id="btn-tips" onclick="switchRole('tips')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            TIPS & AI HELP
+          </button>
         </div>
 
         <!-- Active agent indicator -->
@@ -1114,6 +1118,136 @@ input[type="text"], input[type="password"] {
       </div>
     </div>
 
+
+    <!-- ══ TIPS & AI HELP VIEW ══ -->
+    <div id="tips-view" class="hidden" style="flex:1;display:grid;grid-template-columns:320px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+
+      <!-- LEFT: Guide -->
+      <div style="overflow-y:auto;overflow-x:visible;display:flex;flex-direction:column;gap:8px;padding-right:2px;">
+        <div class="glass float-a" style="padding:14px 15px;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#4da8da;letter-spacing:3px;margin-bottom:12px;">📖 COMMAND CENTER GUIDE</div>
+
+          <!-- Executive Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(77,168,218,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(77,168,218,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#4da8da;font-weight:700;">⬛ EXECUTIVE TAB</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              Your personal CEO dashboard. Shows live KPIs — active jobs, open claims, pipeline value, compliance status, inbox alerts, and Vehicle Scout status.<br><br>
+              <b style="color:#ffffff;">3D Charts:</b> Revenue surface, claims scatter, job status donut. Drag to rotate them.<br><br>
+              <b style="color:#ffffff;">Quick Launch:</b> Jump directly to any agent without switching tabs.<br><br>
+              <b style="color:#ffffff;">Activity Log:</b> Everything that happened today across all systems.
+            </div>
+          </div>
+
+          <!-- Field Ops Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(123,111,232,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(123,111,232,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#7b6fe8;font-weight:700;">⬛ FIELD OPS TAB — 9 AGENTS</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              <b style="color:#4da8da;">📋 SCOPE</b> — Paste field notes → get a professional scope of work<br>
+              <b style="color:#3cc68a;">💰 BILLING</b> — Paste unpaid invoice info → get a firm follow-up email<br>
+              <b style="color:#5c9bc8;">✉ EMAIL</b> — Paste any email → get a complete ready-to-send reply<br>
+              <b style="color:#7b6fe8;">👤 INTAKE</b> — Describe a new job call → get a full intake form<br>
+              <b style="color:#e8854d;">🎬 VIDEO</b> — Describe a job → get a full social media video package<br>
+              <b style="color:#e85470;">👥 CRM</b> — Paste client info → get a structured CRM entry<br>
+              <b style="color:#f5c842;">🧾 ESTIMATE</b> — Describe work needed → get a professional estimate<br>
+              <b style="color:#42d4c4;">📁 DOCS</b> — List what you have → get a document tracker and request letter<br>
+              <b style="color:#e85470;">⚠ PERMITS</b> — Describe violation or permit issue → get resolution steps<br><br>
+              <b style="color:#ffffff;">TIP:</b> Just start typing — the system auto-detects which agent to use based on your keywords.
+            </div>
+          </div>
+
+          <!-- Vehicle Scout Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(245,168,0,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(245,168,0,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#F5A800;font-weight:700;">⬛ VEHICLE SCOUT TAB</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              Autonomous vehicle finder. Runs 5 AI agents across Facebook, Craigslist, eBay Motors, CarGurus, and AutoTrader.<br><br>
+              <b style="color:#ffffff;">VEHICLE HUNT mode:</b> Pick make, model, year range, condition, max miles, max price → click SAVE CONFIG → click INITIATE SEARCH.<br><br>
+              <b style="color:#ffffff;">RENTAL PROFIT mode:</b> Pick vehicle category → automatically calculates monthly profit, ROI, and payback period for each listing.<br><br>
+              <b style="color:#ffffff;">Auto-scan:</b> Set interval (1H/3H/6H/12H/24H) and the server scans automatically — even when you're not logged in.<br><br>
+              <b style="color:#ffffff;">SEND REPORT:</b> Emails full results to your Gmail instantly.<br><br>
+              <b style="color:#f5c842;">⚠ Rate limit fix needed:</b> Add $20 credits at console.anthropic.com/settings/billing to run all 5 agents simultaneously.
+            </div>
+          </div>
+
+          <!-- Bath Reno Tab -->
+          <div style="margin-bottom:10px;border:1px solid rgba(232,133,77,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(232,133,77,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#e8854d;font-weight:700;">⬛ BATH RENO TAB</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              NJ bathroom renovation lead command. Finds real homeowners looking for contractors.<br><br>
+              <b style="color:#ffffff;">SCAN FOR LEADS:</b> Searches Reddit (r/newjersey, r/HomeImprovement) for real NJ homeowner posts. If no Reddit results, generates AI practice leads.<br><br>
+              <b style="color:#ffffff;">OUTREACH tab:</b> Select a lead → pick Email/Text/DM → click Generate → get a personalized message → click Send via Gmail.<br><br>
+              <b style="color:#ffffff;">CRM PIPELINE:</b> Track every lead through New → Contacted → Quoted → Won/Lost. Shows estimated pipeline value.<br><br>
+              <b style="color:#ffffff;">Google Search Links:</b> Pre-built searches for NJ bathroom reno homeowners. Click any link to open Google.
+            </div>
+          </div>
+
+          <!-- Employee Portal -->
+          <div style="margin-bottom:10px;border:1px solid rgba(60,198,138,.2);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(60,198,138,.08);font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;font-weight:700;">⬛ EMPLOYEE PORTAL</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.7;">
+              URL: <b style="color:#4da8da;">holmes-field-ops.onrender.com</b><br><br>
+              <b style="color:#ffffff;">Employee codes:</b><br>
+              Garmar Virgin (PM): <span style="font-family:monospace;color:#f5c842;">HHC-GM-0341</span><br>
+              Jason Brown Jr (Office): <span style="font-family:monospace;color:#f5c842;">HHC-JB-7829</span><br>
+              Kimya Springer (Director): <span style="font-family:monospace;color:#f5c842;">HHC-KS-5614</span><br>
+              Zion Johnson (Tech): <span style="font-family:monospace;color:#f5c842;">HHC-ZJ-9273</span><br><br>
+              <b style="color:#ffffff;">Live view of all employees:</b><br>
+              <span style="font-family:monospace;font-size:10px;color:#4da8da;">holmes-field-ops.onrender.com/api/admin/live?secret=Holmes2025!</span>
+            </div>
+          </div>
+
+          <!-- How everything connects -->
+          <div style="border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden;">
+            <div style="padding:10px 13px;background:rgba(255,255,255,.05);font-family:'Orbitron',sans-serif;font-size:10px;color:#ffffff;font-weight:700;">⬛ HOW IT ALL CONNECTS</div>
+            <div style="padding:10px 13px;font-size:12px;color:#c8e0ff;line-height:1.8;">
+              <b style="color:#4da8da;">Gmail Agent</b> → reads your inbox every 60s → classifies emails → saves drafts → logs to Sheets<br>
+              <b style="color:#F5A800;">Vehicle Scout</b> → runs on Render server → scans every 6h automatically → emails results to Gmail<br>
+              <b style="color:#7b6fe8;">Field Ops Portal</b> → employees log in → run agents → hours logged to Sheets → weekly CSV exported for ADP payroll<br>
+              <b style="color:#3cc68a;">Google Sheets</b> → central data log for email activity, employee hours, vehicle scan results<br>
+              <b style="color:#e8854d;">Bath Reno</b> → finds leads → outreach → CRM tracks them → won jobs flow into the Scope agent
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: AI Chatbot -->
+      <div style="display:flex;flex-direction:column;overflow:hidden;">
+        <div class="glass float-b" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;gap:10px;">
+            <div class="glow-dot" style="width:7px;height:7px;border-radius:50%;background:#4da8da;box-shadow:0 0 12px #4da8da;"></div>
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:#4da8da;font-weight:700;letter-spacing:2px;">HOLMES AI ASSISTANT</div>
+              <div style="font-size:11px;color:#8ab4d4;margin-top:2px;">Ask me anything about your Command Center, employees, vehicles, leads, or operations</div>
+            </div>
+          </div>
+
+          <!-- Chat messages -->
+          <div id="chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+            <!-- Welcome message -->
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:32px;height:32px;border-radius:9px;background:rgba(77,168,218,.15);border:1px solid rgba(77,168,218,.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🤖</div>
+              <div style="background:rgba(77,168,218,.08);border:1px solid rgba(77,168,218,.15);border-radius:12px;border-top-left-radius:3px;padding:12px 14px;max-width:85%;">
+                <div style="font-size:13px;color:#ffffff;line-height:1.7;">Hey Jason! I'm your Holmes AI Assistant. I know everything about your Command Center — all 4 tabs, your employee portal, vehicle scout, Gmail agent, and how it all connects.<br><br>Ask me anything like:<br>
+                <span style="color:#4da8da;">• "How do I find a Ford Transit under $20K?"</span><br>
+                <span style="color:#4da8da;">• "What should Garmar use for a new water damage job?"</span><br>
+                <span style="color:#4da8da;">• "How do I track a lead from Bath Reno to a won job?"</span><br>
+                <span style="color:#4da8da;">• "My employee can't run agents — what do I do?"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input -->
+          <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.25);flex-shrink:0;">
+            <div style="display:flex;gap:10px;align-items:flex-end;">
+              <textarea id="chat-input" placeholder="Ask me anything about your Holmes AI system..." style="flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;min-height:44px;max-height:100px;line-height:1.5;" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
+              <button onclick="sendChatMessage()" id="chat-send-btn" style="padding:10px 18px;background:linear-gradient(165deg,rgba(77,168,218,.25),rgba(77,168,218,.08),rgba(0,0,0,.4));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#4da8da;cursor:pointer;white-space:nowrap;height:44px;">SEND</button>
+            </div>
+            <div style="font-size:10px;color:#3d5578;margin-top:6px;">Press Enter to send · Shift+Enter for new line</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ══ FIELD VIEW ══ -->
     <div id="field-view" class="hidden">
 
@@ -1341,6 +1475,12 @@ function switchRole(r) {
   const renoBtn  = document.getElementById("btn-reno");
   if (renoView) renoView.classList.toggle("hidden", r !== "reno");
   if (renoBtn)  renoBtn.classList.toggle("active", r === "reno");
+
+  // Tips tab
+  const tipsView = document.getElementById("tips-view");
+  const tipsBtn  = document.getElementById("btn-tips");
+  if (tipsView) tipsView.classList.toggle("hidden", r !== "tips");
+  if (tipsBtn)  tipsBtn.classList.toggle("active", r === "tips");
 }
 
 /* ── BUILD KPIs ── */
@@ -2511,6 +2651,113 @@ function moveCRM(name, stage) {
   updateRenoStats();
   renderCRMBoard();
 }
+
+
+/* ══ TIPS TAB — AI CHATBOT ══════════════════════════════ */
+var chatHistory = [];
+var chatLoading = false;
+
+var HOLMES_SYSTEM = "You are HOLMES AI, the built-in assistant for Holmes Holding Co.'s AI Command Center. You work for Jason Brown, owner and President of Holmes Holding Co., a property restoration and renovation company in Wayne NJ (holmesholdingco.com, 862-245-1318).\n\nYou have deep knowledge of all systems:\n\nCOMMAND CENTER (holmes-command-center.onrender.com):\n- 5 tabs: Executive (KPIs, 3D charts), Field Ops (9 agents), Vehicle Scout, Bath Reno, Tips & Help\n- Executive tab shows: Active Jobs, Claims, Pipeline value, Compliance, Inbox alerts, Scout status, 3D revenue/claims charts\n- Field Ops agents: Scope (field notes to scope of work), Billing (invoice follow-up), Email (read+reply), Intake (new job form), Video (social media content), CRM (client tracking), Estimate/Invoice, Docs (document collection), Permits (violations)\n- Vehicle Scout: 5 autonomous agents scan Facebook/Craigslist/eBay/CarGurus/AutoTrader, Vehicle Hunt and Rental Profit modes, auto-scans every 6h, emails results to Gmail\n- Bath Reno: finds NJ homeowners via Reddit, outreach generator, CRM pipeline kanban\n\nEMPLOYEE PORTAL (holmes-field-ops.onrender.com):\n- Employees: Garmar Virgin (PM, code HHC-GM-0341), Jason Brown Jr (Office, HHC-JB-7829), Kimya Springer (Director, HHC-KS-5614), Zion Johnson (Tech, HHC-ZJ-9273)\n- Each employee sees only their permitted agents and personal performance charts\n- Session timer tracks hours worked, logs to Google Sheets\n- Weekly ADP-compatible CSV auto-generated every Friday\n- Admin live view: holmes-field-ops.onrender.com/api/admin/live?secret=Holmes2025!\n\nGMAIL AGENT (holmes-gmail-agent.onrender.com): monitors inbox every 60s, classifies emails, applies labels, logs to Google Sheets, saves draft replies\n\nVEHICLE SCOUT SERVER (holmes-vehicle-scout.onrender.com): autonomous Node.js server with self-healing, watchdog, cron scheduler\n\nGOOGLE SHEETS (ID: 1983Ci__r0u2NPL_jlKHvmK5HJ5LxsoPdSxwMri9FPyQ): central data log\n\nBe direct, specific, and action-oriented. Answer in 2-4 sentences for simple questions, more for complex ones. Use bullet points for multi-step instructions. Know that Jason communicates in ALL CAPS and prefers direct answers.";
+
+function addChatMessage(role, text, isStreaming) {
+  var msgs = document.getElementById("chat-messages");
+  if (!msgs) return;
+
+  var div = document.createElement("div");
+  div.style.cssText = "display:flex;gap:10px;align-items:flex-start;" + (role==="user" ? "flex-direction:row-reverse;" : "");
+  div.id = isStreaming ? "chat-streaming" : "";
+
+  var avatar = document.createElement("div");
+  avatar.style.cssText = "width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;" + (role==="user" ? "background:rgba(245,200,66,.15);border:1px solid rgba(245,200,66,.3);" : "background:rgba(77,168,218,.15);border:1px solid rgba(77,168,218,.3);");
+  avatar.textContent = role==="user" ? "👤" : "🤖";
+
+  var bubble = document.createElement("div");
+  bubble.style.cssText = "border-radius:12px;padding:12px 14px;max-width:85%;font-size:13px;color:#ffffff;line-height:1.7;" + (role==="user" ? "background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.15);border-top-right-radius:3px;" : "background:rgba(77,168,218,.08);border:1px solid rgba(77,168,218,.15);border-top-left-radius:3px;");
+  bubble.id = isStreaming ? "chat-bubble-streaming" : "";
+  bubble.innerHTML = text.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<b style='color:#ffffff;'>$1</b>").replace(/•/g,"&bull;");
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return bubble;
+}
+
+async function sendChatMessage() {
+  if (chatLoading || !apiKey) return;
+  var input = document.getElementById("chat-input");
+  var msg   = input ? input.value.trim() : "";
+  if (!msg) return;
+
+  input.value = "";
+  input.style.height = "44px";
+  chatLoading = true;
+
+  var sendBtn = document.getElementById("chat-send-btn");
+  if (sendBtn) { sendBtn.textContent = "..."; sendBtn.style.opacity = ".5"; }
+
+  // Add user message
+  addChatMessage("user", msg);
+  chatHistory.push({ role:"user", content:msg });
+
+  // Add streaming placeholder
+  var bubble = addChatMessage("assistant", "▋", true);
+
+  try {
+    var res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key":apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:600,
+        system:HOLMES_SYSTEM,
+        messages:chatHistory.slice(-10)
+      })
+    });
+
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    var reply = (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+
+    // Stream reply character by character
+    if (bubble) {
+      bubble.innerHTML = "";
+      var built = "";
+      for (var i=0; i<reply.length; i++) {
+        built += reply[i];
+        bubble.innerHTML = built.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<b style='color:#ffffff;'>$1</b>") + "<span style='opacity:.5;'>▋</span>";
+        if (i % 4 === 0) await new Promise(function(r){setTimeout(r,8);});
+      }
+      bubble.innerHTML = reply.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<b style='color:#ffffff;'>$1</b>");
+    }
+
+    chatHistory.push({ role:"assistant", content:reply });
+
+  } catch(e) {
+    if (bubble) bubble.innerHTML = "Error: " + e.message + ". Make sure your API key is valid.";
+  }
+
+  chatLoading = false;
+  if (sendBtn) { sendBtn.textContent = "SEND"; sendBtn.style.opacity = "1"; }
+  var msgs = document.getElementById("chat-messages");
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Auto-resize chat textarea
+document.addEventListener("DOMContentLoaded", function() {
+  var inp = document.getElementById("chat-input");
+  if (inp) {
+    inp.addEventListener("input", function() {
+      this.style.height = "44px";
+      this.style.height = Math.min(this.scrollHeight, 100) + "px";
+    });
+  }
+});
 
 </script>
 </body>
