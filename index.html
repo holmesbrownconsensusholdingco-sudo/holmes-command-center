@@ -1315,11 +1315,17 @@ let role        = "exec";
 const FLOATS    = ["float-a","float-b","float-c","float-d","float-e","float-f"];
 
 /* ── INIT ── */
-window.onload = () => {
+// Use DOMContentLoaded — never gets overwritten unlike window.onload
+document.addEventListener("DOMContentLoaded", function() {
   buildUI();
   startClock();
-  if (apiKey) showApp();
-};
+  // Check saved API key from multiple storage locations
+  var savedKey = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
+  if (savedKey && (savedKey.startsWith("sk-ant-") || savedKey.startsWith("sk-"))) {
+    apiKey = savedKey;
+    showApp();
+  }
+});
 
 function buildUI() {
   buildKPIs(); buildQuickGrid(); buildActivityList(); buildRosterList();
@@ -1342,6 +1348,7 @@ function activateKey() {
   }
   apiKey = val;
   localStorage.setItem("hhc_api_key", val);
+  sessionStorage.setItem("hhc_api_key", val);
   document.getElementById("key-error").style.display = "none";
   showApp();
 }
@@ -1350,6 +1357,7 @@ document.addEventListener("keydown", e => {
 });
 function clearKey() {
   localStorage.removeItem("hhc_api_key");
+  sessionStorage.removeItem("hhc_api_key");
   apiKey = "";
   document.getElementById("api-key-input").value = "";
   document.getElementById("app").style.display = "none";
