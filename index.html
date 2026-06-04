@@ -580,355 +580,176 @@ input[type="text"], input[type="password"] {
 }
 
 
-/* ══ GLOBAL SCROLL + LAYOUT FIXES ═════════════════════════ */
 
-/* Wider, more visible scrollbar on all panels */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: rgba(255,255,255,.03); border-radius: 3px; }
-::-webkit-scrollbar-thumb { background: rgba(77,168,218,.4); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(77,168,218,.7); }
 
-/* All left column panels — always scrollable */
-#field-view > div:first-child,
-#scout-view > div:first-child,
-#reno-view > div:first-child,
-#tips-view > div:first-child {
-  overflow-y: auto !important;
-  overflow-x: visible !important;
-  scroll-behavior: smooth;
+/* ════════════════════════════════════════════════════════
+   MASTER OVERRIDE — wins over all other rules
+   ════════════════════════════════════════════════════════ */
+
+/* ── FONTS — bright and large everywhere ── */
+body, body * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body { color: #deeaff !important; }
+
+/* Base text sizes */
+body div, body span, body p, body label {
+  color: inherit;
 }
 
-/* Exec view — make sure lower row cards scroll */
-#exec-view {
-  overflow-y: auto !important;
-}
-#exec-view > div:last-child {
-  overflow: visible !important;
-  min-height: 0;
-}
-#exec-view > div:last-child > div {
-  overflow-y: auto !important;
-}
+/* All small Orbitron labels → 10px minimum */
+.role-btn { font-size: 9px !important; letter-spacing: 1px !important; padding: 6px 10px !important; }
+.role-btn svg { width:9px !important; height:9px !important; }
 
-/* Agent list in field view */
-#agent-list-col {
-  overflow-y: auto !important;
-  overflow-x: visible !important;
-}
+/* KPI cards */
+#kpi-grid .glass { overflow: hidden !important; }
+.kpi-value { font-size: 20px !important; }
 
-/* Scout left column panels stack — each one should size naturally */
-#scout-view > div:first-child .glass {
-  flex-shrink: 0;
-}
-/* Scout log gets remaining space and scrolls internally */
-#scout-log {
-  overflow-y: auto !important;
-  max-height: 200px;
-}
+/* Agent buttons */
+.agent-btn { font-size: 11px !important; }
 
-/* Reno leads list */
-#reno-leads-list {
-  overflow-y: auto !important;
-}
+/* Input/output text */
+#user-input, #output-text { font-size: 13px !important; color: #ffffff !important; }
+#user-input::placeholder { color: #4a6a8a !important; }
 
-/* Tips guide left panel */
-#tips-view > div:first-child .glass {
-  flex-shrink: 0;
-}
+/* Section headers in panels */
+span[style*="letter-spacing:3px"],
+span[style*="letter-spacing:2px"] { font-size: 10px !important; color: #c8e0ff !important; }
 
-/* Output panels */
-#output-content, #output-area {
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
+/* Panel body text */
+div[style*="font-size:11px"] { font-size: 12px !important; }
+div[style*="font-size:10px"] { font-size: 11px !important; }
+div[style*="font-size:9px"]  { font-size: 10px !important; }
+div[style*="font-size:8px"]  { font-size: 10px !important; }
+div[style*="font-size:7px"]  { font-size: 9px  !important; }
 
-/* Make all tab views properly fill remaining space */
-#exec-view, #field-view, #scout-view, #reno-view, #tips-view {
-  min-height: 0;
-}
+span[style*="font-size:11px"] { font-size: 12px !important; }
+span[style*="font-size:10px"] { font-size: 11px !important; }
+span[style*="font-size:9px"]  { font-size: 10px !important; }
+span[style*="font-size:8px"]  { font-size: 10px !important; }
+span[style*="font-size:7px"]  { font-size: 9px  !important; }
 
-/* Fade gradient at bottom of scrollable left columns to indicate more content */
-#scout-view > div:first-child::after,
-#reno-view > div:first-child::after,
-#tips-view > div:first-child::after,
-#field-view > #agent-list-col::after {
-  content: '';
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 32px;
-  background: linear-gradient(180deg, transparent, rgba(2,5,15,.8));
-  pointer-events: none;
-  display: block;
-  flex-shrink: 0;
-}
+/* ── LAYOUT — tabs and views ── */
 
-/* EXEC view KPI grid — don't let it overflow */
-.kpi-grid {
-  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-}
-
-/* Make cards in lower exec row not clip */
-#exec-view > div:last-child > .glass {
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* All scrollable areas — touch scroll on mobile */
-* { -webkit-overflow-scrolling: touch; }
-
-/* Prevent any container from hiding overflow unexpectedly */
-.glass { overflow: visible !important; }
-.glass > div { overflow: visible; }
-
-/* Exception — panels that need internal scroll */
-#output-content,
-#output-area,
-#agent-list,
-#activity-list,
-#roster-list,
-#scout-log,
-#scout-findings,
-#reno-leads-list,
-#chat-messages,
-#history-col,
-#recent-list,
-.glass[id*="log"] { overflow: hidden !important; }
-
-/* Scout view specific — left column height */
-#scout-view > div:first-child {
-  max-height: calc(100vh - 140px);
-}
-
-/* Bath reno left column */
-#reno-view > div:first-child {
-  max-height: calc(100vh - 140px);
-}
-
-/* Tips left column */
-#tips-view > div:first-child {
-  max-height: calc(100vh - 140px);
-}
-
-/* Field ops agent column */
-#agent-list-col {
-  max-height: calc(100vh - 140px) !important;
-}
-
-
-/* ══ LAYOUT + HEADER FIX ══════════════════════════════════ */
-
-/* HEADER — prevent overflow, keep everything on one line */
+/* Header — single row, no wrap */
+#header { padding: 8px 16px 0 !important; }
 #header .glass > div {
-  flex-wrap: nowrap !important;
-  overflow: hidden;
   padding: 8px 16px !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
 }
 
-/* Logo — smaller */
-#header .glass > div > div:first-child {
-  width: 38px !important;
-  height: 38px !important;
-  flex-shrink: 0;
-}
-
-/* Company name — tighter */
-#header .shimmer {
-  font-size: 12px !important;
-  letter-spacing: 2px !important;
-}
-#header .glass > div > div:nth-child(2) > div:last-child {
-  font-size: 8px !important;
-  letter-spacing: 2px !important;
-}
-
-/* TAB BAR — scrollable, compact */
+/* Tab bar — scrollable */
 .role-toggle {
+  display: flex !important;
+  flex-wrap: nowrap !important;
   overflow-x: auto !important;
   overflow-y: hidden !important;
   scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  flex-shrink: 1 !important;
+  gap: 2px !important;
   min-width: 0 !important;
-  max-width: 650px;
+  flex-shrink: 1 !important;
+  max-width: 60vw !important;
 }
 .role-toggle::-webkit-scrollbar { display: none !important; }
-
-/* Tab buttons — compact */
 .role-btn {
-  padding: 6px 10px !important;
-  font-size: 8px !important;
-  letter-spacing: 1px !important;
-  white-space: nowrap !important;
   flex-shrink: 0 !important;
-}
-.role-btn svg { display: none !important; }
-
-/* Active badge — hide on small screens */
-#active-badge { display: none !important; }
-
-/* Operator + clock — compact */
-#header .glass > div > div:last-child {
-  flex-shrink: 0;
-  gap: 8px !important;
-}
-#header #clock {
-  font-size: 11px !important;
+  white-space: nowrap !important;
 }
 
-/* ── EXEC VIEW LAYOUT ── */
-#exec-view {
+/* All main views — full height, no overflow */
+#exec-view, #field-view, #scout-view, #reno-view, #tips-view, #msg-view {
+  overflow: hidden !important;
   padding: 10px 16px !important;
   gap: 10px !important;
-  overflow-y: auto !important;
 }
 
-/* KPI grid — fixed height */
-.kpi-grid {
+/* Exec — flex column */
+#exec-view {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+}
+
+/* KPI row — fixed, no shrink */
+#kpi-grid {
+  display: grid !important;
   grid-template-columns: repeat(6, 1fr) !important;
   gap: 8px !important;
   flex-shrink: 0 !important;
 }
-.kpi-grid .glass {
-  overflow: hidden !important;
-}
-.kpi-grid .glass > div {
-  padding: 10px 12px !important;
-}
-.kpi-value, .countUp {
-  font-size: 18px !important;
-}
 
-/* CHART ROW — fixed height, no overflow */
+/* Chart row — fixed height */
 #exec-view > div:nth-child(2) {
-  height: 200px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  height: 190px !important;
   flex-shrink: 0 !important;
+  gap: 10px !important;
   overflow: hidden !important;
-}
-#exec-view > div:nth-child(2) > .glass {
-  overflow: hidden !important;
-  height: 100% !important;
 }
 #chart-revenue, #chart-claims {
+  width: 100% !important;
   height: 100% !important;
   overflow: hidden !important;
 }
 
-/* BOTTOM ROW — flex, equal columns, NO OVERFLOW */
+/* Bottom row — equal 3 columns */
 #exec-view > div:last-child {
   display: grid !important;
   grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 10px !important;
   flex: 1 !important;
   min-height: 0 !important;
+  gap: 10px !important;
   overflow: hidden !important;
 }
-#exec-view > div:last-child > .glass {
-  overflow: hidden !important;
-  min-height: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
+#exec-view > div:last-child > .glass,
 #exec-view > div:last-child > .glass > div {
-  height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
   overflow: hidden !important;
-  padding: 12px 14px !important;
-}
-
-/* Scrollable inner content */
-.quick-grid,
-#emp-active-list,
-#emp-event-log,
-#team-cards,
-#roster-list,
-#activity-list {
-  overflow-y: auto !important;
-  flex: 1 !important;
   min-height: 0 !important;
 }
 
-/* Quick grid */
-.quick-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 5px !important;
-  overflow-y: auto !important;
-}
-.quick-btn {
-  font-size: 10px !important;
-  padding: 8px 6px !important;
-  height: auto !important;
-  min-height: 40px !important;
-}
-
-/* ── ALL VIEWS — prevent content from overflowing viewport ── */
-#field-view,
-#scout-view,
-#reno-view,
-#tips-view,
-#msg-view {
-  overflow: hidden !important;
-}
-
-/* Plotly charts — hard clip */
-.js-plotly-plot,
-.plot-container {
-  overflow: hidden !important;
-}
-.plotly svg {
-  overflow: visible !important;
-}
-
-/* ── FIELD VIEW ── */
+/* Field view */
 #field-view {
+  display: grid !important;
   grid-template-columns: 200px 1fr !important;
-  padding: 10px 16px !important;
-  gap: 10px !important;
+  flex: 1 !important;
 }
 #agent-list-col {
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
 
-/* ── SCOUT VIEW ── */
-#scout-view {
-  grid-template-columns: 280px 1fr !important;
-  padding: 10px 16px !important;
+/* Scout/Reno/Tips/Msg views */
+#scout-view { grid-template-columns: 280px 1fr !important; flex: 1 !important; }
+#reno-view  { grid-template-columns: 240px 1fr !important; flex: 1 !important; }
+#tips-view  { grid-template-columns: 300px 1fr !important; flex: 1 !important; }
+#msg-view   { grid-template-columns: 240px 1fr !important; flex: 1 !important; }
+
+/* Left columns — always scrollable */
+#scout-view > div:first-child,
+#reno-view > div:first-child,
+#tips-view > div:first-child,
+#msg-view > div:first-child {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
-/* ── RENO VIEW ── */
-#reno-view {
-  grid-template-columns: 240px 1fr !important;
-  padding: 10px 16px !important;
-}
+/* Plotly charts — clip to container */
+.js-plotly-plot { overflow: hidden !important; }
 
-/* ── MSG VIEW ── */
-#msg-view {
-  grid-template-columns: 240px 1fr !important;
-  padding: 10px 16px !important;
-}
+/* Quick buttons */
+.quick-btn { font-size: 10px !important; padding: 8px 6px !important; }
+.quick-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; overflow-y: auto !important; }
 
-/* ── TIPS VIEW ── */
-#tips-view {
-  grid-template-columns: 300px 1fr !important;
-  padding: 10px 16px !important;
-}
+/* Hidden class — strongest possible */
+.hidden { display: none !important; }
 
-/* ── FOOTER ── */
-#footer {
-  padding: 0 16px 8px !important;
-}
-#footer .glass > div {
-  padding: 6px 14px !important;
-}
-
-
-/* Hide key screen before page renders if key already saved */
-html[data-has-key="1"] #key-screen { display: none !important; }
-html[data-has-key="1"] #app { display: flex !important; }
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(77,168,218,.4); border-radius: 2px; }
 
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
