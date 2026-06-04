@@ -644,9 +644,8 @@ body div, body span, body p, body label {
   gap: 10px !important;
 }
 
-/* Exec — flex column */
+/* Exec — flex column (no display here — inline style handles it) */
 #exec-view {
-  display: flex !important;
   flex-direction: column !important;
   flex: 1 !important;
 }
@@ -691,7 +690,6 @@ body div, body span, body p, body label {
 
 /* Field view */
 #field-view {
-  display: grid !important;
   grid-template-columns: 200px 1fr !important;
   flex: 1 !important;
 }
@@ -700,7 +698,7 @@ body div, body span, body p, body label {
   overflow-x: hidden !important;
 }
 
-/* Scout/Reno/Tips/Msg views */
+/* Scout/Reno/Tips/Msg views — no display, inline handles it */
 #scout-view { grid-template-columns: 280px 1fr !important; flex: 1 !important; }
 #reno-view  { grid-template-columns: 240px 1fr !important; flex: 1 !important; }
 #tips-view  { grid-template-columns: 300px 1fr !important; flex: 1 !important; }
@@ -722,7 +720,8 @@ body div, body span, body p, body label {
 .quick-btn { font-size: 10px !important; padding: 8px 6px !important; }
 .quick-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; overflow-y: auto !important; }
 
-/* Hidden class — strongest possible */
+/* Hidden class — beats all ID selectors */
+html body .hidden { display: none !important; }
 .hidden { display: none !important; }
 
 /* Scrollbars */
