@@ -641,6 +641,11 @@ input[type="text"], input[type="password"] {
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             TIPS & AI HELP
           </button>
+          <button class="role-btn" id="btn-msg" onclick="switchRole('msg')" style="position:relative;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            MESSENGER
+            <span id="msg-unread-badge" style="display:none;position:absolute;top:3px;right:3px;background:#e85470;border-radius:50%;width:8px;height:8px;"></span>
+          </button>
         </div>
 
         <!-- Active agent indicator -->
@@ -1248,6 +1253,61 @@ input[type="text"], input[type="password"] {
       </div>
     </div>
 
+
+    <!-- ══ MESSENGER VIEW ══ -->
+    <div id="msg-view" class="hidden" style="flex:1;display:grid;grid-template-columns:240px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+
+      <!-- LEFT: Employee list -->
+      <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#4da8da;letter-spacing:2px;margin-bottom:3px;">💬 MESSENGER</div>
+          <div style="font-size:11px;color:#8ab4d4;">Text or call your team</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:10px;" id="msg-emp-list">
+          <div style="font-size:11px;color:var(--dim);text-align:center;padding:20px;">Loading...</div>
+        </div>
+        <div id="call-status-bar" style="display:none;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(60,198,138,.08);">
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;margin-bottom:4px;" id="call-status-text">CALL ACTIVE</div>
+          <button onclick="hangupCall()" style="width:100%;padding:7px;background:rgba(232,84,112,.2);border:1px solid rgba(232,84,112,.4);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#e85470;cursor:pointer;">END CALL</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Chat window -->
+      <div class="glass float-c" style="display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;gap:10px;">
+          <div id="msg-chat-avatar" style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;flex-shrink:0;color:var(--muted);">--</div>
+          <div style="flex:1;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#ffffff;" id="msg-chat-name">Select an employee</div>
+            <div style="font-size:11px;color:#8ab4d4;" id="msg-chat-status">Click a name on the left</div>
+          </div>
+          <div id="msg-call-btn" style="display:none;">
+            <button onclick="msgStartCall()" style="padding:7px 14px;background:rgba(60,198,138,.12);border:1px solid rgba(60,198,138,.35);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;letter-spacing:1px;">📞 CALL</button>
+          </div>
+        </div>
+        <div id="msg-incoming-call" style="display:none;padding:10px 16px;background:rgba(60,198,138,.1);border-bottom:1px solid rgba(60,198,138,.3);flex-shrink:0;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#3cc68a;margin-bottom:6px;" id="msg-incoming-name">Incoming call...</div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="msgAcceptCall()" style="flex:1;padding:6px;background:rgba(60,198,138,.2);border:1px solid rgba(60,198,138,.5);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;">ACCEPT</button>
+            <button onclick="msgRejectCall()" style="flex:1;padding:6px;background:rgba(232,84,112,.15);border:1px solid rgba(232,84,112,.4);border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;color:#e85470;cursor:pointer;">DECLINE</button>
+          </div>
+        </div>
+        <div id="msg-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="text-align:center;padding:40px 20px;color:var(--dim);">
+            <div style="font-size:28px;margin-bottom:8px;opacity:.3;">💬</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;">SELECT EMPLOYEE TO CHAT</div>
+          </div>
+        </div>
+        <audio id="msg-local-audio" autoplay muted style="display:none;"></audio>
+        <audio id="msg-remote-audio" autoplay style="display:none;"></audio>
+        <div id="msg-input-area" style="display:none;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0;">
+          <div style="display:flex;gap:8px;align-items:flex-end;">
+            <textarea id="msg-text-input" placeholder="Type a message..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();msgSend();}" style="flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;min-height:44px;max-height:100px;line-height:1.5;"></textarea>
+            <button onclick="msgSend()" style="padding:10px 18px;background:linear-gradient(165deg,rgba(77,168,218,.25),rgba(77,168,218,.08),rgba(0,0,0,.4));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#4da8da;cursor:pointer;height:44px;">SEND</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ══ FIELD VIEW ══ -->
     <div id="field-view" class="hidden">
 
@@ -1481,6 +1541,13 @@ function switchRole(r) {
   const tipsBtn  = document.getElementById("btn-tips");
   if (tipsView) tipsView.classList.toggle("hidden", r !== "tips");
   if (tipsBtn)  tipsBtn.classList.toggle("active", r === "tips");
+
+  // Messenger tab
+  const msgView = document.getElementById("msg-view");
+  const msgBtn  = document.getElementById("btn-msg");
+  if (msgView) msgView.classList.toggle("hidden", r !== "msg");
+  if (msgBtn)  msgBtn.classList.toggle("active", r === "msg");
+  if (r === "msg" && typeof buildMsgEmpList === "function") buildMsgEmpList();
 }
 
 /* ── BUILD KPIs ── */
@@ -2758,6 +2825,228 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 });
+
+
+/* ══ MESSENGER ══════════════════════════════════════════ */
+var MSG_EMPS = [
+  {id:"EMP001", name:"Garmar Virgin",   initials:"GV", role:"Project Manager", color:"#4DA8DA"},
+  {id:"EMP002", name:"Jason Brown Jr",  initials:"JB", role:"Office",          color:"#3CC68A"},
+  {id:"EMP003", name:"Kimya Springer",  initials:"KS", role:"Director",        color:"#7B6FE8"},
+  {id:"EMP004", name:"Zion Johnson",    initials:"ZJ", role:"Tech",            color:"#E8854D"}
+];
+var msgCurrentEmp = null;
+var msgLastTs     = 0;
+var msgPollInt    = null;
+var msgRtcConn    = null;
+var msgLocalStream= null;
+var msgCallId     = null;
+var msgPendingCall= null;
+var msgCallPollInt= null;
+var STUN = {iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
+
+function buildMsgEmpList() {
+  var el = document.getElementById("msg-emp-list");
+  if (!el) return;
+  el.innerHTML = MSG_EMPS.map(function(e) {
+    return "<div onclick='msgSelectEmp(\"" + e.id + "\")' style='display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);margin-bottom:6px;cursor:pointer;' id='msg-emp-row-" + e.id + "'>" +
+      "<div style='width:36px;height:36px;border-radius:9px;background:" + e.color + "18;border:1px solid " + e.color + "33;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:" + e.color + ";flex-shrink:0;'>" + e.initials + "</div>" +
+      "<div style='flex:1;min-width:0;'><div style='font-size:13px;font-weight:700;color:#ffffff;'>" + e.name + "</div><div style='font-size:11px;color:#8ab4d4;'>" + e.role + "</div></div>" +
+      "<span id='msg-badge-" + e.id + "' style='display:none;background:#e85470;color:#fff;border-radius:50%;width:18px;height:18px;font-size:9px;font-weight:700;text-align:center;line-height:18px;'></span>" +
+    "</div>";
+  }).join("");
+  // Start polling for unread
+  setInterval(msgPollUnread, 12000);
+  msgPollUnread();
+  // Listen for incoming calls
+  if (!msgCallPollInt) msgCallPollInt = setInterval(msgPollCalls, 2500);
+}
+
+function msgSelectEmp(empId) {
+  msgCurrentEmp = MSG_EMPS.find(function(e){return e.id===empId;});
+  if (!msgCurrentEmp) return;
+  msgLastTs = 0;
+  // Update UI
+  var av = document.getElementById("msg-chat-avatar");
+  var nm = document.getElementById("msg-chat-name");
+  var st = document.getElementById("msg-chat-status");
+  var cb = document.getElementById("msg-call-btn");
+  var ia = document.getElementById("msg-input-area");
+  if (av) { av.textContent=msgCurrentEmp.initials; av.style.cssText="width:34px;height:34px;border-radius:9px;background:"+msgCurrentEmp.color+"18;border:1px solid "+msgCurrentEmp.color+"33;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:"+msgCurrentEmp.color+";flex-shrink:0;"; }
+  if (nm) { nm.textContent=msgCurrentEmp.name; nm.style.color=msgCurrentEmp.color; }
+  if (st) st.textContent = msgCurrentEmp.role;
+  if (cb) cb.style.display="block";
+  if (ia) ia.style.display="block";
+  // Highlight row
+  MSG_EMPS.forEach(function(e) {
+    var r = document.getElementById("msg-emp-row-"+e.id);
+    if (r) r.style.background = e.id===empId ? msgCurrentEmp.color+"12" : "rgba(255,255,255,.02)";
+  });
+  // Load messages
+  document.getElementById("msg-messages").innerHTML = "<div style='text-align:center;padding:20px;font-size:11px;color:var(--dim);'>Loading...</div>";
+  msgLoadMessages(true);
+  if (msgPollInt) clearInterval(msgPollInt);
+  msgPollInt = setInterval(function(){msgLoadMessages(false);}, 3000);
+}
+
+async function msgLoadMessages(initial) {
+  if (!msgCurrentEmp) return;
+  var convId = [msgCurrentEmp.id, "ADMIN"].sort().join("_");
+  try {
+    var res = await fetch("https://holmes-field-ops.onrender.com/api/messages/"+convId+"?since="+(initial?0:msgLastTs), {headers:{"x-admin-secret":"Holmes2025!"}});
+    if (!res.ok) return;
+    var data = await res.json();
+    var msgs = data.messages||[];
+    if (msgs.length===0 && initial) {
+      document.getElementById("msg-messages").innerHTML = "<div style='text-align:center;padding:40px 20px;color:var(--dim);'><div style='font-size:24px;margin-bottom:8px;opacity:.3;'>💬</div><div style='font-family:Orbitron,sans-serif;font-size:11px;letter-spacing:2px;'>NO MESSAGES YET</div></div>";
+      return;
+    }
+    if (msgs.length>0) {
+      if (initial) { msgRenderAll(msgs); } else { msgs.forEach(function(m){msgAppend(m);}); }
+      msgLastTs = Math.max.apply(null, msgs.map(function(m){return m.ts;}));
+    }
+  } catch(e) {}
+}
+
+function msgRenderAll(msgs) {
+  var c = document.getElementById("msg-messages");
+  c.innerHTML="";
+  msgs.forEach(function(m){c.appendChild(msgBubble(m));});
+  c.scrollTop=c.scrollHeight;
+}
+
+function msgAppend(m) {
+  var c = document.getElementById("msg-messages");
+  if (!c) return;
+  c.appendChild(msgBubble(m));
+  c.scrollTop=c.scrollHeight;
+}
+
+function msgBubble(m) {
+  var isMe = m.from==="ADMIN";
+  var emp  = MSG_EMPS.find(function(e){return e.id===m.from;});
+  var time = new Date(m.ts).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:true});
+  var div  = document.createElement("div");
+  div.style.cssText = "display:flex;gap:8px;align-items:flex-end;" + (isMe?"flex-direction:row-reverse;":"");
+  var ac = isMe ? "#4da8da" : (emp?emp.color:"#ffffff");
+  var ai = isMe ? "JB" : (emp?emp.initials:"?");
+  div.innerHTML = "<div style='width:26px;height:26px;border-radius:7px;background:"+ac+"18;border:1px solid "+ac+"33;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:Orbitron,sans-serif;color:"+ac+";flex-shrink:0;'>"+ai+"</div>" +
+    "<div style='max-width:75%;'><div style='background:"+(isMe?"rgba(77,168,218,.12)":"rgba(255,255,255,.05)")+";border:1px solid "+(isMe?"rgba(77,168,218,.2)":"rgba(255,255,255,.08)")+";border-radius:12px;"+(isMe?"border-bottom-right-radius:3px;":"border-bottom-left-radius:3px;")+";padding:9px 13px;word-break:break-word;'>" +
+    "<div style='font-size:13px;color:#ffffff;line-height:1.5;'>"+m.text+"</div>" +
+    "<div style='font-size:10px;color:#5a7a9a;margin-top:3px;text-align:"+(isMe?"right":"left")+";'>"+time+"</div></div></div>";
+  return div;
+}
+
+async function msgSend() {
+  if (!msgCurrentEmp) return;
+  var inp = document.getElementById("msg-text-input");
+  var txt = inp ? inp.value.trim() : "";
+  if (!txt) return;
+  inp.value="";
+  try {
+    await fetch("https://holmes-field-ops.onrender.com/api/messages/send",{
+      method:"POST", headers:{"Content-Type":"application/json","x-admin-secret":"Holmes2025!"},
+      body:JSON.stringify({from:"ADMIN",to:msgCurrentEmp.id,text:txt})
+    });
+    msgLoadMessages(false);
+  } catch(e) {alert("Send failed: "+e.message);}
+}
+
+async function msgPollUnread() {
+  try {
+    var res = await fetch("https://holmes-field-ops.onrender.com/api/messages/admin/all?secret=Holmes2025!");
+    if (!res.ok) return;
+    var data = await res.json();
+    var total = data.totalUnread||0;
+    var badge = document.getElementById("msg-unread-badge");
+    if (badge) badge.style.display = total>0?"block":"none";
+    MSG_EMPS.forEach(function(e) {
+      var convId=[e.id,"ADMIN"].sort().join("_");
+      var conv=(data.conversations||{})[convId];
+      var b=document.getElementById("msg-badge-"+e.id);
+      if (b) { if(conv&&conv.unread>0){b.style.display="inline-block";b.textContent=conv.unread;}else{b.style.display="none";} }
+    });
+  } catch(e) {}
+}
+
+/* ── WebRTC Voice ── */
+async function msgStartCall() {
+  if (!msgCurrentEmp) return;
+  try {
+    msgLocalStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    document.getElementById("msg-local-audio").srcObject = msgLocalStream;
+    msgRtcConn = new RTCPeerConnection(STUN);
+    msgLocalStream.getTracks().forEach(function(t){msgRtcConn.addTrack(t,msgLocalStream);});
+    msgRtcConn.ontrack=function(e){document.getElementById("msg-remote-audio").srcObject=e.streams[0];};
+    msgRtcConn.onicecandidate=function(e){
+      if(e.candidate) fetch("https://holmes-field-ops.onrender.com/api/call/signal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:msgCurrentEmp.id,from:"ADMIN",type:"candidate",candidate:e.candidate,callId:msgCallId})});
+    };
+    msgCallId="call_"+Date.now();
+    var offer=await msgRtcConn.createOffer();
+    await msgRtcConn.setLocalDescription(offer);
+    await fetch("https://holmes-field-ops.onrender.com/api/call/signal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:msgCurrentEmp.id,from:"ADMIN",type:"offer",sdp:offer,callId:msgCallId})});
+    var bar=document.getElementById("call-status-bar"); if(bar)bar.style.display="block";
+    var txt=document.getElementById("call-status-text"); if(txt)txt.textContent="Calling "+msgCurrentEmp.name+"...";
+  } catch(e){alert("Mic access required to call.\nError: "+e.message);}
+}
+
+async function msgAcceptCall() {
+  if(!msgPendingCall) return;
+  document.getElementById("msg-incoming-call").style.display="none";
+  try {
+    msgLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    document.getElementById("msg-local-audio").srcObject=msgLocalStream;
+    msgRtcConn=new RTCPeerConnection(STUN);
+    msgLocalStream.getTracks().forEach(function(t){msgRtcConn.addTrack(t,msgLocalStream);});
+    msgRtcConn.ontrack=function(e){document.getElementById("msg-remote-audio").srcObject=e.streams[0];};
+    msgRtcConn.onicecandidate=function(e){
+      if(e.candidate) fetch("https://holmes-field-ops.onrender.com/api/call/signal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:"ADMIN",from:"ADMIN",type:"candidate",candidate:e.candidate,callId:msgCallId})});
+    };
+    await msgRtcConn.setRemoteDescription(new RTCSessionDescription(msgPendingCall.sdp));
+    var answer=await msgRtcConn.createAnswer();
+    await msgRtcConn.setLocalDescription(answer);
+    msgCallId=msgPendingCall.callId;
+    await fetch("https://holmes-field-ops.onrender.com/api/call/signal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:msgPendingCall.from,from:"ADMIN",type:"answer",sdp:answer,callId:msgCallId})});
+    var bar=document.getElementById("call-status-bar"); if(bar)bar.style.display="block";
+    var txt=document.getElementById("call-status-text"); if(txt)txt.textContent="Connected with "+msgPendingCall.from;
+  } catch(e){alert("Call failed: "+e.message);}
+}
+
+function msgRejectCall() {
+  document.getElementById("msg-incoming-call").style.display="none";
+  if(msgPendingCall) { fetch("https://holmes-field-ops.onrender.com/api/call/signal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:msgPendingCall.from,from:"ADMIN",type:"hangup",callId:msgPendingCall.callId})}); msgPendingCall=null; }
+}
+
+function hangupCall() {
+  if(msgRtcConn){msgRtcConn.close();msgRtcConn=null;}
+  if(msgLocalStream){msgLocalStream.getTracks().forEach(function(t){t.stop();});msgLocalStream=null;}
+  if(msgCallId&&msgCurrentEmp) fetch("https://holmes-field-ops.onrender.com/api/call/signal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:msgCurrentEmp.id,from:"ADMIN",type:"hangup",callId:msgCallId})});
+  var bar=document.getElementById("call-status-bar"); if(bar)bar.style.display="none";
+}
+
+async function msgPollCalls() {
+  try {
+    var res=await fetch("https://holmes-field-ops.onrender.com/api/call/signal/ADMIN");
+    var data=await res.json();
+    var sig=data.signal;
+    if(!sig) return;
+    if(sig.type==="offer"&&!msgRtcConn) {
+      msgPendingCall=sig;
+      var inc=document.getElementById("msg-incoming-call"); if(inc)inc.style.display="block";
+      var nm=document.getElementById("msg-incoming-name");
+      var caller=MSG_EMPS.find(function(e){return e.id===sig.from;});
+      if(nm)nm.textContent="📞 Incoming call from "+(caller?caller.name:"employee")+"...";
+      switchRole("msg");
+      if(caller) msgSelectEmp(caller.id);
+    } else if(sig.type==="answer"&&msgRtcConn&&msgRtcConn.signalingState==="have-local-offer") {
+      await msgRtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp));
+      var txt=document.getElementById("call-status-text"); if(txt)txt.textContent="Connected ✓";
+    } else if(sig.type==="candidate"&&msgRtcConn) {
+      await msgRtcConn.addIceCandidate(new RTCIceCandidate(sig.candidate));
+    } else if(sig.type==="hangup") {
+      hangupCall();
+    }
+  } catch(e) {}
+}
 
 </script>
 </body>
