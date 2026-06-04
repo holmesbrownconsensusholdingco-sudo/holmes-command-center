@@ -568,6 +568,24 @@ input[type="text"], input[type="password"] {
   font-weight: 600 !important;
 }
 
+
+  /* Tab bar — scrollable so all 6 tabs fit */
+  .role-toggle {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+    flex-wrap: nowrap !important;
+  }
+  .role-toggle::-webkit-scrollbar { display: none !important; }
+  .role-btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+  /* Header container must not clip the tab bar */
+  #header .glass > div {
+    overflow: visible !important;
+  }
+
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
