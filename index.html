@@ -417,6 +417,157 @@
   .key-card input { font-size: 13px !important; }
   .status-pill { font-size: 9px !important; }
 
+
+/* ══ GLOBAL FONT BRIGHTNESS + SIZE OVERRIDES ══════════ */
+:root {
+  --text:  #ffffff !important;
+  --muted: #8ab4d4 !important;
+  --dim:   #4a6a8a !important;
+}
+
+body, button, input, select, textarea {
+  font-size: 14px !important;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* All Orbitron labels bigger and brighter */
+[style*="Orbitron"] {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* KPI values */
+.kpi-value, [class*="kpi"] {
+  color: #ffffff !important;
+  font-size: 22px !important;
+}
+
+/* Agent buttons */
+.agent-btn { font-size: 13px !important; }
+.agent-btn div { color: #ffffff !important; }
+
+/* Role buttons */
+.role-btn { font-size: 12px !important; font-weight: 700 !important; }
+
+/* Quick buttons */
+.quick-btn { font-size: 12px !important; }
+
+/* All small Orbitron labels */
+span[style*="font-size:8px"],
+span[style*="font-size:9px"],
+span[style*="font-size:10px"],
+div[style*="font-size:8px"],
+div[style*="font-size:9px"],
+div[style*="font-size:10px"] {
+  font-size: 12px !important;
+  color: #c8e0ff !important;
+}
+
+/* All muted text brighter */
+div[style*="color:var(--muted)"],
+span[style*="color:var(--muted)"] {
+  color: #8ab4d4 !important;
+}
+
+/* Output text */
+#output-text { font-size: 15px !important; line-height: 1.9 !important; color: #ffffff !important; }
+
+/* User input */
+#user-input { font-size: 15px !important; color: #ffffff !important; }
+#user-input::placeholder { color: #5a7a9a !important; }
+
+/* Input labels */
+#input-lbl, #output-lbl {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+/* Agent name in workspace */
+#resp-name { font-size: 12px !important; color: #ffffff !important; }
+#resp-time  { font-size: 11px !important; color: #8ab4d4 !important; }
+
+/* Clock */
+#clock { font-size: 16px !important; font-weight: 700 !important; color: #4da8da !important; }
+
+/* Employee name */
+#emp-name { font-size: 14px !important; font-weight: 700 !important; color: #ffffff !important; }
+#emp-role  { font-size: 12px !important; color: #8ab4d4 !important; }
+
+/* Session timer */
+#session-timer { font-size: 20px !important; }
+
+/* Footer text */
+#footer-tasks, #footer-location { font-size: 12px !important; color: #8ab4d4 !important; }
+
+/* Scout log */
+#scout-log div, #scout-log span { font-size: 11px !important; }
+#scout-log-count { font-size: 11px !important; color: #8ab4d4 !important; }
+
+/* Scout status cards */
+#scout-conn-val, #scout-phase-val, #scout-scans-val, #scout-found-val {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+/* Reno stats */
+#stat-leads, #stat-contacted, #stat-quoted, #stat-won {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+}
+#stat-value { font-size: 20px !important; font-weight: 700 !important; }
+
+/* Activity log */
+.activity-item div { font-size: 12px !important; color: #c8e0ff !important; }
+
+/* Roster items */
+#roster-list button div { font-size: 12px !important; color: #c8e0ff !important; }
+
+/* History items */
+.history-item div { font-size: 12px !important; }
+
+/* KPI sub text */
+.kpi-card div[style*="font-size:9px"],
+.kpi-card div[style*="font-size:10px"] {
+  font-size: 12px !important;
+  color: #c8e0ff !important;
+}
+
+/* Loading labels */
+#loading-label, #loading-lbl { font-size: 13px !important; font-weight: 700 !important; }
+
+/* Select dropdowns */
+select { font-size: 13px !important; color: #ffffff !important; }
+select option { color: #000000 !important; }
+
+/* Bath Reno sub-tabs */
+#reno-tab-leads, #reno-tab-outreach, #reno-tab-crm {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+/* All inputs */
+input[type="text"], input[type="password"] {
+  font-size: 14px !important;
+  color: #ffffff !important;
+}
+
+/* Header company name */
+.shimmer { font-size: 16px !important; }
+
+/* Scan button texts */
+#reno-scan-btn, #scout-scan-btn, #run-btn, #run-btn * {
+  font-size: 12px !important;
+}
+
+/* KPI card label */
+.kpi-grid > div div[style*="font-size:11px"],
+.kpi-grid > div div[style*="font-size:12px"] {
+  font-size: 13px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
