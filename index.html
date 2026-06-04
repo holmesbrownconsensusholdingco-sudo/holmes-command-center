@@ -1016,7 +1016,7 @@ input[type="text"], input[type="password"] {
   <div id="main">
 
     <!-- ══ EXECUTIVE VIEW ══ -->
-    <div id="exec-view">
+    <div id="exec-view" style="flex:1;display:flex;flex-direction:column;gap:12px;overflow:hidden;padding:12px 18px;">
 
       <!-- KPI ROW -->
       <div class="kpi-grid" id="kpi-grid"></div>
@@ -1091,7 +1091,7 @@ input[type="text"], input[type="password"] {
 
     
     <!-- ══ MESSENGER VIEW ══ -->
-    <div id="msg-view" class="hidden" style="flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
+    <div id="msg-view" style="display:none;flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
 
       <!-- LEFT: Employee list -->
       <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
@@ -1158,7 +1158,7 @@ input[type="text"], input[type="password"] {
     </div>
 
     <!-- ══ FIELD VIEW ══ -->
-    <div id="field-view" class="hidden">
+    <div id="field-view" style="flex:1;display:none;grid-template-columns:215px 1fr;gap:12px;overflow:hidden;padding:12px 18px;">
 
       <!-- AGENT LIST -->
       <div style="display:flex;flex-direction:column;overflow-y:auto;overflow-x:visible;padding-right:2px;" id="agent-list-col">
@@ -1366,19 +1366,11 @@ function showApp() {
 /* ── ROLE SWITCH ── */
 function switchRole(r) {
   role = r;
-  var allViews = ["exec","field","scout","reno","tips","msg"];
-  allViews.forEach(function(k) {
+  var viewTypes = {exec:"flex", field:"grid", scout:"grid", reno:"grid", tips:"grid", msg:"grid"};
+  Object.keys(viewTypes).forEach(function(k) {
     var el = document.getElementById(k+"-view");
     var bn = document.getElementById("btn-"+k);
-    if (el) {
-      if (k === r) {
-        el.classList.remove("hidden");
-        el.style.display = "";
-      } else {
-        el.classList.add("hidden");
-        el.style.display = "";
-      }
-    }
+    if (el) el.style.display = (k===r) ? viewTypes[k] : "none";
     if (bn) bn.classList.toggle("active", k===r);
   });
   if (r==="scout") { if(typeof startScoutPolling==="function") startScoutPolling(); }
