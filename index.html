@@ -581,7 +581,7 @@ input[type="text"], input[type="password"] {
 </div>
 
 <!-- ── API KEY SCREEN ── -->
-<div id="key-screen" style="display:none;">
+<div id="key-screen">
   <div class="key-card">
     <div style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:4px;margin-bottom:6px;" class="shimmer">HOLMES HOLDING CO.</div>
     <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:20px;">AI COMMAND CENTER // 9 AGENTS</div>
@@ -602,7 +602,7 @@ input[type="text"], input[type="password"] {
 </div>
 
 <!-- ── APP ── -->
-<div id="app">
+<div id="app" style="display:none;">
 
   <!-- HEADER -->
   <div id="header">
@@ -640,10 +640,6 @@ input[type="text"], input[type="password"] {
           <button class="role-btn" id="btn-tips" onclick="switchRole('tips')">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             TIPS & AI HELP
-          </button>
-          <button class="role-btn" id="btn-msg" onclick="switchRole('msg')">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            MESSENGER
           </button>
         </div>
 
@@ -1252,41 +1248,6 @@ input[type="text"], input[type="password"] {
       </div>
     </div>
 
-
-    <!-- ══ MESSENGER VIEW ══ -->
-    <div id="msg-view" class="hidden" style="flex:1;display:grid;grid-template-columns:260px 1fr;gap:12px;padding:12px 18px;overflow:hidden;">
-      <div class="glass float-b" style="display:flex;flex-direction:column;overflow:hidden;">
-        <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;">
-          <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#4da8da;letter-spacing:2px;margin-bottom:4px;">💬 MESSENGER</div>
-          <div style="font-size:11px;color:#8ab4d4;">Text and call your team</div>
-        </div>
-        <div style="flex:1;overflow-y:auto;padding:10px;" id="msg-emp-list"></div>
-      </div>
-      <div class="glass float-c" style="display:flex;flex-direction:column;overflow:hidden;">
-        <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;gap:12px;">
-          <div id="chat-emp-avatar" style="width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;flex-shrink:0;">--</div>
-          <div>
-            <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#ffffff;" id="chat-emp-name">Select an employee</div>
-            <div style="font-size:11px;color:#8ab4d4;" id="chat-emp-status">Click a name on the left to start chatting</div>
-          </div>
-          <div style="margin-left:auto;display:none;" id="call-btns">
-            <button onclick="startCall('audio')" style="padding:8px 14px;background:rgba(60,198,138,.12);border:1px solid rgba(60,198,138,.35);border-radius:9px;font-family:'Orbitron',sans-serif;font-size:10px;color:#3cc68a;cursor:pointer;">📞 CALL</button>
-          </div>
-        </div>
-        <div id="msg-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;">
-          <div style="text-align:center;padding:40px 20px;color:var(--dim);"><div style="font-size:24px;margin-bottom:8px;opacity:.3;">💬</div><div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;">SELECT EMPLOYEE TO CHAT</div></div>
-        </div>
-        <audio id="local-audio" autoplay muted style="display:none;"></audio>
-        <audio id="remote-audio" autoplay style="display:none;"></audio>
-        <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0;display:none;" id="msg-input-area">
-          <div style="display:flex;gap:8px;align-items:flex-end;">
-            <textarea id="msg-input" placeholder="Type a message..." style="flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;min-height:44px;max-height:100px;" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
-            <button onclick="sendMsg()" style="padding:10px 18px;background:linear-gradient(165deg,rgba(77,168,218,.25),rgba(77,168,218,.08),rgba(0,0,0,.4));border:1px solid rgba(77,168,218,.4);border-top:1px solid rgba(77,168,218,.7);border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#4da8da;cursor:pointer;height:44px;">SEND</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ══ FIELD VIEW ══ -->
     <div id="field-view" class="hidden">
 
@@ -1445,19 +1406,14 @@ let role        = "exec";
 const FLOATS    = ["float-a","float-b","float-c","float-d","float-e","float-f"];
 
 /* ── INIT ── */
-document.addEventListener("DOMContentLoaded", function() {
+window.onload = () => {
   buildUI();
   startClock();
-  var k = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
-  if (k && k.length > 20) {
-    apiKey = k;
-    // Key exists — app already visible, keep key screen hidden
-    document.getElementById("key-screen").style.display = "none";
-  } else {
-    // No key — show key screen overlay
-    document.getElementById("key-screen").style.display = "flex";
-  }
-});ctivityList(); buildRosterList();
+  if (apiKey) showApp();
+};
+
+function buildUI() {
+  buildKPIs(); buildQuickGrid(); buildActivityList(); buildRosterList();
   buildAgentList(); buildPreviewGrid(); buildFooterAgents(); buildStatusPills();
 }
 
@@ -1477,7 +1433,6 @@ function activateKey() {
   }
   apiKey = val;
   localStorage.setItem("hhc_api_key", val);
-  sessionStorage.setItem("hhc_api_key", val);
   document.getElementById("key-error").style.display = "none";
   showApp();
 }
@@ -1493,6 +1448,7 @@ function clearKey() {
 }
 function showApp() {
   document.getElementById("key-screen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
 }
 
 /* ── ROLE SWITCH ── */
@@ -1525,13 +1481,6 @@ function switchRole(r) {
   const tipsBtn  = document.getElementById("btn-tips");
   if (tipsView) tipsView.classList.toggle("hidden", r !== "tips");
   if (tipsBtn)  tipsBtn.classList.toggle("active", r === "tips");
-
-  // Messenger tab
-  const msgView = document.getElementById("msg-view");
-  const msgBtn  = document.getElementById("btn-msg");
-  if (msgView) msgView.classList.toggle("hidden", r !== "msg");
-  if (msgBtn)  msgBtn.classList.toggle("active", r === "msg");
-  if (r === "msg" && typeof buildMsgEmpList === "function") buildMsgEmpList();
 }
 
 /* ── BUILD KPIs ── */
