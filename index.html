@@ -5,6 +5,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Holmes Holding Co. — AI Command Center</title>
+<script>
+// Runs BEFORE page renders — no flash of key screen if key is saved
+(function(){
+  try {
+    var k = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
+    if (k && k.length > 20) {
+      document.documentElement.setAttribute("data-has-key","1");
+    }
+  } catch(e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -914,6 +925,11 @@ input[type="text"], input[type="password"] {
   padding: 6px 14px !important;
 }
 
+
+/* Hide key screen before page renders if key already saved */
+html[data-has-key="1"] #key-screen { display: none !important; }
+html[data-has-key="1"] #app { display: flex !important; }
+
 </style>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
@@ -1317,14 +1333,14 @@ const FLOATS    = ["float-a","float-b","float-c","float-d","float-e","float-f"];
 /* ── INIT ── */
 // Use DOMContentLoaded — never gets overwritten unlike window.onload
 document.addEventListener("DOMContentLoaded", function() {
+  // Load saved key into memory
+  var savedKey = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
+  if (savedKey && savedKey.length > 20) {
+    apiKey = savedKey;
+    showApp(); // ensure app is visible
+  }
   buildUI();
   startClock();
-  // Check saved API key from multiple storage locations
-  var savedKey = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
-  if (savedKey && (savedKey.startsWith("sk-ant-") || savedKey.startsWith("sk-"))) {
-    apiKey = savedKey;
-    showApp();
-  }
 });
 
 function buildUI() {
@@ -1349,6 +1365,7 @@ function activateKey() {
   apiKey = val;
   localStorage.setItem("hhc_api_key", val);
   sessionStorage.setItem("hhc_api_key", val);
+  document.documentElement.setAttribute("data-has-key","1");
   document.getElementById("key-error").style.display = "none";
   showApp();
 }
