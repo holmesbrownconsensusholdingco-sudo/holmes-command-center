@@ -598,37 +598,15 @@ body div, body span, body p, body label {
   color: inherit;
 }
 
-/* All small Orbitron labels → 10px minimum */
-.role-btn { font-size: 9px !important; letter-spacing: 1px !important; padding: 6px 10px !important; }
-.role-btn svg { width:9px !important; height:9px !important; }
-
-/* KPI cards */
-#kpi-grid .glass { overflow: hidden !important; }
-.kpi-value { font-size: 20px !important; }
-
-/* Agent buttons */
+/* ── SAFE FONT OVERRIDES — targeted, won't break buttons ── */
+.role-btn { font-size: 9px !important; letter-spacing: 1px !important; padding: 6px 10px !important; white-space: nowrap !important; }
 .agent-btn { font-size: 11px !important; }
-
-/* Input/output text */
-#user-input, #output-text { font-size: 13px !important; color: #ffffff !important; }
+#user-input { font-size: 13px !important; color: #ffffff !important; }
+#output-text { font-size: 13px !important; color: #ffffff !important; }
 #user-input::placeholder { color: #4a6a8a !important; }
-
-/* Section headers in panels */
-span[style*="letter-spacing:3px"],
-span[style*="letter-spacing:2px"] { font-size: 10px !important; color: #c8e0ff !important; }
-
-/* Panel body text */
-div[style*="font-size:11px"] { font-size: 12px !important; }
-div[style*="font-size:10px"] { font-size: 11px !important; }
-div[style*="font-size:9px"]  { font-size: 10px !important; }
-div[style*="font-size:8px"]  { font-size: 10px !important; }
-div[style*="font-size:7px"]  { font-size: 9px  !important; }
-
-span[style*="font-size:11px"] { font-size: 12px !important; }
-span[style*="font-size:10px"] { font-size: 11px !important; }
-span[style*="font-size:9px"]  { font-size: 10px !important; }
-span[style*="font-size:8px"]  { font-size: 10px !important; }
-span[style*="font-size:7px"]  { font-size: 9px  !important; }
+.kpi-value { font-size: 20px !important; }
+#clock { font-size: 13px !important; }
+#session-timer { font-size: 18px !important; }
 
 /* ── LAYOUT — tabs and views ── */
 
@@ -1207,37 +1185,45 @@ function showApp() {
 }
 
 /* ── ROLE SWITCH ── */
+/* ── CONSOLIDATED switchRole — handles all 6 tabs ── */
 function switchRole(r) {
   role = r;
-  document.getElementById("exec-view").classList.toggle("hidden", r !== "exec");
-  document.getElementById("field-view").classList.toggle("hidden", r !== "field");
-  document.getElementById("btn-exec").classList.toggle("active", r === "exec");
-  document.getElementById("btn-field").classList.toggle("active", r === "field");
 
-  // Scout tab
-  const scoutView = document.getElementById("scout-view");
-  const scoutBtn  = document.getElementById("btn-scout");
-  if (scoutView) scoutView.classList.toggle("hidden", r !== "scout");
-  if (scoutBtn)  scoutBtn.classList.toggle("active", r === "scout");
+  // Views
+  var views = {exec:"exec-view", field:"field-view", scout:"scout-view", reno:"reno-view", tips:"tips-view", msg:"msg-view"};
+  Object.keys(views).forEach(function(key) {
+    var el = document.getElementById(views[key]);
+    if (el) el.classList.toggle("hidden", key !== r);
+  });
+
+  // Buttons
+  var btns = {exec:"btn-exec", field:"btn-field", scout:"btn-scout", reno:"btn-reno", tips:"btn-tips", msg:"btn-msg"};
+  Object.keys(btns).forEach(function(key) {
+    var el = document.getElementById(btns[key]);
+    if (el) el.classList.toggle("active", key === r);
+  });
+
+  // Scout polling
   if (r === "scout") {
     if (typeof startScoutPolling === "function") startScoutPolling();
   } else {
     if (typeof stopScoutPolling === "function") stopScoutPolling();
   }
 
-  // Reno tab
-  const renoView = document.getElementById("reno-view");
-  const renoBtn  = document.getElementById("btn-reno");
-  if (renoView) renoView.classList.toggle("hidden", r !== "reno");
-  if (renoBtn)  renoBtn.classList.toggle("active", r === "reno");
+  // Employee activity polling
+  if (r === "exec") {
+    if (typeof startEmpPolling === "function") startEmpPolling();
+  } else {
+    if (typeof empPollInt !== "undefined" && empPollInt) {
+      clearInterval(empPollInt);
+      empPollInt = null;
+    }
+  }
 
-  // Tips tab
-  const tipsView = document.getElementById("tips-view");
-  const tipsBtn  = document.getElementById("btn-tips");
-  if (tipsView) tipsView.classList.toggle("hidden", r !== "tips");
-  if (tipsBtn)  tipsBtn.classList.toggle("active", r === "tips");
+  // Messenger
+  var msgView = document.getElementById("msg-view");
+  if (r === "msg" && typeof buildMsgEmpList === "function") buildMsgEmpList();
 }
-
 /* ── BUILD KPIs ── */
 function buildKPIs() {
   const g = document.getElementById("kpi-grid");
@@ -2617,17 +2603,8 @@ function startEmpPolling() {
 }
 
 // Start polling when on exec view, stop when away
-var _origSwitchRole2 = switchRole;
-switchRole = function(r) {
-  _origSwitchRole2(r);
-  if (r === "exec") {
-    startEmpPolling();
-  } else if (empPollInt) {
-    clearInterval(empPollInt);
-    empPollInt = null;
-  }
-};
 
+/* emp poll handled by consolidated switchRole */
 // Also poll on page load when exec is default
 setTimeout(startEmpPolling, 2000);
 
@@ -2959,19 +2936,8 @@ async function pollUnreadMessages() {
 }
 
 /* ── Start everything when Messenger tab opens ── */
-var _origSwitchRole3 = switchRole;
-switchRole = function(r) {
-  _origSwitchRole3(r);
-  var msgView = document.getElementById("msg-view");
-  var msgBtn  = document.getElementById("btn-msg");
-  if (msgView) msgView.classList.toggle("hidden", r !== "msg");
-  if (msgBtn)  msgBtn.classList.toggle("active", r === "msg");
-  if (r === "msg") {
-    buildMsgEmpList();
-    startCallPolling(); // Always listen for incoming calls
-  }
-};
 
+/* msg handled by consolidated switchRole */
 // Poll for unread messages every 10 seconds regardless of tab
 setInterval(pollUnreadMessages, 10000);
 setTimeout(pollUnreadMessages, 3000);
