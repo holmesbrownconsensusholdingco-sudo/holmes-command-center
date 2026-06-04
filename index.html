@@ -1131,14 +1131,16 @@ const FLOATS    = ["float-a","float-b","float-c","float-d","float-e","float-f"];
 /* ── INIT ── */
 // Use DOMContentLoaded — never gets overwritten unlike window.onload
 document.addEventListener("DOMContentLoaded", function() {
-  // Load saved key into memory
+  // Load saved key
   var savedKey = localStorage.getItem("hhc_api_key") || sessionStorage.getItem("hhc_api_key") || "";
   if (savedKey && savedKey.length > 20) {
     apiKey = savedKey;
-    showApp(); // ensure app is visible
+    showApp();
   }
   buildUI();
   startClock();
+  // Set initial view via direct styles
+  switchRole("exec");
 });
 
 function buildUI() {
@@ -1184,22 +1186,41 @@ function showApp() {
 }
 
 /* ── ROLE SWITCH ── */
-/* ── CONSOLIDATED switchRole — handles all 6 tabs ── */
+/* ── CONSOLIDATED switchRole — direct style.display, no CSS class battles ── */
 function switchRole(r) {
   role = r;
 
-  // Views
-  var views = {exec:"exec-view", field:"field-view", scout:"scout-view", reno:"reno-view", tips:"tips-view", msg:"msg-view"};
-  Object.keys(views).forEach(function(key) {
-    var el = document.getElementById(views[key]);
-    if (el) el.classList.toggle("hidden", key !== r);
+  // Direct display control — bypasses all CSS specificity issues
+  var viewMap = {
+    exec:  {id:"exec-view",  show:"flex"},
+    field: {id:"field-view", show:"grid"},
+    scout: {id:"scout-view", show:"grid"},
+    reno:  {id:"reno-view",  show:"grid"},
+    tips:  {id:"tips-view",  show:"grid"},
+    msg:   {id:"msg-view",   show:"grid"}
+  };
+
+  Object.keys(viewMap).forEach(function(key) {
+    var el = document.getElementById(viewMap[key].id);
+    if (!el) return;
+    if (key === r) {
+      el.style.setProperty("display", viewMap[key].show, "important");
+      el.style.setProperty("flex", "1", "important");
+    } else {
+      el.style.setProperty("display", "none", "important");
+    }
   });
 
-  // Buttons
-  var btns = {exec:"btn-exec", field:"btn-field", scout:"btn-scout", reno:"btn-reno", tips:"btn-tips", msg:"btn-msg"};
-  Object.keys(btns).forEach(function(key) {
-    var el = document.getElementById(btns[key]);
-    if (el) el.classList.toggle("active", key === r);
+  // Tab button active states
+  var btnMap = {exec:"btn-exec", field:"btn-field", scout:"btn-scout", reno:"btn-reno", tips:"btn-tips", msg:"btn-msg"};
+  Object.keys(btnMap).forEach(function(key) {
+    var el = document.getElementById(btnMap[key]);
+    if (!el) return;
+    if (key === r) {
+      el.classList.add("active");
+    } else {
+      el.classList.remove("active");
+    }
   });
 
   // Scout polling
@@ -1209,18 +1230,12 @@ function switchRole(r) {
     if (typeof stopScoutPolling === "function") stopScoutPolling();
   }
 
-  // Employee activity polling
+  // Employee polling
   if (r === "exec") {
     if (typeof startEmpPolling === "function") startEmpPolling();
-  } else {
-    if (typeof empPollInt !== "undefined" && empPollInt) {
-      clearInterval(empPollInt);
-      empPollInt = null;
-    }
   }
 
   // Messenger
-  var msgView = document.getElementById("msg-view");
   if (r === "msg" && typeof buildMsgEmpList === "function") buildMsgEmpList();
 }
 /* ── BUILD KPIs ── */
