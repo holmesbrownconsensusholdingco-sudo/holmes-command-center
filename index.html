@@ -2863,6 +2863,8 @@ var msgCallPollInt= null;
 var STUN = {iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
 
 function buildMsgEmpList() {
+  // Wake Field Ops server
+  fetch("https://holmes-field-ops.onrender.com/health").catch(function(){});
   var el = document.getElementById("msg-emp-list");
   if (!el) return;
   el.innerHTML = MSG_EMPS.map(function(e) {
@@ -2966,7 +2968,13 @@ async function msgSend() {
       body:JSON.stringify({from:"ADMIN",to:msgCurrentEmp.id,text:txt})
     });
     msgLoadMessages(false);
-  } catch(e) {alert("Send failed: "+e.message);}
+  } catch(e) {
+    if (e.message.includes("fetch")) {
+      alert("Server is waking up — please wait 30 seconds and try again.\nOpen https://holmes-field-ops.onrender.com first if this keeps happening.");
+    } else {
+      alert("Send failed: "+e.message);
+    }
+  }
 }
 
 async function msgPollUnread() {
